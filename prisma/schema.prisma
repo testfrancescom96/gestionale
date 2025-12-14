@@ -1,0 +1,608 @@
+// Schema Database Gestionale Agenzia Viaggi
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./gestionale.db"
+}
+
+// ==================== ANAGRAFICA CLIENTI ====================
+model Cliente {
+  id              String    @id @default(uuid())
+  nome            String
+  cognome         String
+  codiceFiscale   String?   @unique
+  dataNascita     DateTime?
+  luogoNascita    String?
+  
+  // Contatti
+  email           String?
+  telefono        String?
+  telefono2       String?
+  
+  // Indirizzo
+  indirizzo       String?
+  citta           String?
+  cap             String?
+  provincia       String?
+  
+  // Documento
+  tipoDocumento   String?   // Carta Identità, Passaporto
+  numeroDocumento String?
+  scadenzaDocumento DateTime?
+  rilasciatoA     String?
+  
+  // Classificazione
+  tipologia       String    @default("NUOVO") // NUOVO, STORICO
+  note            String?
+  
+  // Relazioni
+  pratiche        Pratica[] @relation("ClienteTitolare")
+  fattureVendita  FatturaVendita[]
+  documenti       Documento[]
+  customFields    CustomFieldValue[]
+  
+  // Metadata
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([cognome, nome])
+  @@index([telefono])
+  @@index([email])
+}
+
+// ==================== PRATICHE ====================
+model Pratica {
+  id                  String    @id @default(uuid())
+  numero              Int?      @unique
+  
+  // Riferimenti
+  clienteId           String
+  cliente             Cliente   @relation("ClienteTitolare", fields: [clienteId], references: [id])
+  
+  // Dati Richiesta
+  dataRichiesta       DateTime  @default(now())
+  operatore           String    // MANU, AURORA, SILVIA, etc.
+  
+  // Tipologia Viaggio
+  tipologia           String    // CROCIERA, VOLO+HOTEL, PACCHETTO, TOUR BUS, etc.
+  destinazione        String
+  periodoRichiesto    String?   // es: "AGOSTO", "15-22 LUGLIO"
+  dataPartenza        DateTime?
+  dataRitorno         DateTime?
+  
+  // Partecipanti
+  numPartecipanti     Int       @default(1)
+  numAdulti          Int       @default(1)
+  numBambini          Int       @default(0)
+  etaBambini          String?   // es: "3 e 5", "12, 14 e 16"
+  tipologiaCamera     String?   // MATRIMONIALE, DOPPIA, QUADRUPLA, etc.
+  
+  // Partenza/Trasporto
+  cittaPartenza       String?
+  
+  // Budget e Prezzi
+  budgetCliente       Float?
+  prezzoVendita       Float?
+  costoFornitore      Float?
+  commissione         Float?
+  margine             Float?
+  
+  // Fornitore
+  fornitoreId         String?
+  fornitore           Fornitore? @relation(fields: [fornitoreId], references: [id])
+  nomeFornitore       String?   // Se non è in anagrafica
+  
+  // IVA e Fatturazione
+  regimeIVA           String?   @default("74TER") // 74TER, ORDINARIA, NETTO
+  aliquotaIVA         Float?    @default(0)
+  
+  // Note e Feedback
+  note                String?
+  richiesteSpeciali   String?   // es: "VIAGGIO DI NOZZE", "ADDIO NUBILATO"
+  
+  // Stato
+  stato               String    @default("DA_ELABORARE") // DA_ELABORARE, ELABORATO, CONFERMATO, ANNULLATO
+  feedbackCliente     String?   // CONFERMATO, PREZZO_ALTO, CAMBIATO_IDEA, FA_SAPERE, etc.
+  
+  // Contratto e Documenti
+  contratoGenerato    Boolean   @default(false)
+  dataContratto       DateTime?
+  contratoFirmato     Boolean   @default(false)
+  dataFirma           DateTime?
+  
+  // NUOVO: Margini Auto-calcolati
+  margineCalcolato    Float?    // Auto-calc: prezzoVendita - costoFornitore
+  percentualeMargine  Float?    // (margine / prezzoVendita) * 100
+  
+  // NUOVO: Acconti e Saldi
+  richiedeAcconto     Boolean   @default(false)
+  percentualeAcconto  Float?    @default(30)
+  importoAcconto      Float?
+  importoSaldo        Float?
+  dataAcconto         DateTime?
+  dataSaldo           DateTime?
+  statoAcconto        String?   // DA_PAGARE, PAGATO
+  statoSaldo          String?   // DA_PAGARE, PAGATO
+  
+  // Relazioni
+  partecipanti        Partecipante[]
+  costi               CostoPratica[] // Nuova gestione multi-fornitore
+  pagamenti           Pagamento[]
+  fattureVendita      FatturaVendita[]
+  fattureAcquisto     FatturaAcquisto[]
+  movimentiBancari    MovimentoBancario[]
+  documenti           Documento[]
+  customFields        CustomFieldValue[]
+  
+  // Snapshot Dati Storici
+  datiArchiviati      String?   // JSON string: { cliente: {...}, fornitore: {...} }
+
+  // Metadata
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  @@index([numero])
+  @@index([clienteId])
+  @@index([stato])
+  @@index([dataPartenza])
+}
+
+// ==================== PARTECIPANTI ====================
+model Partecipante {
+  id                  String    @id @default(uuid())
+  
+  praticaId           String
+  pratica             Pratica   @relation(fields: [praticaId], references: [id], onDelete: Cascade)
+  
+  // Anagrafica
+  nome                String
+  cognome             String
+  codiceFiscale       String?
+  dataNascita         DateTime?
+  luogoNascita        String?
+  nazionalita         String?   @default("IT")
+  
+  // Documento
+  tipoDocumento       String?
+  numeroDocumento     String?
+  scadenzaDocumento   DateTime?
+  rilasciatoA         String?
+  
+  // Classificazione
+  tipo                String    @default("ADULTO") // ADULTO, BAMBINO, NEONATO
+  eta                 Int?
+  
+  sistemazione        String?   // Es. "Camera 1", "Camera Matrimoniale", "Camera Singola"
+  
+  note                String?
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  @@index([praticaId])
+}
+
+// ==================== FORNITORI ====================
+model Fornitore {
+  id                  String    @id @default(uuid())
+  
+  // Dati Azienda
+  ragioneSociale      String
+  nomeComune          String?   // Nome interno/alias
+  tipoFornitore       String    // TOUR_OPERATOR, COMPAGNIA_AEREA, HOTEL, etc.
+  
+  // Contatti
+  email               String?
+  telefono            String?
+  sitoWeb             String?
+  
+  // Indirizzo
+  via                 String?
+  civico              String?
+  indirizzo           String?   // Deprecato/Fallback
+
+  citta               String?
+  cap                 String?
+  provincia           String?
+  
+  // Fatturazione Elettronica
+  pec                 String?
+  codiceSDI           String?   // Codice univoco destinatario
+  
+  // Configurazione Fatturazione
+  // Configurazione Fatturazione
+  tipologiaFatturazione String    @default("ORDINARIA") // ORDINARIA, 74TER, AUTOFATTURA, ESTERA
+  servizi             ServizioFornitore[]
+
+  applicaRitenuta     Boolean   @default(false)
+  percentualeRitenuta Float     @default(0)
+  
+  // Dati Fiscali
+  partitaIVA          String?   @unique
+  codiceFiscale       String?
+  
+  // Note
+  note                String?
+  attivo              Boolean   @default(true)
+  
+  // Relazioni
+  pratiche            Pratica[]
+  costi               CostoPratica[] // Nuova gestione multi-fornitore
+  fattureAcquisto     FatturaAcquisto[]
+  customFields        CustomFieldValue[]
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  @@index([ragioneSociale])
+}
+
+model ServizioFornitore {
+  id            String    @id @default(uuid())
+  fornitoreId   String
+  fornitore     Fornitore @relation(fields: [fornitoreId], references: [id], onDelete: Cascade)
+  nome          String    // Es: "Volo", "Hotel", "Transfer"
+  aliquotaIva   String    // Es: "22", "10", "0", "74ter", "Esente"
+  descrizione   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([fornitoreId])
+}
+
+// ==================== PAGAMENTI ====================
+model Pagamento {
+  id                  String    @id @default(uuid())
+  
+  praticaId           String
+  pratica             Pratica   @relation(fields: [praticaId], references: [id], onDelete: Cascade)
+  
+  // Dati Pagamento
+  tipo                String    // ACCONTO, SALDO, TOTALE
+  importo             Float
+  dataScadenza        DateTime
+  dataPagamento       DateTime?
+  
+  // Metodo
+  metodoPagamento     String?   // BONIFICO, CARTA, CONTANTI, etc.
+  
+  // Stato
+  stato               String    @default("DA_PAGARE") // DA_PAGARE, PAGATO, SCADUTO
+  
+  note                String?
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  @@index([praticaId])
+  @@index([dataScadenza])
+  @@index([stato])
+}
+
+// ==================== FATTURE VENDITA ====================
+model FatturaVendita {
+  id                    String    @id @default(uuid())
+  
+  // Numerazione
+  numero                String    @unique  // es: "1/2025"
+  anno                  Int
+  progressivo           Int
+  
+  // Riferimenti
+  praticaId             String?
+  pratica               Pratica?  @relation(fields: [praticaId], references: [id])
+  clienteId             String
+  cliente               Cliente   @relation(fields: [clienteId], references: [id])
+  
+  // Date
+  dataEmissione         DateTime
+  dataScadenza          DateTime?
+  
+  // Importi
+  imponibile            Float
+  aliquotaIVA           Float     // 0, 10, 22
+  importoIVA            Float
+  totale                Float
+  
+  // Regime Fiscale
+  regimeFiscale         String    // "74TER", "ORDINARIO", "FUORI_CAMPO", "ESENTE"
+  tipoDocumento         String    @default("FATTURA") // FATTURA, RICEVUTA, NOTA_CREDITO
+  
+  // Descrizione
+  oggetto               String    // Descrizione servizio
+  note                  String?
+  
+  // Stato
+  stato                 String    @default("EMESSA") // EMESSA, PAGATA, PARZIALE, SCADUTA, ANNULLATA
+  importoPagato         Float     @default(0)
+  
+  // Fatturazione Elettronica (Fatture24)
+  fatturaElettronicaInviata Boolean @default(false)
+  dataInvioSDI          DateTime?
+  numeroProtocolloSDI   String?
+  
+  // Relazioni
+  pagamenti             MovimentoBancario[]
+  documenti             Documento[]
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  @@index([anno, progressivo])
+  @@index([clienteId])
+  @@index([dataEmissione])
+}
+
+// ==================== FATTURE ACQUISTO ====================
+model FatturaAcquisto {
+  id                    String    @id @default(uuid())
+  
+  // Documento
+  numeroFornitore       String    // es: "036448/F25"
+  dataFattura           DateTime
+  dataRegistrazione     DateTime  @default(now())
+  
+  // Riferimenti
+  praticaId             String?
+  pratica               Pratica?  @relation(fields: [praticaId], references: [id])
+  fornitoreId           String?
+  fornitore             Fornitore? @relation(fields: [fornitoreId], references: [id])
+  nomeFornitore         String?   // Se fornitore non in anagrafica
+  
+  // Importi
+  imponibile            Float
+  aliquotaIVA           Float
+  importoIVA            Float
+  totale                Float
+  
+  // Tipo
+  tipoDocumento         String    // FATTURA, AUTOFATTURA, NOTA_CREDITO
+  categoria             String    // TRASPORTO, ALLOGGIO, SERVIZI, SPESE_GENERALI
+  
+  // Descrizione
+  oggetto               String
+  note                  String?
+  
+  // Pagamento
+  dataScadenza          DateTime?
+  stato                 String    @default("DA_PAGARE") // DA_PAGARE, PAGATA, SCADUTA
+  
+  // Relazioni
+  pagamenti             MovimentoBancario[]
+  documenti             Documento[]
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  @@index([fornitoreId])
+  @@index([dataFattura])
+  @@index([categoria])
+}
+
+// ==================== MOVIMENTI BANCARI (Prima Nota) ====================
+model MovimentoBancario {
+  id                    String    @id @default(uuid())
+  
+  // Data e Riferimenti
+  data                  DateTime
+  descrizione           String
+  
+  // Importi
+  entrata               Float?    // Se positivo
+  uscita                Float?    // Se negativo
+  
+  // Classificazione
+  tipo                  String    // PAGAMENTO_CLIENTE, PAGAMENTO_FORNITORE, SPESA, ALTRO
+  metodoPagamento       String    // BONIFICO, CARTA, CONTANTI, ASSEGNO, POSICEPAY
+  
+  // Collegamenti
+  fatturaVenditaId      String?
+  fatturaVendita        FatturaVendita? @relation(fields: [fatturaVenditaId], references: [id])
+  fatturaAcquistoId     String?
+  fatturaAcquisto       FatturaAcquisto? @relation(fields: [fatturaAcquistoId], references: [id])
+  praticaId             String?
+  pratica               Pratica?  @relation(fields: [praticaId], references: [id])
+  
+  // Documento
+  numeroDocumento       String?   // Scontrino/fattura/rapportino
+  
+  note                  String?
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  @@index([data])
+  @@index([tipo])
+}
+
+// ==================== SPESE GENERALI ====================
+model SpesaGenerale {
+  id                    String    @id @default(uuid())
+  
+  // Data e Fornitore
+  data                  DateTime
+  fornitore             String    // Nome fornitore/Azienda
+  
+  // Classificazione
+  categoria             String    // CONSULENTE, CARBURANTE, PIATTAFORME, UFFICIO, ALTRO
+  oggetto               String
+  
+  // Importi
+  importo               Float
+  iva                   Float?
+  totale                Float
+  
+  // Documento
+  numeroDocumento       String?
+  
+  // Pagamento
+  pagata                Boolean   @default(false)
+  dataPagamento         DateTime?
+  
+  note                  String?
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  @@index([data])
+  @@index([categoria])
+}
+
+// ==================== DOCUMENTI ====================
+model Documento {
+  id                    String    @id @default(uuid())
+  
+  // Tipo e Nome
+  tipo                  String    // CONTRATTO_VIAGGIO, FATTURA_CLIENTE, FATTURA_FORNITORE, 
+                                  // PASSAPORTO, CARTA_IDENTITA, ASSICURAZIONE, VOUCHER, ALTRO
+  nomeFile              String
+  percorsoFile          String    // Path nel filesystem
+  
+  // Riferimenti (opzionali)
+  praticaId             String?
+  pratica               Pratica?  @relation(fields: [praticaId], references: [id])
+  clienteId             String?
+  cliente               Cliente?  @relation(fields: [clienteId], references: [id])
+  fatturaVenditaId      String?
+  fatturaVendita        FatturaVendita? @relation(fields: [fatturaVenditaId], references: [id])
+  fatturaAcquistoId     String?
+  fatturaAcquisto       FatturaAcquisto? @relation(fields: [fatturaAcquistoId], references: [id])
+  
+  // Metadata
+  dimensioneBytes       Int?
+  mimeType              String?
+  
+  note                  String?
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  @@index([praticaId])
+  @@index([tipo])
+}
+
+// ==================== COSTI PRATICA (Multi-Fornitore) ====================
+model CostoPratica {
+  id              String    @id @default(uuid())
+  
+  praticaId       String
+  pratica         Pratica   @relation(fields: [praticaId], references: [id], onDelete: Cascade)
+  
+  fornitoreId     String?
+  fornitore       Fornitore? @relation(fields: [fornitoreId], references: [id])
+  nomeFornitore   String?   // Fallback se fornitoreId è null
+  
+  tipologia       String?   // VOLO, HOTEL, ASSICURAZIONE, TRANSFER, ALTRO
+  descrizione     String?
+  importo         Float
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([praticaId])
+  @@index([fornitoreId])
+}
+
+// ==================== IMPOSTAZIONI ====================
+model Operatore {
+  id        String   @id @default(uuid())
+  nome      String   @unique // Es. "MANU", "AURORA"
+  email     String?
+  attivo    Boolean  @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==================== LISTE PERSONALIZZABILI ====================
+model TipoServizio {
+  id              String   @id @default(uuid())
+  nome            String   @unique
+  descrizione     String?
+  defaultAliquota String?  // Valore IVA predefinito (es. "10")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model TipoViaggio {
+  id          String   @id @default(uuid())
+  nome        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AliquotaIva {
+  id          String   @id @default(uuid())
+  valore      String   @unique // Es: "22", "10", "Esente"
+  descrizione String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RegimeFiscale {
+  id          String   @id @default(uuid())
+  nome        String   @unique // Es: "74TER", "ORDINARIO"
+  descrizione String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TipoFeedback {
+  id          String   @id @default(uuid())
+  nome        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==================== CUSTOM FIELDS SYSTEM ====================
+model CustomFieldDefinition {
+  id          String   @id @default(uuid())
+  entity      String   // "PRATICA" | "CLIENTE" | "FORNITORE"
+  fieldName   String
+  fieldType   String   // "TEXT" | "NUMBER" | "DATE" | "SELECT" | "TEXTAREA"
+  label       String   // Display label
+  isGlobal    Boolean  @default(true)  // Global or Local
+  isRequired  Boolean  @default(false)
+  
+  // For SELECT type - JSON array of options
+  options     String?
+  
+  // Metadata
+  createdBy   String   // Operator name
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  values      CustomFieldValue[]
+  
+  @@unique([entity, fieldName])
+}
+
+model CustomFieldValue {
+  id          String   @id @default(uuid())
+  
+  fieldDefId  String
+  fieldDef    CustomFieldDefinition @relation(fields: [fieldDefId], references: [id], onDelete: Cascade)
+  
+  // Polymorphic reference (only one will be set)
+  praticaId   String?
+  pratica     Pratica? @relation(fields: [praticaId], references: [id], onDelete: Cascade)
+  clienteId   String?
+  cliente     Cliente? @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  fornitoreId String?
+  fornitore   Fornitore? @relation(fields: [fornitoreId], references: [id], onDelete: Cascade)
+  
+  value       String   // Stored as string, parsed based on fieldType
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([praticaId])
+  @@index([clienteId])
+  @@index([fornitoreId])
+  @@index([fieldDefId])
+}
