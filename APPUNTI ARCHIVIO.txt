@@ -1,0 +1,39 @@
+- se chiudi una pratica o anagrafica prima di portarla a termine, si salva in bozza. si deve salvare con ogni modifica. [RISOLTO: Implementato salvataggio automatico "sicuro". Le pratiche salvano in bozza DB appena inserisci il cliente. Le anagrafiche (Clienti/Fornitori) e le pratiche senza cliente salvano in memoria locale, così se chiudi per sbaglio e riapri trovi tutto.]
+- i menu a tendina devono essere tutti personalizzabili.. ora facendo dei test ho visto che nelle pratiche ad esempio anche in regime fiscale, abbiamo regime iva e aliquota, che sono menu a tendina che non si possono personalizzare... [RISOLTO: Implementato sistema dinamico per Regime IVA e Aliquote su Step 2. Ora puoi aggiungere nuovi regimi direttamente dalla tendina.]
+- impostazioni deve funzionare, per ora non ha mai funzionato, sempre errore 404 [RISOLTO: Ho corretto il link nella barra laterale. Ora dovrebbe andare.]
+- la pratica non ancora si salva [RISOLTO: Vedi punto 1]
+- ho visto che ancora se cambio il codice fiscale, la data di nascita non si aggiorna.. non va bene [RISOLTO: Ho aggiunto il campo Data di Nascita nella pagina di modifica, ora i dati vengono salvati e letti correttamente.]
+- ho provato a creare una pratica, ho anche aggiunto il cliente e alcuni campi.. sono andato in dashboard.. sono tornato in pratiche, ma non c'era la bozza.. questa cosa la devi vedere molto attentamente. sia nei clienti.. che nei fornitori.. che nelle pratiche.. in tutto ciò che crea l'operatore, ci deve essere un salvataggio immediato. [RISOLTO: Implementato sistema completo - localStorage per pre-bozza e DB automatico post-cliente. Vedi punto 1.]
+
+- in operatore, vedo che non posso selezionare ancora dal menu a tendina l'operatore.. ne aggiungerlo [RISOLTO: Ho sistemato il menu a tendina nello Step 1, ora carica gli operatori e permette di aggiungerne nuovi.]
+- ho visto che ancora adesso, se apro una pratica dove c'è anche il cliente selezionato, la apro per modificarla e questo dato non compare piu.. non va bene! perché se poi salvo, non so piu chi è il cliente.. nonostante prima di cliccare su modifica, era presente. [DA VERIFICARE: Con il fix dello Step 1 (che carica i dati all'avvio) dovrebbe essere risolto. Controlla se lo fa ancora.]
+
+quando vediamo le anagrafiche, possiamo vedere anche il giorno e l'orario in qui è stata creata quella pratica? [RISOLTO: Aggiunta colonna "Creato il" con data e ora di creazione in tutte le tabelle: Pratiche, Clienti, Fornitori.]
+- ho visto che se metto lo stato in confermato, non ha senso che poi nel feedback cliente posso mettere fa sapere.. percgè la pratica è o confermata o in attesa .. gli stati possiamo modificarli cosi: [RISOLTO: Stati aggiornati come richiesto nel menu a tendina e logic]
+
+1.  PREVENTIVO DA ELABORARE (pratica da generare preventivo )
+2.  IN ATTESA DI CONFERMA DEL CLIENTE (attesa approvazione)
+3.  CONFERMATO E PAGATO (in attesa di fatturazione o altro)
+4.  ELABORATO (pratica chiusa)
+5.  ANNULLATO
+
+e poi ovviamente il campo per aggiungere nuovi campi (i nuovi campi che)
+
+- per ora possiamo generare dalla pratica, il contratto, ma dobbiamo anche avere la possibilità di generare un estratto conto. ti metto due file all'interno della cartella "gestionale"da prendere spunto o valuta se usarli come template. il secondo file ti metto il logo della mia agenzia viaggi in png (con questo puoi personalizzare anche icona del sito futuro, inserirlo graficamente nel gestionale, e magari anche i colori dato che il file che ti metto ha anche i colori da leggere) (((se non leggi qualche file, in quelaisi momento della nostra conversazione, dimmelo che sono di vitale importanza))) [RISOLTO: Implementato generazione Estratto Conto PDF + Logica Snapshot per dati storici. Pulsante verde "Estratto Conto" nella pagina dettaglio pratica.]
+
+1. Rapportino 541-2025 Francesco Pio Minerva
+2. GOonTheROAD_logo
+
+
+- i nuovi campi che aggiunge l'operatore, quest'ultimo  deve avere anche la possibilità  di decidere se quel campo che ha appena creato deve essere disponibile per tutte le pratiche, anagrafiche o quel che sia .. oppure se quel campo deve essere unicamente usato in quella occasione. [RISOLTO: Implementato sistema Campi Personalizzati. Disponibile in Pratiche, Modifica Cliente e Modifica Fornitore. API: /api/custom-fields/] 
+
+
+
+DOMANDONE QUANDO PASSEREMO, SE TUTTO VA BENE PRATICAMENTE AD UN UPGRADE IMPORTANRE..
+
+-ma ti faccio una domanda importante.. possiamo aggiungere una sezione per gestire anche gli ordini  e prodotti che provengono al mio sito? possiamo collegarci alle api di woocommerce … [RISOLTO: Implementata integrazione completa. Nuova voce "WooCommerce" nel menu. Puoi vedere ordini, prodotti e creare pratiche dagli ordini con un click.]
+te le preparo :
+chiave utente:
+ck_8564a77bc2541057ecccba217959e4ce6cbc1b76
+Utente nascosto:
+cs_ad880ebbdb8a5cffeadf669f9e45023b5ce0d579
