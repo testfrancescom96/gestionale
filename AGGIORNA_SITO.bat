@@ -25,7 +25,7 @@ echo Mi collego al server per aggiornare il sito...
 echo (Se tutto e' configurato, non ti chiedera' nulla)
 echo =======================================================
 echo.
-ssh root@72.62.91.101 "cd gestionale && git pull && npm install && npx prisma db push && npx prisma generate && npm run build && pm2 restart gestionale"
+ssh root@72.62.91.101 "cd gestionale && git pull origin main && npm install && npx prisma db push && npx prisma generate && npm run build && pm2 restart gestionale"
 
 echo.
 echo =======================================================
