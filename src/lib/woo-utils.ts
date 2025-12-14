@@ -34,6 +34,7 @@ export function parseSkuDate(sku: string | undefined): Date | null {
     return null;
 }
 
+
 export interface GroupedEvent {
     year: number;
     month: number; // 0-11
@@ -41,11 +42,17 @@ export interface GroupedEvent {
     products: any[];
 }
 
+export interface YearGroup {
+    year: number;
+    months: GroupedEvent[];
+}
+
 /**
  * Groups products by Year and Month based on their SKU date.
  * Products with invalid/missing SKU dates are grouped under "Undated".
+ * Structure: Year -> Month -> Products
  */
-export function groupProductsByDate(products: any[]): { dated: GroupedEvent[], undated: any[] } {
+export function groupProductsByDate(products: any[]): { years: YearGroup[], undated: any[] } {
     const datedMap = new Map<string, any[]>();
     const undated: any[] = [];
 
@@ -62,21 +69,33 @@ export function groupProductsByDate(products: any[]): { dated: GroupedEvent[], u
         }
     });
 
-    // Sort keys (Year-Month)
-    const sortedKeys = Array.from(datedMap.keys()).sort();
+    // Create Hierarchical List
+    const yearsMap = new Map<number, GroupedEvent[]>();
 
-    const dated: GroupedEvent[] = sortedKeys.map(key => {
+    Array.from(datedMap.keys()).sort().forEach(key => {
         const [year, month] = key.split('-').map(Number);
-        // Sort products by date within the month
         const sortedProducts = datedMap.get(key)?.sort((a, b) => a.eventDate.getTime() - b.eventDate.getTime()) || [];
 
-        return {
+        const monthGroup: GroupedEvent = {
             year,
             month,
             monthName: format(new Date(year, month, 1), "MMMM", { locale: it }),
             products: sortedProducts
         };
+
+        if (!yearsMap.has(year)) {
+            yearsMap.set(year, []);
+        }
+        yearsMap.get(year)?.push(monthGroup);
     });
 
-    return { dated, undated };
+    // Convert Map to Array sorted by Year
+    const years: YearGroup[] = Array.from(yearsMap.keys())
+        .sort((a, b) => a - b)
+        .map(year => ({
+            year,
+            months: yearsMap.get(year) || []
+        }));
+
+    return { years, undated };
 }

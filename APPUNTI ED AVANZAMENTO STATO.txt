@@ -1,16 +1,18 @@
-APPUNTI E MODIFICHE:
 
-- la dashboard eventi di woocommerce va gestita meglio. magari con prima gli anni esempio 2024 2025 etce etc.. e poi i mesi.. cosi da avere un quadro piu generale e preciso.
-- ANCORA VEDO CHE SE SCRIVO QUALCOSA SU ANAGRAFICHE O IN PRATICHE E POI CHIUDO.. NON SI CREA UNA BOZZA. QUESTO DOBBIAMO RISOLVERLO.
-- sono andato in pratica equando ho cliccato su un cliente esistente, è uscito errore 404
-- nei report ci devono stare anche i viaggi di gruppo di woocmmerce che abbiamo aggiunto
-- i prodotti in woocommerce devono avere un ordine. la maggior parte saranno con data.. quindi anche qui con anni e mesi.. quelli senza data li metti a parte. (ma mi devi dare la possibilità di aggiungerci una data per il nostro gestionale)
-- domanda, dove salviamo tutti questi dati? devono sempre essere disponibili all'ultimo aggiornamento, offline. 
-- sul gestionale voglio una data di aggiornamento e la possibilità di sincronizzare manualmente cliccando AGGIORNARE . cosi evitiamo di impostare dei trigger o simili ogni tot minuti.. rispariamo in dati da scricare e chiamate api da fare.
-- ho aperto il catalogo dei prodotti, ovviamente devo poterli aprire e modificare. (forse dovremmo salvare una chiave di salvataggio , cosi che non rischiamo problemi di sincro con modifiche fatte tromite WordPress e modifiche fatte sul gestionale)
-- il report lo possiamo migliorare con grafici e altro
+LEGENDA:
+[DA FARE] = Richiesta da implementare
+[IN CORSO] = Ci stiamo lavorando
+[RISOLTO] = Fatto e verificato
+[SOSPESO] = In attesa di info/decisioni
 
+--- RICHIESTE UTENTE ---
+1. [RISOLTO] Integrazione WooCommerce (Vendite Online) nel Report Finanziario.
+2. [RISOLTO] Fix "Bozza Pratica" (localStorage implementato).
+3. [RISOLTO] Fix "Bozza Cliente" (Ora avvisa se c'è una bozza e permette di cancellarla con "Annulla").
+4. [RISOLTO] Workflow Viaggi (Checklist operativa, conferma autista, invio messaggi e status dashboard).
+5. [IN CORSO] Scheda Sponsorizzate (Meta Ads): Creata pagina /marketing, in attesa di Token.
 
-
-
-- super aggiunta importante. i dati di meta delle sponsorizzate! Instagram e Facebook.. ma non solo tutti i dati economici anche i dati sul traffico che produciamo, sui click.. statistiche varie sui periodo in cui sono andate meglio etc...etc..
+--- NOTE TECNICHE ---
+- I prodotti WooCommerce senza data (o SKU non standard) vengono raggruppati in "Date Varie" o in fondo alla lista.
+- La tabella `ViaggioOperativo` è collegata ai prodotti Woo tramite `wooProductId`.
+- Per le sponsorizzate serve: Ad Account ID e User Access Token (con permessi ads_read).

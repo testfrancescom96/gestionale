@@ -1,54 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const WOO_URL = "https://www.goontheroad.it";
-const WOO_CK = "ck_8564a77bc2541057ecccba217959e4ce6cbc1b76";
-const WOO_CS = "cs_ad880ebbdb8a5cffeadf669f9e45023b5ce0d579";
+import { fetchWooProducts } from "@/lib/woocommerce";
+import { prisma } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
-    const page = searchParams.get("page") || "1";
-    const per_page = searchParams.get("per_page") || "20";
-    const search = searchParams.get("search");
 
     try {
-        const queryParams = new URLSearchParams({
-            page,
-            per_page,
-            consumer_key: WOO_CK,
-            consumer_secret: WOO_CS,
-        });
+        const { products, total, totalPages } = await fetchWooProducts(searchParams);
 
-        if (search) {
-            queryParams.append("search", search);
-        }
-
-        const response = await fetch(`${WOO_URL}/wp-json/wc/v3/products?${queryParams.toString()}`, {
-            headers: {
-                "Content-Type": "application/json",
-            },
-            cache: "no-store",
-        });
-
-        if (!response.ok) {
-            throw new Error(`WooCommerce API Error: ${response.statusText}`);
-        }
-
-        const products = await response.json();
-        const totalProducts = response.headers.get("x-wp-total");
-        const totalPages = response.headers.get("x-wp-totalpages");
-
-        return NextResponse.json({
-            products,
-            pagination: {
-                total: totalProducts,
-                totalPages: totalPages,
+        // Fetch local operational data for these products
+        const productIds = products.map((p: any) => p.id);
+        // @ts-ignore
+        const operationalData = await prisma.viaggioOperativo.findMany({
+            where: {
+                wooProductId: { in: productIds }
             }
         });
 
-    } catch (error) {
+        // Merge data
+        const enrichedProducts = products.map((product: any) => {
+            const opData = operationalData.find((op: any) => op.wooProductId === product.id);
+            return {
+                ...product,
+                viaggioOperativo: opData || null
+            };
+        });
+
+        return NextResponse.json({
+            products: enrichedProducts,
+            pagination: {
+                total,
+                totalPages,
+            }
+        });
+
+    } catch (error: any) {
         console.error("Error fetching WooCommerce products:", error);
         return NextResponse.json(
-            { error: "Failed to fetch products from WooCommerce" },
+            { error: error.message || "Failed to fetch products from WooCommerce" },
             { status: 500 }
         );
     }

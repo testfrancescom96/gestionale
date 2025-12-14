@@ -55,10 +55,24 @@ export function NuovoClienteModal({
                 setFormData(prev => ({ ...prev, via: initialData.indirizzo }));
             }
         } else if (isOpen && !initialData) {
-            // Reset if new
-            setFormData({
-                nome: "", cognome: "", dataNascita: "", via: "", civico: "", cap: "", citta: "", provincia: "", codiceFiscale: "", email: "", telefono: ""
-            });
+            // Check for local draft first
+            const savedDraft = typeof window !== "undefined" ? localStorage.getItem("unsaved_new_cliente") : null;
+            if (savedDraft) {
+                try {
+                    const parsed = JSON.parse(savedDraft);
+                    setFormData(parsed);
+                } catch (e) {
+                    // Fallback to empty if parse fails
+                    setFormData({
+                        nome: "", cognome: "", dataNascita: "", via: "", civico: "", cap: "", citta: "", provincia: "", codiceFiscale: "", email: "", telefono: ""
+                    });
+                }
+            } else {
+                // Reset if new
+                setFormData({
+                    nome: "", cognome: "", dataNascita: "", via: "", civico: "", cap: "", citta: "", provincia: "", codiceFiscale: "", email: "", telefono: ""
+                });
+            }
         }
     }, [isOpen, initialData]);
 
@@ -113,6 +127,12 @@ export function NuovoClienteModal({
         }
 
         setFormData(newData);
+
+        // Auto-save draft to localStorage if it's a new client (no initialData)
+        if (!initialData && typeof window !== "undefined") {
+            localStorage.setItem("unsaved_new_cliente", JSON.stringify(newData));
+        }
+
         // Clear error when user types
         if (errors[field]) {
             setErrors({ ...errors, [field]: "" });
@@ -164,6 +184,12 @@ export function NuovoClienteModal({
 
             // Passa il cliente creato (con ID dal database)
             onClienteCreato(data.cliente);
+
+            // Clear draft
+            if (typeof window !== "undefined") {
+                localStorage.removeItem("unsaved_new_cliente");
+            }
+
             onClose();
 
             // Reset form
@@ -210,6 +236,14 @@ export function NuovoClienteModal({
                         <X className="h-5 w-5" />
                     </button>
                 </div>
+
+                {/* Draft Alert */}
+                {!initialData && typeof window !== "undefined" && localStorage.getItem("unsaved_new_cliente") && (
+                    <div className="mb-4 rounded-md bg-blue-50 p-3 text-sm text-blue-700 flex items-center gap-2">
+                        <span className="text-xl">ℹ️</span>
+                        Abbiamo recuperato i dati che stavi inserendo.
+                    </div>
+                )}
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -442,10 +476,15 @@ export function NuovoClienteModal({
                     <div className="flex justify-end gap-3 border-t pt-4">
                         <button
                             type="button"
-                            onClick={onClose}
+                            onClick={() => {
+                                if (typeof window !== "undefined") {
+                                    localStorage.removeItem("unsaved_new_cliente");
+                                }
+                                onClose();
+                            }}
                             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                         >
-                            Annulla
+                            Annulla (Elimina Bozza)
                         </button>
                         <button
                             type="submit"

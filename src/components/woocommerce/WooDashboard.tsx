@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { Loader2, RefreshCw, CalendarOff } from "lucide-react";
-import { groupProductsByDate, GroupedEvent } from "@/lib/woo-utils";
+import { groupProductsByDate, GroupedEvent, YearGroup } from "@/lib/woo-utils";
 import { EventGroup } from "./EventGroup";
 
 export function WooDashboard() {
@@ -11,7 +11,7 @@ export function WooDashboard() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-    const [groupedEvents, setGroupedEvents] = useState<{ dated: GroupedEvent[], undated: any[] }>({ dated: [], undated: [] });
+    const [groupedEvents, setGroupedEvents] = useState<{ years: YearGroup[], undated: any[] }>({ years: [], undated: [] });
 
     // Configuration
     const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
@@ -100,14 +100,30 @@ export function WooDashboard() {
             </div>
 
             {/* Main Content: Calendar View */}
-            <div className="space-y-6">
-                {groupedEvents.dated.length > 0 ? (
-                    groupedEvents.dated.map((group) => (
-                        <EventGroup
-                            key={`${group.year}-${group.month}`}
-                            data={group}
-                            orders={orders}
-                        />
+            <div className="space-y-8">
+                {groupedEvents.years.length > 0 ? (
+                    groupedEvents.years.map((yearGroup) => (
+                        <div key={yearGroup.year} className="space-y-4">
+                            {/* Year Header */}
+                            <div className="flex items-center gap-4">
+                                <h3 className="text-2xl font-bold text-gray-800 border-b-2 border-blue-500 pb-1 px-2">
+                                    {yearGroup.year}
+                                </h3>
+                                <div className="h-px bg-gray-200 flex-1"></div>
+                            </div>
+
+                            {/* Months in this Year */}
+                            <div className="grid grid-cols-1 gap-6">
+                                {yearGroup.months.map((group) => (
+                                    <EventGroup
+                                        key={`${group.year}-${group.month}`}
+                                        data={group}
+                                        orders={orders}
+                                        onRefresh={fetchAllData}
+                                    />
+                                ))}
+                            </div>
+                        </div>
                     ))
                 ) : (
                     <div className="text-center py-10 bg-white rounded-lg border border-dashed">

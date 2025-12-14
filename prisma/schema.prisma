@@ -602,7 +602,36 @@ model CustomFieldValue {
   updatedAt   DateTime @updatedAt
   
   @@index([praticaId])
-  @@index([clienteId])
-  @@index([fornitoreId])
   @@index([fieldDefId])
+}
+
+// ==================== WORKFLOW VIAGGI (Operational) ====================
+model ViaggioOperativo {
+  id              String    @id @default(uuid())
+  
+  // Link a WooCommerce
+  wooProductId    Int       @unique // ID del prodotto su Woo
+  
+  // Date Importanti (ridondanza per query veloci)
+  dataViaggio     DateTime?
+  
+  // Stato Operativo
+  confermato      Boolean   @default(false)
+  inForse         Boolean   @default(false)
+  annullato       Boolean   @default(false)
+  
+  // Checklist
+  messaggioRiepilogoInviato   Boolean @default(false)
+  listaPasseggeriInviata      Boolean @default(false)
+  comunicazioneAutistaInviata Boolean @default(false)
+  
+  // Dettagli Operativi
+  datiAutista     String?   // Nome, Telefono
+  noteCarico      String?   // Fermate, Orari specifici e variazioni
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([wooProductId])
+  @@index([dataViaggio])
 }

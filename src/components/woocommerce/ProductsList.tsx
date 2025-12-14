@@ -1,16 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, RefreshCw, Image as ImageIcon } from "lucide-react";
+import { Loader2, RefreshCw, Image as ImageIcon, Pencil } from "lucide-react";
+import { ProductEditModal } from "./ProductEditModal";
 
 export function ProductsList() {
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [editingProduct, setEditingProduct] = useState<any | null>(null);
 
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const res = await fetch("/api/woocommerce/products");
+            const res = await fetch("/api/woocommerce/products?per_page=50");
             const data = await res.json();
             if (data.products) {
                 setProducts(data.products);
@@ -49,7 +51,16 @@ export function ProductsList() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {products.map((product) => (
-                    <div key={product.id} className="bg-white rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                    <div key={product.id} className="bg-white rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow group relative">
+                        {/* Edit Action Absolute */}
+                        <button
+                            onClick={() => setEditingProduct(product)}
+                            className="absolute top-2 right-2 z-10 bg-white p-2 rounded-full shadow-sm text-gray-500 hover:text-blue-600 hover:bg-gray-50 opacity-0 group-hover:opacity-100 transition-all border"
+                            title="Modifica Prodotto"
+                        >
+                            <Pencil className="h-4 w-4" />
+                        </button>
+
                         <div className="h-40 bg-gray-100 flex items-center justify-center">
                             {product.images && product.images[0] ? (
                                 <img
@@ -78,6 +89,19 @@ export function ProductsList() {
                     </div>
                 ))}
             </div>
+
+            {/* Edit Modal */}
+            {editingProduct && (
+                <ProductEditModal
+                    isOpen={!!editingProduct}
+                    product={editingProduct}
+                    onClose={() => setEditingProduct(null)}
+                    onSave={() => {
+                        setEditingProduct(null);
+                        fetchProducts();
+                    }}
+                />
+            )}
         </div>
     );
 }

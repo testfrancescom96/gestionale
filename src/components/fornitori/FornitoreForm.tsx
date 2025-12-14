@@ -141,6 +141,20 @@ export function FornitoreForm({ initialData, isEditing = false }: FornitoreFormP
         }
     }, [isEditing]);
 
+    // Warn on Tab Close if dirty (only for new suppliers for now to avoid annoyance on edit?)
+    // Actually, let's do it for both if there are changes. But detecting "changes" against initialData is hard here without deep compare.
+    // For "New", checking if fields are filled is enough.
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (!isSubmitting && (formData.ragioneSociale || formData.partitaIVA || formData.email)) {
+                e.preventDefault();
+                e.returnValue = "";
+            }
+        };
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    }, [formData, isSubmitting]);
+
     // --- Gestione Servizi ---
     const addService = () => {
         setServizi([...servizi, { nome: "", aliquotaIva: "22" }]);
