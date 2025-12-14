@@ -6,8 +6,9 @@ const WOO_CS = "cs_ad880ebbdb8a5cffeadf669f9e45023b5ce0d579";
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    props: { params: Promise<{ id: string }> }
 ) {
+    const params = await props.params;
     const id = params.id;
     try {
         const body = await request.json();
