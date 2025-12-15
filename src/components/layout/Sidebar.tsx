@@ -10,7 +10,8 @@ import {
     Calendar,
     DollarSign,
     Settings,
-    ShoppingBag
+    ShoppingBag,
+    Megaphone
 } from "lucide-react";
 
 const navigation = [
@@ -20,6 +21,7 @@ const navigation = [
     { name: "Scadenzario", href: "/scadenzario", icon: Calendar },
     { name: "Report", href: "/report", icon: DollarSign },
     { name: "WooCommerce", href: "/woocommerce", icon: ShoppingBag },
+    { name: "Marketing", href: "/marketing", icon: Megaphone },
 ];
 
 export function Sidebar() {
