@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchWooProducts } from "@/lib/woocommerce";
+import { fetchWooProducts, fetchAllWooProducts } from "@/lib/woocommerce";
 import { prisma } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
 
     try {
-        const { products, total, totalPages } = await fetchWooProducts(searchParams);
+        let products = [];
+        let total = "0";
+        let totalPages = "1";
+
+        if (searchParams.get("limit") === "all") {
+            products = await fetchAllWooProducts(searchParams);
+            total = products.length.toString();
+        } else {
+            const res = await fetchWooProducts(searchParams);
+            products = res.products;
+            total = res.total;
+            totalPages = res.totalPages;
+        }
 
         // Fetch local operational data for these products
         const productIds = products.map((p: any) => p.id);
