@@ -54,10 +54,12 @@ export function EventGroup({ data, orders, onRefresh }: EventGroupProps) {
             {isExpanded && (
                 <div className="divide-y divide-gray-100">
                     {data.products.map((product: any) => {
-                        const eventDate = product.eventDate;
+                        // FIX: Ensure date is parsed correctly from JSON string
+                        const eventDate = product.eventDate ? new Date(product.eventDate) : null;
+
                         // Count bookings for this product
                         const bookingCount = orders.filter(o =>
-                            o.line_items.some((item: any) => item.product_id === product.id)
+                            o.line_items?.some((item: any) => item.product_id === product.id)
                         ).length;
 
                         // Operational Status
@@ -76,8 +78,14 @@ export function EventGroup({ data, orders, onRefresh }: EventGroupProps) {
                                     {/* Main Row Content (Clickable) */}
                                     <div className="flex items-start gap-3 flex-1 cursor-pointer" onClick={() => toggleProduct(product.id)}>
                                         <div className="bg-blue-100 text-blue-700 rounded-lg p-2 text-center min-w-[3.5rem] relative">
-                                            <div className="text-xs font-medium uppercase">{format(eventDate, "MMM", { locale: it })}</div>
-                                            <div className="text-xl font-bold">{format(eventDate, "dd")}</div>
+                                            {eventDate ? (
+                                                <>
+                                                    <div className="text-xs font-medium uppercase">{format(eventDate, "MMM", { locale: it })}</div>
+                                                    <div className="text-xl font-bold">{format(eventDate, "dd")}</div>
+                                                </>
+                                            ) : (
+                                                <div className="text-xs font-bold text-gray-500">N/D</div>
+                                            )}
                                             {/* Status Badge overlay */}
                                             {statusIcon && <div className="absolute -top-2 -right-2 bg-white rounded-full p-0.5 shadow-sm">{statusIcon}</div>}
                                         </div>

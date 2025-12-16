@@ -93,11 +93,11 @@ export function OrdersList() {
                                     #{order.id}
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                    {format(new Date(order.date_created), "dd/MM/yyyy", { locale: it })}
+                                    {order.date_created ? format(new Date(order.date_created), "dd/MM/yyyy", { locale: it }) : "-"}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-900">
-                                    <div>{order.billing.first_name} {order.billing.last_name}</div>
-                                    <div className="text-xs text-gray-500">{order.billing.email}</div>
+                                    <div>{order.billing?.first_name || ""} {order.billing?.last_name || ""}</div>
+                                    <div className="text-xs text-gray-500">{order.billing?.email || ""}</div>
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-4">
                                     <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold
