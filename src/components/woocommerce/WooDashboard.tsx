@@ -62,16 +62,18 @@ export function WooDashboard() {
                 })
             });
 
+            const data = await res.json();
+
             if (res.ok) {
                 // Reload local data
                 await loadLocalData();
-                alert("Sincronizzazione completata!");
+                alert(`Sincronizzazione completata! (Prodotti: ${data.stats?.products || 0}, Ordini: ${data.stats?.orders || 0})`);
             } else {
-                alert("Errore durante la sincronizzazione.");
+                alert(`Errore server: ${data.error || "Sconosciuto"}`);
             }
         } catch (e) {
             console.error(e);
-            alert("Errore di connessione.");
+            alert("Errore di connessione o timeout.");
         } finally {
             setLoading(false);
         }
