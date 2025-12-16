@@ -15,10 +15,10 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental')
     // The user's request imply they want control.
 
     if (mode === 'full') {
-        products = await fetchAllWooProducts(new URLSearchParams({ status: 'publish' }));
+        products = await fetchAllWooProducts(new URLSearchParams({ status: 'any' }));
     } else {
         // Incremental: Fetch last 100 items (page 1)
-        const res = await fetchWooProducts(new URLSearchParams({ per_page: '100', status: 'publish' }));
+        const res = await fetchWooProducts(new URLSearchParams({ per_page: '100', status: 'any' }));
         products = res.products;
     }
 
