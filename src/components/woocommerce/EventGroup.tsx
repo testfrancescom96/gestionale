@@ -18,7 +18,7 @@ interface EventGroupProps {
 
 export function EventGroup({ data, orders, onRefresh }: EventGroupProps) {
     // Determine if the group (Month) is expanded
-    const [isExpanded, setIsExpanded] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     // Track which products are expanded to show bookings
     const [expandedProducts, setExpandedProducts] = useState<Record<number, boolean>>({});

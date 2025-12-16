@@ -72,7 +72,15 @@ export function groupProductsByDate(products: any[]): { years: YearGroup[], unda
     // Create Hierarchical List
     const yearsMap = new Map<number, GroupedEvent[]>();
 
-    Array.from(datedMap.keys()).sort().forEach(key => {
+    // Sort keys based on numerical value of year and month
+    const sortedKeys = Array.from(datedMap.keys()).sort((a, b) => {
+        const [yA, mA] = a.split('-').map(Number);
+        const [yB, mB] = b.split('-').map(Number);
+        if (yA !== yB) return yA - yB;
+        return mA - mB;
+    });
+
+    sortedKeys.forEach(key => {
         const [year, month] = key.split('-').map(Number);
         const sortedProducts = datedMap.get(key)?.sort((a, b) => a.eventDate.getTime() - b.eventDate.getTime()) || [];
 
