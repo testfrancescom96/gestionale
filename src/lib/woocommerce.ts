@@ -101,6 +101,44 @@ export async function fetchAllWooProducts(params: URLSearchParams): Promise<any[
     return allProducts;
 }
 
+export async function fetchAllWooOrders(params: URLSearchParams): Promise<any[]> {
+    let allOrders: any[] = [];
+    let page = 1;
+    let totalPages = 1;
+
+    // Initial fetch to get total pages
+    const initialParams = new URLSearchParams(params);
+    initialParams.set("page", "1");
+    initialParams.set("per_page", "100");
+
+    // We want ALL orders, not just processing/completed, unless specified
+    // But defaults should be set by caller
+
+    const { orders, totalPages: total } = await fetchWooOrders(initialParams);
+    allOrders = [...orders];
+    totalPages = parseInt(total || "1");
+
+    // Fetch remaining pages in parallel chunks if possible, or sequential
+    const fetchPromises = [];
+    for (let p = 2; p <= totalPages; p++) {
+        const pParams = new URLSearchParams(params);
+        pParams.set("page", p.toString());
+        pParams.set("per_page", "100");
+        fetchPromises.push(fetchWooOrders(pParams));
+    }
+
+    if (fetchPromises.length > 0) {
+        const results = await Promise.all(fetchPromises);
+        results.forEach(res => {
+            if (res.orders) {
+                allOrders = [...allOrders, ...res.orders];
+            }
+        });
+    }
+
+    return allOrders;
+}
+
 /**
  * Fetches all orders within a date range to calculate revenue.
  * Handles pagination recursively or loop.

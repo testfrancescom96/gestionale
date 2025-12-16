@@ -22,7 +22,7 @@ export function WooDashboard() {
             // Fetch concurrently
             const [prodRes, ordRes] = await Promise.all([
                 fetch("/api/woocommerce/products?limit=all"), // Fetching ALL items
-                fetch("/api/woocommerce/orders?per_page=100&status=any")
+                fetch("/api/woocommerce/orders?limit=all&status=any")
             ]);
 
             const prodData = await prodRes.json();
