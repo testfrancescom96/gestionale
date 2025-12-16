@@ -25,7 +25,7 @@ echo Mi collego al server per aggiornare il sito...
 echo (Se tutto e' configurato, non ti chiedera' nulla)
 echo =======================================================
 echo.
-ssh root@72.62.91.101 "cd gestionale && (git rm --cached prisma/gestionale.db || true) && git pull origin main && npm install && npx prisma db push && npx prisma generate && rm -rf .next && npm run build && pm2 restart gestionale"
+ssh root@72.62.91.101 "cd gestionale && (mv prisma/gestionale.db prisma/gestionale.db.bak || true) && git pull origin main && (mv prisma/gestionale.db.bak prisma/gestionale.db || true) && npm install && npx prisma db push && npx prisma generate && rm -rf .next && npm run build && pm2 restart gestionale"
 
 echo.
 echo =======================================================
