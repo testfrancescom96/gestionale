@@ -79,23 +79,29 @@ export async function fetchAllWooProducts(params: URLSearchParams): Promise<any[
     allProducts = [...products];
     totalPages = parseInt(total || "1");
 
-    // Fetch remaining pages in parallel chunks if possible, or sequential
-    // For simplicity and API limits, we'll do sequential chunks or small parallel batches
-    const fetchPromises = [];
+    // BATCH FETCHING to avoid 500 Errors
+    const BATCH_SIZE = 5;
+    let currentBatch: Promise<any>[] = [];
+
     for (let p = 2; p <= totalPages; p++) {
         const pParams = new URLSearchParams(params);
         pParams.set("page", p.toString());
         pParams.set("per_page", "100");
-        fetchPromises.push(fetchWooProducts(pParams));
-    }
 
-    if (fetchPromises.length > 0) {
-        const results = await Promise.all(fetchPromises);
-        results.forEach(res => {
-            if (res.products) {
-                allProducts = [...allProducts, ...res.products];
-            }
-        });
+        currentBatch.push(fetchWooProducts(pParams));
+
+        // If batch full or last page, execute
+        if (currentBatch.length >= BATCH_SIZE || p === totalPages) {
+            const results = await Promise.all(currentBatch);
+            results.forEach(res => {
+                if (res.products) {
+                    allProducts = [...allProducts, ...res.products];
+                }
+            });
+            currentBatch = []; // Reset
+            // Small delay to be gentle on server
+            await new Promise(r => setTimeout(r, 500));
+        }
     }
 
     return allProducts;
@@ -112,28 +118,31 @@ export async function fetchAllWooOrders(params: URLSearchParams): Promise<any[]>
     initialParams.set("per_page", "100");
 
     // We want ALL orders, not just processing/completed, unless specified
-    // But defaults should be set by caller
-
     const { orders, totalPages: total } = await fetchWooOrders(initialParams);
     allOrders = [...orders];
     totalPages = parseInt(total || "1");
 
-    // Fetch remaining pages in parallel chunks if possible, or sequential
-    const fetchPromises = [];
+    // BATCH FETCHING
+    const BATCH_SIZE = 5;
+    let currentBatch: Promise<any>[] = [];
+
     for (let p = 2; p <= totalPages; p++) {
         const pParams = new URLSearchParams(params);
         pParams.set("page", p.toString());
         pParams.set("per_page", "100");
-        fetchPromises.push(fetchWooOrders(pParams));
-    }
 
-    if (fetchPromises.length > 0) {
-        const results = await Promise.all(fetchPromises);
-        results.forEach(res => {
-            if (res.orders) {
-                allOrders = [...allOrders, ...res.orders];
-            }
-        });
+        currentBatch.push(fetchWooOrders(pParams));
+
+        if (currentBatch.length >= BATCH_SIZE || p === totalPages) {
+            const results = await Promise.all(currentBatch);
+            results.forEach(res => {
+                if (res.orders) {
+                    allOrders = [...allOrders, ...res.orders];
+                }
+            });
+            currentBatch = [];
+            await new Promise(r => setTimeout(r, 500));
+        }
     }
 
     return allOrders;
