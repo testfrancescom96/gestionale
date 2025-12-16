@@ -144,7 +144,8 @@ export function PraticaForm({ initialData, isEditing = false }: PraticaFormProps
                     if (!isEditing) {
                         setFormData(prev => ({ ...prev, ...parsed }));
                         setFoundDraft(true);
-                        setTimeout(() => setFoundDraft(false), 5000); // Hide notice after 5s
+                        // Removed auto-hide to let user see "Scarta Bozza" button
+                        // setTimeout(() => setFoundDraft(false), 5000);
                     } else {
                         // For existing practices, only restore if local changes are newer?
                         // Hard to know without timestamps. Let's ignore LS for existing for now to avoid overwriting DB data with stale local data.
@@ -461,7 +462,7 @@ export function PraticaForm({ initialData, isEditing = false }: PraticaFormProps
 
             {/* Draft Recovered Notice */}
             {foundDraft && (
-                <div className="mb-6 rounded-md bg-indigo-50 p-4 border border-indigo-200 fade-in">
+                <div className="mb-6 rounded-md bg-indigo-50 p-4 border border-indigo-200 fade-in flex items-center justify-between">
                     <div className="flex">
                         <div className="flex-shrink-0">
                             {/* Icon */}
@@ -477,6 +478,25 @@ export function PraticaForm({ initialData, isEditing = false }: PraticaFormProps
                                 Abbiamo ripristinato i dati che stavi inserendo.
                             </p>
                         </div>
+                    </div>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => {
+                                if (confirm("Vuoi cancellare questa bozza e ripartire da zero?")) {
+                                    localStorage.removeItem(STORAGE_KEY);
+                                    window.location.reload();
+                                }
+                            }}
+                            className="bg-white text-red-600 border border-red-200 px-3 py-1 rounded text-sm hover:bg-red-50"
+                        >
+                            Scarta Bozza
+                        </button>
+                        <button
+                            onClick={() => setFoundDraft(false)}
+                            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                        >
+                            Chiudi avviso
+                        </button>
                     </div>
                 </div>
             )}
