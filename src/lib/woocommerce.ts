@@ -65,7 +65,7 @@ export async function fetchWooProducts(params: URLSearchParams): Promise<any> {
     };
 }
 
-export async function fetchAllWooProducts(params: URLSearchParams): Promise<any[]> {
+export async function fetchAllWooProducts(params: URLSearchParams, onProgress?: (msg: string) => void): Promise<any[]> {
     let allProducts: any[] = [];
     let page = 1;
     let totalPages = 1;
@@ -75,6 +75,7 @@ export async function fetchAllWooProducts(params: URLSearchParams): Promise<any[
     initialParams.set("page", "1");
     initialParams.set("per_page", "100");
 
+    if (onProgress) onProgress("Sto scaricando la pagina 1...");
     const { products, totalPages: total } = await fetchWooProducts(initialParams);
     allProducts = [...products];
     totalPages = parseInt(total || "1");
@@ -92,6 +93,7 @@ export async function fetchAllWooProducts(params: URLSearchParams): Promise<any[
 
         // If batch full or last page, execute
         if (currentBatch.length >= BATCH_SIZE || p === totalPages) {
+            if (onProgress) onProgress(`Scaricamento pagine ${p - currentBatch.length + 1}-${p} di ${totalPages}...`);
             const results = await Promise.all(currentBatch);
             results.forEach(res => {
                 if (res.products) {
@@ -107,7 +109,7 @@ export async function fetchAllWooProducts(params: URLSearchParams): Promise<any[
     return allProducts;
 }
 
-export async function fetchAllWooOrders(params: URLSearchParams): Promise<any[]> {
+export async function fetchAllWooOrders(params: URLSearchParams, onProgress?: (msg: string) => void): Promise<any[]> {
     let allOrders: any[] = [];
     let page = 1;
     let totalPages = 1;
@@ -117,7 +119,7 @@ export async function fetchAllWooOrders(params: URLSearchParams): Promise<any[]>
     initialParams.set("page", "1");
     initialParams.set("per_page", "100");
 
-    // We want ALL orders, not just processing/completed, unless specified
+    if (onProgress) onProgress("Sto scaricando lista ordini (pag. 1)...");
     const { orders, totalPages: total } = await fetchWooOrders(initialParams);
     allOrders = [...orders];
     totalPages = parseInt(total || "1");
@@ -134,6 +136,7 @@ export async function fetchAllWooOrders(params: URLSearchParams): Promise<any[]>
         currentBatch.push(fetchWooOrders(pParams));
 
         if (currentBatch.length >= BATCH_SIZE || p === totalPages) {
+            if (onProgress) onProgress(`Scaricamento ordini: pagina ${p} di ${totalPages}...`);
             const results = await Promise.all(currentBatch);
             results.forEach(res => {
                 if (res.orders) {

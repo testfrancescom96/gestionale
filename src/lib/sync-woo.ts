@@ -6,7 +6,7 @@ import { parseSkuDate } from "./woo-utils";
  * Sync Products from WooCommerce to Local DB
  * @param mode 'full' | 'incremental'
  */
-export async function syncProducts(mode: 'full' | 'incremental' = 'incremental') {
+export async function syncProducts(mode: 'full' | 'incremental' = 'incremental', onProgress?: (msg: string) => void) {
     let products = [];
 
     // For now, even incremental touches most products to update stock/price, 
@@ -15,15 +15,20 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental')
     // The user's request imply they want control.
 
     if (mode === 'full') {
-        products = await fetchAllWooProducts(new URLSearchParams({ status: 'any' }));
+        products = await fetchAllWooProducts(new URLSearchParams({ status: 'any' }), onProgress);
     } else {
+        if (onProgress) onProgress("Scaricamento rapido (ultima pagina)...");
         // Incremental: Fetch last 100 items (page 1)
         const res = await fetchWooProducts(new URLSearchParams({ per_page: '100', status: 'any' }));
         products = res.products;
     }
 
     let count = 0;
+    const total = products.length;
     for (const p of products) {
+        if (count % 10 === 0 && onProgress) {
+            onProgress(`Salvataggio prodotti: ${count}/${total}...`);
+        }
         // Parse event date from SKU
         const eventDate = parseSkuDate(p.sku);
 
@@ -59,33 +64,58 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental')
 /**
  * Sync Orders from WooCommerce to Local DB
  * @param limit Number of orders to sync (default 50 for rapid sync)
+ * @param days Look back N days (overrides limit if set)
  */
-export async function syncOrders(limit: number = 50) {
+export async function syncOrders(limit: number = 50, days: number | null = null, onProgress?: (msg: string) => void) {
     let orders = [];
 
-    if (limit > 100) {
+    const params = new URLSearchParams({ status: 'any' });
+
+    if (days) {
+        const date = new Date();
+        date.setDate(date.getDate() - days);
+        const afterDate = date.toISOString(); // e.g. 2025-01-01T...
+        params.set("after", afterDate);
+
+        // When using date filter, we want ALL matching orders
+        // even if they exceed 100.
+        orders = await fetchAllWooOrders(params, onProgress);
+    } else if (limit > 100) {
         // Use fetchAll if limit is high (logic for simplicity, can be more granular)
         // Or properly loop pages. But simplest is fetchAll if huge, or just per_page if <= 100
         // fetchAll recursively gets EVERYTHING.
         if (limit > 1000) {
-            orders = await fetchAllWooOrders(new URLSearchParams({ status: 'any' }));
+            orders = await fetchAllWooOrders(params, onProgress);
         } else {
             // Just get one big page or multiple? API max is 100.
             // We can use fetchAll but user asked for "Rapid (50) vs Full".
-            orders = await fetchAllWooOrders(new URLSearchParams({ limit: 'all', status: 'any' })); // Re-use our "limit=all" logic? No, calling library directly.
+            // orders = await fetchAllWooOrders(new URLSearchParams({ limit: 'all', status: 'any' })); // Re-use our "limit=all" logic? No, calling library directly.
             // Actually fetchAllWooOrders fetches EVERYTHING.
             // Let's implement a smarter "fetch N" if needed, but for now:
             // Full = fetchAllWooOrders
             // Rapid = fetchWooOrders(per_page=limit)
+            // Still use fetchAll for robustness if > 100
+            if (onProgress) onProgress("Recupero ultimi " + limit + " ordini...");
+            params.set("per_page", "100"); // Standard page size
+            // Note: fetchAll fetches EVERYTHING.
+            // If we just want 200, fetchAll might be overkill if total is 5000.
+            // But for now, simplified logic: > 100 means "Full/Large Batch".
+            orders = await fetchAllWooOrders(params, onProgress);
         }
     } else {
-        const res = await fetchWooOrders(new URLSearchParams({ per_page: limit.toString(), status: 'any' }));
+        if (onProgress) onProgress("Recupero rapido ultimi ordini...");
+        params.set("per_page", limit.toString());
+        const res = await fetchWooOrders(params);
         orders = res.orders;
     }
 
     let count = 0;
+    const total = orders.length;
 
     for (const o of orders) {
+        if (count % 5 === 0 && onProgress) {
+            onProgress(`Salvataggio ordini: ${count}/${total}...`);
+        }
         // 1. Upsert Order
         const createdOrder = await prisma.wooOrder.upsert({
             where: { id: o.id },

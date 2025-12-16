@@ -48,35 +48,62 @@ export function WooDashboard() {
         }
     };
 
-    const triggerSync = async (mode: 'rapid' | 'full') => {
+    const [progressMsg, setProgressMsg] = useState("");
+
+    const triggerSync = async (type: 'rapid' | 'full' | 'days30' | 'days90') => {
         setLoading(true);
-        try {
-            const res = await fetch("/api/woocommerce/sync", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    type: 'all',
-                    options: mode === 'rapid'
-                        ? { limit: 50, mode: 'incremental' }
-                        : { limit: 10000, mode: 'full' }
-                })
-            });
+        setProgressMsg("Avvio connessione...");
 
-            const data = await res.json();
+        // Build URL params
+        const params = new URLSearchParams();
+        params.set("type", "all");
 
-            if (res.ok) {
-                // Reload local data
-                await loadLocalData();
-                alert(`Sincronizzazione completata! (Prodotti: ${data.stats?.products || 0}, Ordini: ${data.stats?.orders || 0})`);
-            } else {
-                alert(`Errore server: ${data.error || "Sconosciuto"}`);
-            }
-        } catch (e) {
-            console.error(e);
-            alert("Errore di connessione o timeout.");
-        } finally {
-            setLoading(false);
+        if (type === 'rapid') {
+            params.set("limit", "50");
+            params.set("mode", "incremental"); // Products incremental
+        } else if (type === 'full') {
+            params.set("limit", "10000"); // High limit for orders
+            params.set("mode", "full"); // Full products
+        } else if (type === 'days30') {
+            params.set("days", "30");
+            params.set("mode", "incremental");
+        } else if (type === 'days90') {
+            params.set("days", "90");
+            params.set("mode", "incremental");
         }
+
+        const eventSource = new EventSource(`/api/woocommerce/sync/stream?${params.toString()}`);
+
+        eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+
+                if (data.status === 'progress' || data.status === 'info') {
+                    setProgressMsg(data.message);
+                } else if (data.status === 'done') {
+                    eventSource.close();
+                    loadLocalData(); // Reload UI
+                    setLoading(false);
+                    setProgressMsg("");
+                    alert(`Sincronizzazione completata! (Prodotti: ${data.result.products || 0}, Ordini: ${data.result.orders || 0})`);
+                } else if (data.status === 'error') {
+                    eventSource.close();
+                    setLoading(false);
+                    alert("Errore: " + data.message);
+                }
+            } catch (e) {
+                console.error("SSE Parse Error", e);
+            }
+        };
+
+        eventSource.onerror = (e) => {
+            console.error("SSE Error", e);
+            eventSource.close();
+            setLoading(false);
+            // alert("Connessione interrotta (timeout o fine stream)");
+            // Usually reload anyway just in case
+            loadLocalData();
+        };
     };
 
     useEffect(() => {
@@ -87,13 +114,26 @@ export function WooDashboard() {
         return (
             <div className="flex flex-col items-center justify-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
-                <p className="text-gray-500">Sincronizzazione WooCommerce in corso...</p>
+                <p className="text-gray-500">Caricamento dati...</p>
             </div>
         );
     }
 
     return (
         <div className="space-y-6">
+            {/* Sync Progress Bar Overlay (if loading but we have data) */}
+            {loading && products.length > 0 && (
+                <div className="fixed inset-x-0 top-0 z-50">
+                    <div className="h-1 w-full bg-blue-100 overflow-hidden">
+                        <div className="animate-progress h-full bg-blue-600 origin-left-right"></div>
+                    </div>
+                    <div className="bg-blue-600 text-white text-center py-2 text-sm font-medium shadow-md">
+                        <Loader2 className="h-4 w-4 animate-spin inline mr-2" />
+                        {progressMsg || "Sincronizzazione in corso..."}
+                    </div>
+                </div>
+            )}
+
             {/* Header / Stats */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm border">
                 <div>
@@ -112,25 +152,39 @@ export function WooDashboard() {
                             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                         >
                             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                            {loading ? 'Sincronizzazione...' : 'Sincronizza'}
+                            {loading ? 'In corso...' : 'Sincronizza'}
                             <ChevronDown className="h-4 w-4 ml-1" />
                         </button>
 
                         {/* Dropdown Menu */}
-                        <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-100 hidden group-hover:block z-50 overflow-hidden">
+                        <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-100 hidden group-hover:block z-50 overflow-hidden">
                             <button
                                 onClick={() => triggerSync('rapid')}
                                 className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
                             >
-                                <span className="font-bold block">Rapida (Consigliata)</span>
-                                <span className="text-xs text-gray-500">Scarica ultimi 50 ordini e aggiornamenti recenti.</span>
+                                <span className="font-bold block">Rapida (Ultimi 50)</span>
+                                <span className="text-xs text-gray-500">Consigliata per aggiornamenti quotidiani.</span>
+                            </button>
+                            <button
+                                onClick={() => triggerSync('days30')}
+                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
+                            >
+                                <span className="font-bold block text-blue-600">Ultimi 30 Giorni</span>
+                                <span className="text-xs text-gray-500">Ricarica ordini dell'ultimo mese.</span>
+                            </button>
+                            <button
+                                onClick={() => triggerSync('days90')}
+                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
+                            >
+                                <span className="font-bold block text-blue-700">Ultimi 90 Giorni</span>
+                                <span className="text-xs text-gray-500">Ricarica ordini dell'ultimo trimestre.</span>
                             </button>
                             <button
                                 onClick={() => triggerSync('full')}
                                 className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700"
                             >
-                                <span className="font-bold block text-blue-600">Completa (Tutto)</span>
-                                <span className="text-xs text-gray-500">Riscarica l'intero catalogo. Può richiedere minuti.</span>
+                                <span className="font-bold block text-red-600">Completa (Tutto)</span>
+                                <span className="text-xs text-gray-500">ATTENZIONE: Molto lento (tutto il catalogo).</span>
                             </button>
                         </div>
                     </div>
