@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, RefreshCw, CalendarOff } from "lucide-react";
+import { Loader2, RefreshCw, CalendarOff, ChevronDown } from "lucide-react";
 import { groupProductsByDate, GroupedEvent, YearGroup } from "@/lib/woo-utils";
 import { EventGroup } from "./EventGroup";
 
@@ -16,13 +16,14 @@ export function WooDashboard() {
     // Configuration
     const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
-    const fetchAllData = async () => {
-        setLoading(true);
+    const loadLocalData = async () => {
+        // setLoading(true); // Don't block UI on load if we have data? Better to show spinner for initial load.
+        if (products.length === 0) setLoading(true);
+
         try {
-            // Fetch concurrently
             const [prodRes, ordRes] = await Promise.all([
-                fetch("/api/woocommerce/products?limit=all"), // Fetching ALL items
-                fetch("/api/woocommerce/orders?limit=all&status=any")
+                fetch("/api/woocommerce/products"),
+                fetch("/api/woocommerce/orders")
             ]);
 
             const prodData = await prodRes.json();
@@ -30,7 +31,6 @@ export function WooDashboard() {
 
             if (prodData.products) {
                 setProducts(prodData.products);
-                // Group logic
                 const groups = groupProductsByDate(prodData.products);
                 setGroupedEvents(groups);
             }
@@ -42,22 +42,43 @@ export function WooDashboard() {
             setLastUpdated(new Date());
 
         } catch (error) {
-            console.error("Error fetching Woo data:", error);
+            console.error("Error loading local data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const triggerSync = async (mode: 'rapid' | 'full') => {
+        setLoading(true);
+        try {
+            const res = await fetch("/api/woocommerce/sync", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: 'all',
+                    options: mode === 'rapid'
+                        ? { limit: 50, mode: 'incremental' }
+                        : { limit: 10000, mode: 'full' }
+                })
+            });
+
+            if (res.ok) {
+                // Reload local data
+                await loadLocalData();
+                alert("Sincronizzazione completata!");
+            } else {
+                alert("Errore durante la sincronizzazione.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Errore di connessione.");
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchAllData();
-
-        // Auto-refresh interval
-        const intervalId = setInterval(() => {
-            console.log("Auto-refreshing WooCommerce data...");
-            fetchAllData();
-        }, REFRESH_INTERVAL);
-
-        return () => clearInterval(intervalId);
+        loadLocalData();
     }, []);
 
     if (loading && products.length === 0) {
@@ -89,13 +110,34 @@ export function WooDashboard() {
                         </span>
                         Auto-Sync: 5 min
                     </div>
-                    <button
-                        onClick={() => fetchAllData()}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                    >
-                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                        Aggiorna Ora
-                    </button>
+                    <div className="relative group">
+                        <button
+                            disabled={loading}
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                        >
+                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                            {loading ? 'Sincronizzazione...' : 'Sincronizza'}
+                            <ChevronDown className="h-4 w-4 ml-1" />
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-100 hidden group-hover:block z-50 overflow-hidden">
+                            <button
+                                onClick={() => triggerSync('rapid')}
+                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
+                            >
+                                <span className="font-bold block">Rapida (Consigliata)</span>
+                                <span className="text-xs text-gray-500">Scarica ultimi 50 ordini e aggiornamenti recenti.</span>
+                            </button>
+                            <button
+                                onClick={() => triggerSync('full')}
+                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700"
+                            >
+                                <span className="font-bold block text-blue-600">Completa (Tutto)</span>
+                                <span className="text-xs text-gray-500">Riscarica l'intero catalogo. Può richiedere minuti.</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

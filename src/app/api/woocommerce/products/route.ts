@@ -1,55 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchWooProducts, fetchAllWooProducts } from "@/lib/woocommerce";
 import { prisma } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
 
     try {
-        let products = [];
-        let total = "0";
-        let totalPages = "1";
-
-        if (searchParams.get("limit") === "all") {
-            products = await fetchAllWooProducts(searchParams);
-            total = products.length.toString();
-        } else {
-            const res = await fetchWooProducts(searchParams);
-            products = res.products;
-            total = res.total;
-            totalPages = res.totalPages;
-        }
-
-        // Fetch local operational data for these products
-        const productIds = products.map((p: any) => p.id);
-        // @ts-ignore
-        const operationalData = await prisma.viaggioOperativo.findMany({
-            where: {
-                wooProductId: { in: productIds }
+        // Fetch from LOCAL DB
+        const products = await prisma.wooProduct.findMany({
+            include: {
+                operational: true // Include operational status
+            },
+            orderBy: {
+                eventDate: 'asc' // Default sort by date
             }
         });
 
-        // Merge data
-        const enrichedProducts = products.map((product: any) => {
-            const opData = operationalData.find((op: any) => op.wooProductId === product.id);
-            return {
-                ...product,
-                viaggioOperativo: opData || null
-            };
-        });
+        // Transform to match expected frontend structure if needed
+        // Frontend expects: { products: [], ... }
+        // The structure from prisma is slightly different (dates are Date objects)
+        // But JSON serialization handles Date -> String ISO.
 
         return NextResponse.json({
-            products: enrichedProducts,
-            pagination: {
-                total,
-                totalPages,
-            }
+            products: products,
+            total: products.length,
+            source: 'local_cache'
         });
 
     } catch (error: any) {
-        console.error("Error fetching WooCommerce products:", error);
+        console.error("Error fetching Local Woo products:", error);
         return NextResponse.json(
-            { error: error.message || "Failed to fetch products from WooCommerce" },
+            { error: "Failed to fetch products" },
             { status: 500 }
         );
     }

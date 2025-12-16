@@ -1,36 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchWooOrders, fetchAllWooOrders } from "@/lib/woocommerce";
+import { prisma } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
-    const { searchParams } = request.nextUrl;
-
     try {
-        let orders = [];
-        let total = "0";
-        let totalPages = "1";
-
-        if (searchParams.get("limit") === "all") {
-            orders = await fetchAllWooOrders(searchParams);
-            total = orders.length.toString();
-        } else {
-            const res = await fetchWooOrders(searchParams);
-            orders = res.orders;
-            total = res.total;
-            totalPages = res.totalPages;
-        }
-
-        return NextResponse.json({
-            orders,
-            pagination: {
-                total,
-                totalPages,
+        // Fetch from LOCAL DB
+        const orders = await prisma.wooOrder.findMany({
+            include: {
+                lineItems: {
+                    include: {
+                        product: true
+                    }
+                }
+            },
+            orderBy: {
+                dateCreated: 'desc'
             }
         });
 
+        // Map to match structure vaguely if needed, but the frontend lists orders. 
+        // We might need to map billing flattened fields to nested object if frontend expects `billing: { ... }`
+        const mappedOrders = orders.map(o => ({
+            ...o,
+            billing: {
+                first_name: o.billingFirstName,
+                last_name: o.billingLastName,
+                email: o.billingEmail,
+                phone: o.billingPhone,
+                address_1: o.billingAddress,
+                city: o.billingCity
+            },
+            line_items: o.lineItems.map(l => ({
+                id: l.id,
+                name: l.productName,
+                product_id: l.wooProductId,
+                quantity: l.quantity,
+                total: l.total.toString() // Woo API sends string often, but number is fine usually.
+            }))
+        }));
+
+        return NextResponse.json({
+            orders: mappedOrders,
+            total: orders.length,
+            source: 'local_cache'
+        });
+
     } catch (error: any) {
-        console.error("Error fetching WooCommerce orders:", error);
+        console.error("Error fetching Local Woo orders:", error);
         return NextResponse.json(
-            { error: error.message || "Failed to fetch orders from WooCommerce" },
+            { error: "Failed to fetch orders" },
             { status: 500 }
         );
     }

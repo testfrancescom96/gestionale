@@ -611,6 +611,7 @@ model ViaggioOperativo {
   
   // Link a WooCommerce
   wooProductId    Int       @unique // ID del prodotto su Woo
+  wooProduct      WooProduct? @relation(fields: [wooProductId], references: [id])
   
   // Date Importanti (ridondanza per query veloci)
   dataViaggio     DateTime?
@@ -634,4 +635,62 @@ model ViaggioOperativo {
   
   @@index([wooProductId])
   @@index([dataViaggio])
+}
+
+// ==================== WOOCOMMERCE CACHE ====================
+model WooProduct {
+  id          Int      @id // Mapped from WooCommerce ID
+  name        String
+  sku         String?
+  price       Float?
+  status      String
+  permalink   String?
+  dateCreated DateTime?
+  dateModified DateTime?
+  
+  // Parsed Data
+  eventDate   DateTime? // Parsed from SKU
+  
+  // Relations
+  orderItems  WooOrderItem[]
+  operational ViaggioOperativo?
+  
+  updatedAt   DateTime @updatedAt
+}
+
+model WooOrder {
+  id              Int      @id // Mapped from WooCommerce ID
+  status          String
+  total           Float
+  currency        String?
+  dateCreated     DateTime
+  
+  // Billing Info (Flattened for easy search)
+  billingFirstName String?
+  billingLastName  String?
+  billingEmail     String?
+  billingPhone     String?
+  billingAddress   String? 
+  billingCity      String?
+  
+  // Relations
+  lineItems       WooOrderItem[]
+  
+  updatedAt       DateTime @updatedAt
+}
+
+model WooOrderItem {
+  id              Int      @id @default(autoincrement()) // Local ID
+  wooOrderId      Int
+  order           WooOrder @relation(fields: [wooOrderId], references: [id], onDelete: Cascade)
+  
+  wooProductId    Int?
+  product         WooProduct? @relation(fields: [wooProductId], references: [id])
+  
+  productName     String
+  quantity        Int
+  total           Float
+  
+  @@index([wooOrderId])
+  @@index([wooProductId])
 }
