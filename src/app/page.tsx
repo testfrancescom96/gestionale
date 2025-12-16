@@ -1,137 +1,114 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { FileText, Users, Building2, TrendingUp } from "lucide-react";
+import { UnifiedHeader } from "@/components/dashboard/UnifiedHeader";
+import { IndividualiSection } from "@/components/dashboard/IndividualiSection";
+import { GruppiSection } from "@/components/dashboard/GruppiSection";
 
-async function getDashboardStats() {
+async function getDashboardData() {
+  const today = new Date();
+  const nextWeek = new Date();
+  nextWeek.setDate(today.getDate() + 7);
+
   const [
-    totalPratiche,
-    praticheConfermate,
-    totalClienti,
-    totalFornitori,
-    totalWooOrders,
+    // 1. Stats Individuali
+    totalOpen,
+    departingSoon,
+
+    // 2. Stats Gruppi (Woo)
+    totalEvents,
+    totalOrders, // Total orders ever
+
+    // 3. Lists
+    recentPratiche,
+    upcomingEvents
   ] = await Promise.all([
-    prisma.pratica.count(),
-    prisma.pratica.count({ where: { stato: "CONFERMATO" } }),
-    prisma.cliente.count(),
-    prisma.fornitore.count(),
+    // Indiv Stats
+    prisma.pratica.count({ where: { stato: { notIn: ['CONFERMATO', 'ANNULLATO'] } } }), // "In Lavorazione" ish (DA_ELABORARE etc)
+    prisma.pratica.count({
+      where: {
+        dataPartenza: {
+          gte: today,
+          lte: nextWeek
+        },
+        stato: 'CONFERMATO'
+      }
+    }),
+
+    // Gruppi Stats
+    prisma.wooProduct.count({ where: { status: 'publish' } }),
     prisma.wooOrder.count(),
+
+    // Recent List
+    prisma.pratica.findMany({
+      take: 5,
+      orderBy: { updatedAt: 'desc' },
+      include: { cliente: true }
+    }),
+
+    // Upcoming Events (WooProduct with eventDate >= today)
+    prisma.wooProduct.findMany({
+      where: {
+        // eventDate: { gte: today }, // Might fail if eventDate null, handle carefully
+        // Prisma doesn't support easy "gte" on nullables effectively without check.
+        // But usually filtered by status.
+        eventDate: { not: null }, // Filter only dates
+        status: 'publish'
+      },
+      orderBy: { eventDate: 'asc' },
+      take: 10,
+      include: {
+        operational: true,
+        _count: {
+          select: { orderItems: true } // Rough count of items sold
+        }
+      }
+    })
   ]);
 
+  // Client-side filter for dates on upcomingEvents if DB filter is tricky with nulls
+  const validUpcoming = upcomingEvents.filter(e => e.eventDate && new Date(e.eventDate) >= new Date(new Date().setHours(0, 0, 0, 0)));
+
   return {
-    totalPratiche,
-    praticheConfermate,
-    totalClienti,
-    totalFornitori,
-    totalWooOrders,
+    individuali: {
+      stats: {
+        totalOpen,
+        departingSoon,
+        overduePayments: 0 // Placeholder for now
+      },
+      recent: recentPratiche
+    },
+    gruppi: {
+      stats: {
+        totalEvents,
+        totalOrders
+      },
+      upcoming: validUpcoming
+    }
   };
 }
 
 export default async function HomePage() {
-  const stats = await getDashboardStats();
-
-  const cards = [
-    {
-      title: "Pratiche Totali",
-      value: stats.totalPratiche,
-      icon: FileText,
-      color: "bg-blue-500",
-      href: "/pratiche",
-    },
-    {
-      title: "Confermate",
-      value: stats.praticheConfermate,
-      icon: TrendingUp,
-      color: "bg-green-500",
-      href: "/pratiche?filter=confermato",
-    },
-    {
-      title: "Clienti",
-      value: stats.totalClienti,
-      icon: Users,
-      color: "bg-purple-500",
-      href: "/clienti",
-    },
-    {
-      title: "Fornitori",
-      value: stats.totalFornitori,
-      icon: Building2,
-      color: "bg-orange-500",
-      href: "/fornitori",
-    },
-    {
-      title: "Eventi / Gruppi",
-      value: stats.totalWooOrders,
-      icon: Users, // Reusing Users icon or similar? maybe Calendar or Globe?
-      color: "bg-indigo-500",
-      href: "/woocommerce",
-    },
-  ];
+  const data = await getDashboardData();
 
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-2 text-gray-600">
-          Benvenuto nel gestionale per agenzia viaggi
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50/50 p-6 md:p-8 font-sans">
+      <UnifiedHeader />
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map((card) => (
-          <Link
-            key={card.title}
-            href={card.href}
-            className="group relative overflow-hidden rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 transition-all hover:shadow-lg hover:ring-gray-900/10"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
-                  {card.title}
-                </p>
-                <p className="mt-2 text-3xl font-semibold text-gray-900">
-                  {card.value}
-                </p>
-              </div>
-              <div className={`rounded-lg ${card.color} p-3`}>
-                <card.icon className="h-6 w-6 text-white" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm text-gray-500 transition-colors group-hover:text-blue-600">
-              Visualizza dettagli →
-            </div>
-          </Link>
-        ))}
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-200px)]">
+        {/* Left Column: Individuali */}
+        <div className="h-full">
+          <IndividualiSection
+            stats={data.individuali.stats}
+            recentPratiche={data.individuali.recent}
+          />
+        </div>
 
-      {/* Quick Actions */}
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
-          Azioni Rapide
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Link
-            href="/pratiche/nuova"
-            className="flex items-center gap-3 rounded-lg bg-blue-600 px-4 py-3 text-white shadow-md transition-all hover:bg-blue-700 hover:shadow-lg"
-          >
-            <FileText className="h-5 w-5" />
-            <span className="font-medium">Nuova Pratica</span>
-          </Link>
-          <Link
-            href="/clienti/nuovo"
-            className="flex items-center gap-3 rounded-lg bg-purple-600 px-4 py-3 text-white shadow-md transition-all hover:bg-purple-700 hover:shadow-lg"
-          >
-            <Users className="h-5 w-5" />
-            <span className="font-medium">Nuovo Cliente</span>
-          </Link>
-          <Link
-            href="/scadenzario"
-            className="flex items-center gap-3 rounded-lg bg-orange-600 px-4 py-3 text-white shadow-md transition-all hover:bg-orange-700 hover:shadow-lg"
-          >
-            <Building2 className="h-5 w-5" />
-            <span className="font-medium">Scadenze</span>
-          </Link>
+        {/* Right Column: Gruppi */}
+        <div className="h-full border-l lg:pl-8 border-gray-200 border-dashed lg:border-solid lg:border-l-2 lg:border-gray-200/50">
+          <GruppiSection
+            stats={data.gruppi.stats}
+            upcomingEvents={data.gruppi.upcoming}
+          />
         </div>
       </div>
     </div>
