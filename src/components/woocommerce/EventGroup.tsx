@@ -147,7 +147,12 @@ export function EventGroup({ data, orders, updatedOrderIds, onRefresh }: EventGr
                                 </div>
 
                                 {expandedProducts[product.id] && (
-                                    <ProductBookings product={product} orders={orders} />
+                                    <ProductBookings
+                                        product={product}
+                                        orders={orders}
+                                        updatedOrderIds={updatedOrderIds}
+                                        onRefresh={onRefresh}
+                                    />
                                 )}
                             </div>
                         );

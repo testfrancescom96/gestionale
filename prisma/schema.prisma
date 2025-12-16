@@ -673,6 +673,9 @@ model WooOrder {
   billingAddress   String? 
   billingCity      String?
   
+  manuallyModified Boolean @default(false)
+  adminNotes       String? // Note interne operatore
+  
   // Relations
   lineItems       WooOrderItem[]
   
