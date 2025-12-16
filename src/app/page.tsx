@@ -8,11 +8,13 @@ async function getDashboardStats() {
     praticheConfermate,
     totalClienti,
     totalFornitori,
+    totalWooOrders,
   ] = await Promise.all([
     prisma.pratica.count(),
     prisma.pratica.count({ where: { stato: "CONFERMATO" } }),
     prisma.cliente.count(),
     prisma.fornitore.count(),
+    prisma.wooOrder.count(),
   ]);
 
   return {
@@ -20,6 +22,7 @@ async function getDashboardStats() {
     praticheConfermate,
     totalClienti,
     totalFornitori,
+    totalWooOrders,
   };
 }
 
@@ -54,6 +57,13 @@ export default async function HomePage() {
       icon: Building2,
       color: "bg-orange-500",
       href: "/fornitori",
+    },
+    {
+      title: "Eventi / Gruppi",
+      value: stats.totalWooOrders,
+      icon: Users, // Reusing Users icon or similar? maybe Calendar or Globe?
+      color: "bg-indigo-500",
+      href: "/woocommerce",
     },
   ];
 

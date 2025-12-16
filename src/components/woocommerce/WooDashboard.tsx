@@ -50,7 +50,7 @@ export function WooDashboard() {
 
     const [progressMsg, setProgressMsg] = useState("");
 
-    const triggerSync = async (type: 'rapid' | 'full' | 'days30' | 'days90') => {
+    const triggerSync = async (type: 'smart' | 'rapid' | 'full' | 'days30' | 'days90') => {
         setLoading(true);
         setProgressMsg("Avvio connessione...");
 
@@ -58,17 +58,24 @@ export function WooDashboard() {
         const params = new URLSearchParams();
         params.set("type", "all");
 
-        if (type === 'rapid') {
+        if (type === 'smart') {
+            params.set("order_mode", "smart");
+            params.set("mode", "incremental");
+        } else if (type === 'rapid') {
             params.set("limit", "50");
-            params.set("mode", "incremental"); // Products incremental
+            params.set("order_mode", "rapid");
+            params.set("mode", "incremental");
         } else if (type === 'full') {
-            params.set("limit", "10000"); // High limit for orders
-            params.set("mode", "full"); // Full products
+            params.set("limit", "10000");
+            params.set("order_mode", "full");
+            params.set("mode", "full");
         } else if (type === 'days30') {
             params.set("days", "30");
+            params.set("order_mode", "days");
             params.set("mode", "incremental");
         } else if (type === 'days90') {
             params.set("days", "90");
+            params.set("order_mode", "days");
             params.set("mode", "incremental");
         }
 
@@ -100,8 +107,6 @@ export function WooDashboard() {
             console.error("SSE Error", e);
             eventSource.close();
             setLoading(false);
-            // alert("Connessione interrotta (timeout o fine stream)");
-            // Usually reload anyway just in case
             loadLocalData();
         };
     };
@@ -147,44 +152,56 @@ export function WooDashboard() {
                 <div className="flex items-center gap-3">
 
                     <div className="relative group">
-                        <button
-                            disabled={loading}
-                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                        >
-                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                            {loading ? 'In corso...' : 'Sincronizza'}
-                            <ChevronDown className="h-4 w-4 ml-1" />
-                        </button>
+                        <div className="flex rounded-md shadow-sm">
+                            <button
+                                onClick={() => triggerSync('smart')}
+                                disabled={loading}
+                                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-l-lg text-sm font-medium transition-colors border-r border-blue-700"
+                            >
+                                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                                {loading ? 'In corso...' : 'Sync Modifiche'}
+                            </button>
+                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2 rounded-r-lg disabled:opacity-50">
+                                <ChevronDown className="h-4 w-4" />
+                            </button>
+                        </div>
 
                         {/* Dropdown Menu */}
                         <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-100 hidden group-hover:block z-50 overflow-hidden">
+                            <div className="p-3 bg-blue-50 border-b border-blue-100">
+                                <p className="text-xs text-blue-800 font-medium">Sincronizzazione Intelligente</p>
+                                <p className="text-[10px] text-blue-600 mt-1">Scarica solo le novità e le modifiche (molto veloce).</p>
+                            </div>
+                            <button
+                                onClick={() => triggerSync('smart')}
+                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b flex items-center justify-between"
+                            >
+                                <div>
+                                    <span className="font-bold block text-blue-700">Smart Sync (Consigliato)</span>
+                                    <span className="text-xs text-gray-500">Aggiorna stati e nuovi ordini.</span>
+                                </div>
+                            </button>
+
                             <button
                                 onClick={() => triggerSync('rapid')}
                                 className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
                             >
                                 <span className="font-bold block">Rapida (Ultimi 50)</span>
-                                <span className="text-xs text-gray-500">Consigliata per aggiornamenti quotidiani.</span>
+                                <span className="text-xs text-gray-500">Forza riscaricamento ultimi 50 ordini.</span>
                             </button>
                             <button
                                 onClick={() => triggerSync('days30')}
                                 className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
                             >
-                                <span className="font-bold block text-blue-600">Ultimi 30 Giorni</span>
-                                <span className="text-xs text-gray-500">Ricarica ordini dell'ultimo mese.</span>
-                            </button>
-                            <button
-                                onClick={() => triggerSync('days90')}
-                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
-                            >
-                                <span className="font-bold block text-blue-700">Ultimi 90 Giorni</span>
-                                <span className="text-xs text-gray-500">Ricarica ordini dell'ultimo trimestre.</span>
+                                <span className="font-bold block">Ultimi 30 Giorni</span>
+                                <span className="text-xs text-gray-500">Ricarica tutto il mese corrente.</span>
                             </button>
                             <button
                                 onClick={() => triggerSync('full')}
                                 className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700"
                             >
                                 <span className="font-bold block text-red-600">Completa (Tutto)</span>
-                                <span className="text-xs text-gray-500">ATTENZIONE: Molto lento (tutto il catalogo).</span>
+                                <span className="text-xs text-gray-500">Lento. Scarica l'intero database.</span>
                             </button>
                         </div>
                     </div>

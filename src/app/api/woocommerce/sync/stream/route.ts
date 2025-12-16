@@ -35,7 +35,30 @@ export async function GET(request: NextRequest) {
 
                 if (type === 'orders' || type === 'all') {
                     sendEvent({ status: 'info', message: "Inizio sincronizzazione Ordini..." });
-                    const res = await syncOrders(limit, days, onProgress);
+
+                    // Determine Order Mode
+                    let orderMode = searchParams.get("order_mode");
+                    let value = 50; // default value
+
+                    // Backward compatibility / Inference
+                    if (!orderMode) {
+                        if (days) {
+                            orderMode = 'days';
+                            value = days;
+                        } else if (limit > 100) {
+                            orderMode = 'full';
+                        } else {
+                            orderMode = 'rapid';
+                            value = limit;
+                        }
+                    } else {
+                        // Explicit mode set
+                        if (orderMode === 'rapid') value = limit;
+                        if (orderMode === 'days') value = days || 30;
+                    }
+
+                    // @ts-ignore
+                    const res = await syncOrders(orderMode, value, onProgress);
                     result.orders = res.count;
                 }
 
