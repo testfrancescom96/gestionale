@@ -13,10 +13,11 @@ import { TripWorkflowModal } from "./TripWorkflowModal";
 interface EventGroupProps {
     data: GroupedEvent;
     orders: any[];
+    updatedOrderIds?: number[];
     onRefresh?: () => void;
 }
 
-export function EventGroup({ data, orders, onRefresh }: EventGroupProps) {
+export function EventGroup({ data, orders, updatedOrderIds, onRefresh }: EventGroupProps) {
     // Determine if the group (Month) is expanded
     const [isExpanded, setIsExpanded] = useState(false);
 

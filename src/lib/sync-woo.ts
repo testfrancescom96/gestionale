@@ -119,6 +119,7 @@ export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'sm
 
     let count = 0;
     const total = orders.length;
+    const updatedIds: number[] = [];
 
     if (total === 0 && onProgress) {
         onProgress("Nessuna modifica trovata.");
@@ -128,6 +129,13 @@ export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'sm
         if (count % 5 === 0 && onProgress) {
             onProgress(`Salvataggio ordini: ${count}/${total}...`);
         }
+
+        // Check if exists to see if it's an update
+        const existing = await prisma.wooOrder.findUnique({
+            where: { id: o.id },
+            select: { status: true, total: true }
+        });
+
         // 1. Upsert Order
         const createdOrder = await prisma.wooOrder.upsert({
             where: { id: o.id },
@@ -157,6 +165,17 @@ export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'sm
                 billingCity: o.billing?.city,
             }
         });
+
+        // Detect change
+        let changed = false;
+        if (!existing) changed = true; // New
+        else if (existing.status !== o.status || Math.abs(existing.total - parseFloat(o.total)) > 0.01) {
+            changed = true; // Updated status or total
+        }
+
+        if (changed) {
+            updatedIds.push(o.id);
+        }
 
         // 2. Handle Line Items (Delete existing and recreate to ensure sync?)
         // Or upsert? Recreating is safer for line items changes.
@@ -193,5 +212,5 @@ export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'sm
         count++;
     }
 
-    return { count };
+    return { count, updatedIds };
 }

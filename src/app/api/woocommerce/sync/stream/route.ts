@@ -60,6 +60,7 @@ export async function GET(request: NextRequest) {
                     // @ts-ignore
                     const res = await syncOrders(orderMode, value, onProgress);
                     result.orders = res.count;
+                    result.updatedIds = res.updatedIds;
                 }
 
                 sendEvent({ status: 'done', result });
