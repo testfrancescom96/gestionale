@@ -1,8 +1,7 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, User } from "lucide-react";
+import { Plus, Trash2, User, Loader2, Save, X, Mail } from "lucide-react";
 
 interface Operatore {
     id: string;
@@ -12,8 +11,13 @@ interface Operatore {
 
 export function OperatoriManager() {
     const [operatori, setOperatori] = useState<Operatore[]>([]);
-    const [newOperatore, setNewOperatore] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Form States
+    const [isAdding, setIsAdding] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [newNome, setNewNome] = useState("");
+    const [newEmail, setNewEmail] = useState("");
 
     useEffect(() => {
         loadOperatori();
@@ -21,6 +25,7 @@ export function OperatoriManager() {
 
     const loadOperatori = async () => {
         try {
+            setIsLoading(true);
             const res = await fetch("/api/impostazioni/operatori");
             if (res.ok) {
                 const data = await res.json();
@@ -28,30 +33,38 @@ export function OperatoriManager() {
             }
         } catch (error) {
             console.error("Errore caricamento operatori", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleAdd = async () => {
-        if (!newOperatore.trim()) return;
+        if (!newNome.trim()) return;
 
-        setIsLoading(true);
+        setIsSaving(true);
         try {
             const res = await fetch("/api/impostazioni/operatori", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nome: newOperatore }),
+                body: JSON.stringify({
+                    nome: newNome,
+                    email: newEmail
+                }),
             });
 
             if (res.ok) {
-                setNewOperatore("");
+                setNewNome("");
+                setNewEmail("");
+                setIsAdding(false);
                 loadOperatori();
             } else {
                 alert("Errore durante la creazione");
             }
         } catch (error) {
             console.error(error);
+            alert("Errore di rete");
         } finally {
-            setIsLoading(false);
+            setIsSaving(false);
         }
     };
 
@@ -74,53 +87,110 @@ export function OperatoriManager() {
     };
 
     return (
-        <div className="space-y-4">
-            <div className="flex gap-2">
-                <input
-                    type="text"
-                    value={newOperatore}
-                    onChange={(e) => setNewOperatore(e.target.value)}
-                    placeholder="Nuovo operatore (es. MARIO)"
-                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-                />
+        <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
+            <div className="flex items-center justify-between mb-6">
+                <div>
+                    <h2 className="text-lg font-semibold text-gray-900">Gestione Operatori</h2>
+                    <p className="text-sm text-gray-500">
+                        Configura gli operatori che possono gestire le pratiche.
+                    </p>
+                </div>
                 <button
-                    onClick={handleAdd}
-                    disabled={isLoading || !newOperatore.trim()}
-                    className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                    onClick={() => setIsAdding(true)}
+                    disabled={isAdding}
+                    className="flex items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
                 >
                     <Plus className="h-4 w-4" />
-                    Aggiungi
+                    Aggiungi Operatore
                 </button>
             </div>
 
-            <div className="rounded-lg border border-gray-200 bg-white">
-                <ul className="divide-y divide-gray-100">
+            {/* Form Aggiunta */}
+            {isAdding && (
+                <div className="mb-6 rounded-md border border-blue-100 bg-blue-50 p-4">
+                    <h3 className="text-sm font-medium text-blue-900 mb-3">Nuovo Operatore</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label className="block text-xs font-medium text-blue-900 mb-1">Nome *</label>
+                            <input
+                                autoFocus
+                                type="text"
+                                className="w-full rounded border-blue-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                                placeholder="es. Mario Rossi"
+                                value={newNome}
+                                onChange={(e) => setNewNome(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-blue-900 mb-1">Email</label>
+                            <input
+                                type="email"
+                                className="w-full rounded border-blue-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                                placeholder="mario@example.com"
+                                value={newEmail}
+                                onChange={(e) => setNewEmail(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                        <button
+                            onClick={() => setIsAdding(false)}
+                            className="flex items-center gap-1 rounded px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-200"
+                        >
+                            <X className="h-4 w-4" /> Annulla
+                        </button>
+                        <button
+                            onClick={handleAdd}
+                            disabled={!newNome.trim() || isSaving}
+                            className="flex items-center gap-1 rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+                        >
+                            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                            Salva
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* List */}
+            {isLoading ? (
+                <div className="flex justify-center py-6">
+                    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                </div>
+            ) : (
+                <div className="divide-y divide-gray-100 border-t">
                     {operatori.length === 0 ? (
-                        <li className="p-4 text-center text-sm text-gray-500">
+                        <div className="py-8 text-center text-sm text-gray-500">
                             Nessun operatore configurato.
-                        </li>
+                        </div>
                     ) : (
                         operatori.map((op) => (
-                            <li key={op.id} className="flex items-center justify-between p-3 hover:bg-gray-50">
+                            <div key={op.id} className="flex items-center justify-between py-3 hover:bg-gray-50 px-2 rounded -mx-2 bg-white transition-colors">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                                        <User className="h-4 w-4" />
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+                                        <User className="h-5 w-5" />
                                     </div>
-                                    <span className="font-medium text-gray-900">{op.nome}</span>
+                                    <div>
+                                        <div className="font-medium text-gray-900">{op.nome}</div>
+                                        {op.email && (
+                                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                                                <Mail className="h-3 w-3" />
+                                                {op.email}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 <button
                                     onClick={() => handleDelete(op.id)}
-                                    className="rounded p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                                    className="rounded p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
                                     title="Elimina"
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </button>
-                            </li>
+                            </div>
                         ))
                     )}
-                </ul>
-            </div>
+                </div>
+            )}
         </div>
     );
 }
