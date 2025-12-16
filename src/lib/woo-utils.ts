@@ -107,3 +107,62 @@ export function groupProductsByDate(products: any[]): { years: YearGroup[], unda
 
     return { years, undated };
 }
+
+/**
+ * Groups orders by Year and Month based on date_created.
+ */
+export function groupOrdersByDate(orders: any[]): YearGroup[] {
+    const datedMap = new Map<string, any[]>();
+
+    orders.forEach(o => {
+        const dateStr = o.date_created; // ISO string 
+        if (dateStr) {
+            const date = new Date(dateStr);
+            if (isValid(date)) {
+                const key = `${date.getFullYear()}-${date.getMonth()}`;
+                if (!datedMap.has(key)) {
+                    datedMap.set(key, []);
+                }
+                datedMap.get(key)?.push(o);
+            }
+        }
+    });
+
+    const yearsMap = new Map<number, GroupedEvent[]>();
+
+    // Sort: Newest first
+    const sortedKeys = Array.from(datedMap.keys()).sort((a, b) => {
+        const [yA, mA] = a.split('-').map(Number);
+        const [yB, mB] = b.split('-').map(Number);
+        // Descending order for orders usually
+        if (yA !== yB) return yB - yA;
+        return mB - mA;
+    });
+
+    sortedKeys.forEach(key => {
+        const [year, month] = key.split('-').map(Number);
+        const sortedOrders = datedMap.get(key)?.sort((a, b) => new Date(b.date_created).getTime() - new Date(a.date_created).getTime()) || [];
+
+        const monthGroup: GroupedEvent = {
+            year,
+            month,
+            monthName: format(new Date(year, month, 1), "MMMM", { locale: it }),
+            products: sortedOrders // Reusing 'products' field for convenience, though it contains orders
+        };
+
+        if (!yearsMap.has(year)) {
+            yearsMap.set(year, []);
+        }
+        yearsMap.get(year)?.push(monthGroup);
+    });
+
+    // Keys sorted Descending (Newest years first)
+    const years: YearGroup[] = Array.from(yearsMap.keys())
+        .sort((a, b) => b - a)
+        .map(year => ({
+            year,
+            months: yearsMap.get(year) || []
+        }));
+
+    return years;
+}

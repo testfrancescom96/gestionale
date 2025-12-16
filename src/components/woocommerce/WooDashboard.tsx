@@ -192,142 +192,173 @@ export function WooDashboard() {
                 </div>
             )}
 
-            {/* Header / Stats */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm border">
-                <div>
-                    <h2 className="text-lg font-bold text-gray-900">Dashboard Eventi</h2>
-                    <p className="text-sm text-gray-500">
-                        {lastUpdated
-                            ? `Ultimo aggiornamento: ${lastUpdated.toLocaleTimeString()}`
-                            : "In attesa di dati..."}
-                    </p>
-                </div>
-                <div className="flex items-center gap-3">
+    // State for Collapsible Years
+            const [expandedYears, setExpandedYears] = useState<Record<number, boolean>>({ });
 
-                    {/* Settings Button */}
-                    <button
-                        onClick={() => setShowSettings(true)}
-                        className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200"
-                        title="Configura Sincronizzazione"
-                    >
-                        <Settings className="h-5 w-5" />
-                    </button>
+    const toggleYear = (year: number) => {
+                    setExpandedYears(prev => ({
+                        ...prev,
+                        [year]: !prev[year]
+                    }));
+    };
 
-                    <div className="relative group">
-                        <div className="flex rounded-md shadow-sm">
-                            <button
-                                onClick={() => triggerSync('rapid')}
-                                disabled={loading}
-                                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-l-lg text-sm font-medium transition-colors border-r border-blue-700"
-                            >
-                                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                                {loading ? 'In corso...' : `Aggiorna (Ultimi ${syncLimit})`}
-                            </button>
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2 rounded-r-lg disabled:opacity-50">
-                                <ChevronDown className="h-4 w-4" />
-                            </button>
+                return (
+                <div className="space-y-6 relative">
+                    {/* ... (Settings Modal and Header code omitted for brevity in search/replace context if not needed, but here I am inside main return) ... */}
+
+                    {/* Same Header/Settings Block as before... assuming I don't need to replace it all. 
+                Wait, I am replacing the whole Main Content loop mostly.
+            */}
+
+                    {/* Header / Stats - Keeping as is */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm border">
+                        {/* ... (header content) ... */}
+                        <div>
+                            <h2 className="text-lg font-bold text-gray-900">Dashboard Eventi</h2>
+                            <p className="text-sm text-gray-500">
+                                {lastUpdated
+                                    ? `Ultimo aggiornamento: ${lastUpdated.toLocaleTimeString()}`
+                                    : "In attesa di dati..."}
+                            </p>
                         </div>
-
-                        {/* Dropdown Menu */}
-                        <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-100 hidden group-hover:block z-50 overflow-hidden">
-                            <div className="p-3 bg-gray-50 border-b border-gray-100">
-                                <p className="text-xs text-gray-500 uppercase font-semibold">Strategia Sync</p>
-                            </div>
-
+                        <div className="flex items-center gap-3">
+                            {/* Settings Button */}
                             <button
-                                onClick={() => triggerSync('rapid')}
-                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
+                                onClick={() => setShowSettings(true)}
+                                className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200"
+                                title="Configura Sincronizzazione"
                             >
-                                <span className="font-bold block text-blue-700">Controlla Recenti (Ultimi {syncLimit})</span>
-                                <span className="text-xs text-gray-500">Verifica novità solo negli ultimi {syncLimit} ordini.</span>
+                                <Settings className="h-5 w-5" />
                             </button>
 
-                            <button
-                                onClick={() => triggerSync('smart')}
-                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
-                            >
-                                <div>
-                                    <span className="font-bold block">Smart Sync</span>
-                                    <span className="text-xs text-gray-500">Basato solo sulla Data Scansione (Veloce).</span>
+                            <div className="relative group">
+                                <div className="flex rounded-md shadow-sm">
+                                    <button
+                                        onClick={() => triggerSync('rapid')}
+                                        disabled={loading}
+                                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-l-lg text-sm font-medium transition-colors border-r border-blue-700"
+                                    >
+                                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                                        {loading ? 'In corso...' : `Aggiorna (Ultimi ${syncLimit})`}
+                                    </button>
+                                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2 rounded-r-lg disabled:opacity-50">
+                                        <ChevronDown className="h-4 w-4" />
+                                    </button>
                                 </div>
-                            </button>
+                                {/* Dropdown Menu */}
+                                <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-100 hidden group-hover:block z-50 overflow-hidden">
+                                    <div className="p-3 bg-gray-50 border-b border-gray-100">
+                                        <p className="text-xs text-gray-500 uppercase font-semibold">Strategia Sync</p>
+                                    </div>
 
-                            <button
-                                onClick={() => triggerSync('days30')}
-                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
-                            >
-                                <span className="font-bold block">Ultimi 30 Giorni</span>
-                                <span className="text-xs text-gray-500">Ricarica tutto il mese corrente.</span>
-                            </button>
-                            <button
-                                onClick={() => triggerSync('full')}
-                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700"
-                            >
-                                <span className="font-bold block text-red-600">Completa (Tutto)</span>
-                                <span className="text-xs text-gray-500">Lento. Scarica l'intero database.</span>
-                            </button>
+                                    <button
+                                        onClick={() => triggerSync('rapid')}
+                                        className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
+                                    >
+                                        <span className="font-bold block text-blue-700">Controlla Recenti (Ultimi {syncLimit})</span>
+                                        <span className="text-xs text-gray-500">Verifica novità solo negli ultimi {syncLimit} ordini.</span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => triggerSync('smart')}
+                                        className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
+                                    >
+                                        <div>
+                                            <span className="font-bold block">Smart Sync</span>
+                                            <span className="text-xs text-gray-500">Basato solo sulla Data Scansione (Veloce).</span>
+                                        </div>
+                                    </button>
+
+                                    <button
+                                        onClick={() => triggerSync('days30')}
+                                        className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
+                                    >
+                                        <span className="font-bold block">Ultimi 30 Giorni</span>
+                                        <span className="text-xs text-gray-500">Ricarica tutto il mese corrente.</span>
+                                    </button>
+                                    <button
+                                        onClick={() => triggerSync('full')}
+                                        className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700"
+                                    >
+                                        <span className="font-bold block text-red-600">Completa (Tutto)</span>
+                                        <span className="text-xs text-gray-500">Lento. Scarica l'intero database.</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            {/* Main Content: Calendar View */}
-            <div className="space-y-8">
-                {groupedEvents.years.length > 0 ? (
-                    groupedEvents.years.map((yearGroup) => (
-                        <div key={yearGroup.year} className="space-y-4">
-                            {/* Year Header */}
-                            <div className="flex items-center gap-4">
-                                <h3 className="text-2xl font-bold text-gray-800 border-b-2 border-blue-500 pb-1 px-2">
-                                    {yearGroup.year}
+                    {/* Main Content: Calendar View */}
+                    <div className="space-y-4">
+                        {groupedEvents.years.length > 0 ? (
+                            groupedEvents.years.map((yearGroup) => (
+                                <div key={yearGroup.year} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                                    {/* Year Header (Collapsible) */}
+                                    <button
+                                        onClick={() => toggleYear(yearGroup.year)}
+                                        className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <h3 className="text-2xl font-bold text-gray-800">
+                                                {yearGroup.year}
+                                            </h3>
+                                            <span className="text-sm font-medium text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
+                                                {yearGroup.months.reduce((acc, m) => acc + m.products.length, 0)} Eventi
+                                            </span>
+                                        </div>
+                                        <div className={`transition-transform duration-200 ${expandedYears[yearGroup.year] ? 'rotate-180' : ''}`}>
+                                            <ChevronDown className="h-6 w-6 text-gray-400" />
+                                        </div>
+                                    </button>
+
+                                    {/* Year Content (Months) */}
+                                    {expandedYears[yearGroup.year] && (
+                                        <div className="p-4 border-t border-gray-200 bg-white animate-in slide-in-from-top-2 duration-200">
+                                            <div className="grid grid-cols-1 gap-6">
+                                                {yearGroup.months.map((group) => (
+                                                    <EventGroup
+                                                        key={`${group.year}-${group.month}`}
+                                                        data={group}
+                                                        orders={orders}
+                                                        updatedOrderIds={updatedOrderIds}
+                                                        onRefresh={loadLocalData}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-10 bg-white rounded-lg border border-dashed">
+                                <CalendarOff className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                                <p className="text-gray-500">Nessun evento programmato trovato (SKU con data).</p>
+                            </div>
+                        )}
+
+                        {/* ... existing undated ... */}
+                        {/* Undated Products */}
+                        {groupedEvents.undated.length > 0 && (
+                            <div className="mt-8 pt-8 border-t">
+                                <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                                    Prodotti senza data (SKU standard)
+                                    <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{groupedEvents.undated.length}</span>
                                 </h3>
-                                <div className="h-px bg-gray-200 flex-1"></div>
-                            </div>
-
-                            {/* Months in this Year */}
-                            <div className="grid grid-cols-1 gap-6">
-                                {yearGroup.months.map((group) => (
-                                    <EventGroup
-                                        key={`${group.year}-${group.month}`}
-                                        data={group}
-                                        orders={orders}
-                                        updatedOrderIds={updatedOrderIds}
-                                        onRefresh={loadLocalData}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <div className="text-center py-10 bg-white rounded-lg border border-dashed">
-                        <CalendarOff className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-                        <p className="text-gray-500">Nessun evento programmato trovato (SKU con data).</p>
-                    </div>
-                )}
-
-                {/* ... existing undated ... */}
-                {/* Undated Products */}
-                {groupedEvents.undated.length > 0 && (
-                    <div className="mt-8 pt-8 border-t">
-                        <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                            Prodotti senza data (SKU standard)
-                            <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{groupedEvents.undated.length}</span>
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 opacity-75">
-                            {groupedEvents.undated.slice(0, 6).map((p: any) => (
-                                <div key={p.id} className="p-3 bg-white border rounded text-sm text-gray-600">
-                                    {p.name} <span className="text-xs text-gray-400">({p.sku})</span>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 opacity-75">
+                                    {groupedEvents.undated.slice(0, 6).map((p: any) => (
+                                        <div key={p.id} className="p-3 bg-white border rounded text-sm text-gray-600">
+                                            {p.name} <span className="text-xs text-gray-400">({p.sku})</span>
+                                        </div>
+                                    ))}
+                                    {groupedEvents.undated.length > 6 && (
+                                        <div className="p-3 bg-gray-50 border rounded text-sm text-gray-500 flex items-center justify-center">
+                                            + altri {groupedEvents.undated.length - 6}...
+                                        </div>
+                                    )}
                                 </div>
-                            ))}
-                            {groupedEvents.undated.length > 6 && (
-                                <div className="p-3 bg-gray-50 border rounded text-sm text-gray-500 flex items-center justify-center">
-                                    + altri {groupedEvents.undated.length - 6}...
-                                </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
-        </div>
-    );
+                </div>
+                );
 }
