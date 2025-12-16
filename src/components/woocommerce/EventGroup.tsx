@@ -96,9 +96,11 @@ export function EventGroup({ data, orders, updatedOrderIds, onRefresh }: EventGr
                                                     {product.name}
                                                 </h4>
                                                 {/* Workflow Status text/badge */}
-                                                {op?.confermato && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">CONFERMATO</span>}
-                                                {op?.annullato && <span className="text-[10px] font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">ANNULLATO</span>}
-                                                {op?.inForse && <span className="text-[10px] font-bold bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">IN FORSE</span>}
+                                                {(op?.stato === 'CONFIRMED' || (!op?.stato && op?.confermato)) && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">CONFERMATO</span>}
+                                                {(op?.stato === 'PENDING' || (!op?.stato && op?.inForse)) && !op?.confermato && !op?.annullato && <span className="text-[10px] font-bold bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">IN FORSE</span>}
+                                                {(op?.stato === 'CANCELLED' || (!op?.stato && op?.annullato)) && <span className="text-[10px] font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">ANNULLATO</span>}
+                                                {op?.stato === 'SOLD_OUT' && <span className="text-[10px] font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">SOLD OUT</span>}
+                                                {op?.stato === 'COMPLETED' && <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">CONCLUSO</span>}
                                             </div>
 
                                             <div className="flex items-center gap-4 mt-1">
@@ -146,46 +148,71 @@ export function EventGroup({ data, orders, updatedOrderIds, onRefresh }: EventGr
                                     </div>
                                 </div>
 
-                                {expandedProducts[product.id] && (
-                                    <ProductBookings
-                                        product={product}
-                                        orders={orders}
-                                        updatedOrderIds={updatedOrderIds}
-                                        onRefresh={onRefresh}
-                                    />
+                                {/* Break-even Progress Bar & Min Pax Info */}
+                                {op?.minPartecipanti > 0 && (
+                                    <div className="mt-2 pl-[3.5rem] pr-2">
+                                        <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
+                                            <span>Progresso partecipanti (Min: {op.minPartecipanti})</span>
+                                            <span>{Math.round((bookingCount / op.minPartecipanti) * 100)}%</span>
+                                        </div>
+                                        <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full transition-all duration-500 ${bookingCount >= op.minPartecipanti ? 'bg-green-500' : 'bg-orange-400'
+                                                    }`}
+                                                style={{ width: `${Math.min((bookingCount / op.minPartecipanti) * 100, 100)}%` }}
+                                            />
+                                        </div>
+                                    </div>
                                 )}
                             </div>
-                        );
+
+                                {
+                            expandedProducts[product.id] && (
+                                <ProductBookings
+                                    product={product}
+                                    orders={orders}
+                                    updatedOrderIds={updatedOrderIds}
+                                    onRefresh={onRefresh}
+                                />
+                            )
+                        }
+                            </div>
+            );
                     })}
-                </div>
-            )}
-
-            {/* Edit Modal */}
-            {editingProduct && (
-                <ProductEditModal
-                    isOpen={!!editingProduct}
-                    product={editingProduct}
-                    onClose={() => setEditingProduct(null)}
-                    onSave={() => {
-                        setEditingProduct(null);
-                        if (onRefresh) onRefresh();
-                    }}
-                />
-            )}
-
-            {/* Workflow Modal */}
-            {workflowProduct && (
-                <TripWorkflowModal
-                    isOpen={!!workflowProduct}
-                    product={workflowProduct}
-                    onClose={() => setWorkflowProduct(null)}
-                    onSave={() => {
-                        setWorkflowProduct(null);
-                        if (onRefresh) onRefresh();
-                    }}
-                />
-            )}
         </div>
+    )
+}
+
+{/* Edit Modal */ }
+{
+    editingProduct && (
+        <ProductEditModal
+            isOpen={!!editingProduct}
+            product={editingProduct}
+            onClose={() => setEditingProduct(null)}
+            onSave={() => {
+                setEditingProduct(null);
+                if (onRefresh) onRefresh();
+            }}
+        />
+    )
+}
+
+{/* Workflow Modal */ }
+{
+    workflowProduct && (
+        <TripWorkflowModal
+            isOpen={!!workflowProduct}
+            product={workflowProduct}
+            onClose={() => setWorkflowProduct(null)}
+            onSave={() => {
+                setWorkflowProduct(null);
+                if (onRefresh) onRefresh();
+            }}
+        />
+    )
+}
+        </div >
     );
 }
 

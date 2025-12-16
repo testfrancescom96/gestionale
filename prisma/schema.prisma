@@ -611,15 +611,18 @@ model ViaggioOperativo {
   
   // Link a WooCommerce
   wooProductId    Int       @unique // ID del prodotto su Woo
-  wooProduct      WooProduct? @relation(fields: [wooProductId], references: [id])
+  wooProduct      WooProduct @relation(fields: [wooProductId], references: [id])
   
   // Date Importanti (ridondanza per query veloci)
-  dataViaggio     DateTime?
+  dataViaggio     DateTime
   
-  // Stato Operativo
+  // Status Flags (Legacy but kept for safety/migration, prefer 'stato' below)
   confermato      Boolean   @default(false)
-  inForse         Boolean   @default(false)
   annullato       Boolean   @default(false)
+
+  // New Status & Financials
+  stato           String    @default("PENDING") // PENDING, CONFIRMED, CANCELLED, SOLD_OUT, COMPLETED
+  minPartecipanti Int       @default(0) // Break-even point
   
   // Checklist
   messaggioRiepilogoInviato   Boolean @default(false)
