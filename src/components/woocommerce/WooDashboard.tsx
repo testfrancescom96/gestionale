@@ -306,33 +306,28 @@ export function WooDashboard() {
                 )}
 
                 {/* ... existing undated ... */}
-            </div>
-        </div>
-    );
-}
-{
-    groupedEvents.undated.length > 0 && (
-        <div className="mt-8 pt-8 border-t">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                Prodotti senza data (SKU standard)
-                <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{groupedEvents.undated.length}</span>
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 opacity-75">
-                {groupedEvents.undated.slice(0, 6).map((p: any) => (
-                    <div key={p.id} className="p-3 bg-white border rounded text-sm text-gray-600">
-                        {p.name} <span className="text-xs text-gray-400">({p.sku})</span>
-                    </div>
-                ))}
-                {groupedEvents.undated.length > 6 && (
-                    <div className="p-3 bg-gray-50 border rounded text-sm text-gray-500 flex items-center justify-center">
-                        + altri {groupedEvents.undated.length - 6}...
+                {/* Undated Products */}
+                {groupedEvents.undated.length > 0 && (
+                    <div className="mt-8 pt-8 border-t">
+                        <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                            Prodotti senza data (SKU standard)
+                            <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{groupedEvents.undated.length}</span>
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 opacity-75">
+                            {groupedEvents.undated.slice(0, 6).map((p: any) => (
+                                <div key={p.id} className="p-3 bg-white border rounded text-sm text-gray-600">
+                                    {p.name} <span className="text-xs text-gray-400">({p.sku})</span>
+                                </div>
+                            ))}
+                            {groupedEvents.undated.length > 6 && (
+                                <div className="p-3 bg-gray-50 border rounded text-sm text-gray-500 flex items-center justify-center">
+                                    + altri {groupedEvents.undated.length - 6}...
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>
         </div>
-    )
-}
-            </div >
-        </div >
     );
 }
