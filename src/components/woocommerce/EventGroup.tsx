@@ -164,54 +164,51 @@ export function EventGroup({ data, orders, updatedOrderIds, onRefresh }: EventGr
                                         </div>
                                     </div>
                                 )}
-                            </div>
 
-                                {
-                            expandedProducts[product.id] && (
-                                <ProductBookings
-                                    product={product}
-                                    orders={orders}
-                                    updatedOrderIds={updatedOrderIds}
-                                    onRefresh={onRefresh}
-                                />
-                            )
-                        }
+                                {expandedProducts[product.id] && (
+                                    <ProductBookings
+                                        product={product}
+                                        orders={orders}
+                                        updatedOrderIds={updatedOrderIds}
+                                        onRefresh={onRefresh}
+                                    />
+                                )}
                             </div>
-            );
+                        );
                     })}
-        </div>
-    )
-}
+                </div>
+            )
+            }
 
-{/* Edit Modal */ }
-{
-    editingProduct && (
-        <ProductEditModal
-            isOpen={!!editingProduct}
-            product={editingProduct}
-            onClose={() => setEditingProduct(null)}
-            onSave={() => {
-                setEditingProduct(null);
-                if (onRefresh) onRefresh();
-            }}
-        />
-    )
-}
+            {/* Edit Modal */}
+            {
+                editingProduct && (
+                    <ProductEditModal
+                        isOpen={!!editingProduct}
+                        product={editingProduct}
+                        onClose={() => setEditingProduct(null)}
+                        onSave={() => {
+                            setEditingProduct(null);
+                            if (onRefresh) onRefresh();
+                        }}
+                    />
+                )
+            }
 
-{/* Workflow Modal */ }
-{
-    workflowProduct && (
-        <TripWorkflowModal
-            isOpen={!!workflowProduct}
-            product={workflowProduct}
-            onClose={() => setWorkflowProduct(null)}
-            onSave={() => {
-                setWorkflowProduct(null);
-                if (onRefresh) onRefresh();
-            }}
-        />
-    )
-}
+            {/* Workflow Modal */}
+            {
+                workflowProduct && (
+                    <TripWorkflowModal
+                        isOpen={!!workflowProduct}
+                        product={workflowProduct}
+                        onClose={() => setWorkflowProduct(null)}
+                        onSave={() => {
+                            setWorkflowProduct(null);
+                            if (onRefresh) onRefresh();
+                        }}
+                    />
+                )
+            }
         </div >
     );
 }
