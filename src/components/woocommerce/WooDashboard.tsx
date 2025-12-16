@@ -161,7 +161,7 @@ export function WooDashboard() {
                                         key={`${group.year}-${group.month}`}
                                         data={group}
                                         orders={orders}
-                                        onRefresh={fetchAllData}
+                                        onRefresh={loadLocalData}
                                     />
                                 ))}
                             </div>
