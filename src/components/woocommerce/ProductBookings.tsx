@@ -30,7 +30,6 @@ export function ProductBookings({ product, orders, updatedOrderIds = [] }: Produ
     const [syncingId, setSyncingId] = useState<number | null>(null);
 
     // Filter orders that actually contain this product (by ID or variation)
-    // Note: In WooCommerce, line_items have `product_id`.
     const relevantOrders = orders.filter(o =>
         o.line_items.some((item: any) => item.product_id === product.id)
     );
@@ -69,15 +68,22 @@ export function ProductBookings({ product, orders, updatedOrderIds = [] }: Produ
                 {relevantOrders.map(order => {
                     const isUpdated = updatedOrderIds.includes(order.id);
                     return (
-                        <div key={order.id} className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded border shadow-sm gap-2 transition-all duration-1000 ${isUpdated ? "bg-yellow-50 border-yellow-400 ring-1 ring-yellow-200" : "bg-white border-gray-200"
-                            }`}>
+                        <div
+                            key={order.id}
+                            className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded border shadow-sm gap-2 transition-all duration-1000 ${isUpdated ? "bg-yellow-50 border-yellow-400 ring-1 ring-yellow-200" : "bg-white border-gray-200"
+                                }`}
+                        >
                             <div className="flex-1">
                                 <div className="flex items-center gap-2">
                                     <span className="font-medium text-gray-900">#{order.id}</span>
-                                    {isUpdated && <span className="text-[10px] bg-yellow-400 text-yellow-900 px-1.5 rounded-full font-bold animate-pulse">AGGIORNATO</span>}
+                                    {isUpdated && (
+                                        <span className="text-[10px] bg-yellow-400 text-yellow-900 px-1.5 rounded-full font-bold animate-pulse">
+                                            AGGIORNATO
+                                        </span>
+                                    )}
                                     <span className={`text-xs px-2 py-0.5 rounded-full ${order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                        order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                                            'bg-yellow-100 text-yellow-700'
+                                            order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                                                'bg-yellow-100 text-yellow-700'
                                         }`}>
                                         {order.status}
                                     </span>
@@ -99,9 +105,11 @@ export function ProductBookings({ product, orders, updatedOrderIds = [] }: Produ
                                 Crea Pratica
                             </button>
                         </div>
-                    ))}
+                    );
+                })}
             </div>
         </div>
     );
 }
+
 
