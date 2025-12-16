@@ -1,25 +1,7 @@
 "use client";
 
-// Reset form when opened
-useEffect(() => {
-    if (isOpen) {
-        setFormData({
-            denominazione: "",
-            partitaIva: "",
-            indirizzo: "",
-            citta: "",
-            cap: "",
-            telefono: "",
-            email: "",
-        });
-    }
-}, [isOpen]);
-
-if (!isOpen) return null;
-
-const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-};
+import { useState, useEffect } from "react";
+import { X, Save, Building2 } from "lucide-react";
 
 interface NuovoFornitoreModalProps {
     isOpen: boolean;
@@ -38,6 +20,21 @@ export function NuovoFornitoreModal({ isOpen, onClose, onFornitoreCreato }: Nuov
         telefono: "",
         email: "",
     });
+
+    // Reset form when opened
+    useEffect(() => {
+        if (isOpen) {
+            setFormData({
+                denominazione: "",
+                partitaIva: "",
+                indirizzo: "",
+                citta: "",
+                cap: "",
+                telefono: "",
+                email: "",
+            });
+        }
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
