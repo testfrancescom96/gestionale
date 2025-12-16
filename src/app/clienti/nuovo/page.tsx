@@ -152,18 +152,37 @@ export default function NuovoClientePage() {
         <div className="min-h-screen bg-gray-50 p-8">
             <div className="mx-auto max-w-3xl">
                 {/* Header */}
-                <div className="mb-8">
+                <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <button
+                            onClick={() => router.push("/clienti")}
+                            className="mb-4 flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                            Torna ai clienti
+                        </button>
+                        <h1 className="text-3xl font-bold text-gray-900">Nuovo Cliente</h1>
+                        <p className="mt-2 text-gray-600">
+                            Inserisci i dati anagrafici e di fatturazione
+                        </p>
+                    </div>
+                    {/* Draft Controls */}
                     <button
-                        onClick={() => router.push("/clienti")}
-                        className="mb-4 flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+                        type="button"
+                        onClick={() => {
+                            if (confirm("Vuoi davvero cancellare tutti i dati inseriti?")) {
+                                setFormData({
+                                    nome: "", cognome: "", dataNascita: "", via: "", civico: "",
+                                    cap: "", citta: "", provincia: "", codiceFiscale: "", email: "", telefono: ""
+                                });
+                                localStorage.removeItem("unsaved_cliente");
+                                alert("Campi ripuliti.");
+                            }
+                        }}
+                        className="text-sm text-red-600 hover:text-red-700 underline"
                     >
-                        <ArrowLeft className="h-4 w-4" />
-                        Torna ai clienti
+                        Scarta Bozza / Pulisci
                     </button>
-                    <h1 className="text-3xl font-bold text-gray-900">Nuovo Cliente</h1>
-                    <p className="mt-2 text-gray-600">
-                        Inserisci i dati anagrafici e di fatturazione
-                    </p>
                 </div>
 
                 {/* Form */}
