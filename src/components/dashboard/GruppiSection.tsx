@@ -89,8 +89,11 @@ export function GruppiSection({ stats, upcomingEvents }: GruppiSectionProps) {
                                                 <div>
                                                     <h4 className="font-bold text-sm text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors" title={evt.name}>{evt.name}</h4>
                                                     <div className="flex items-center gap-2 mt-1">
-                                                        {op?.confermato && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-1.5 py-0.5 rounded">CONFERMATO</span>}
-                                                        {op?.inForse && <span className="text-[10px] font-bold bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">IN FORSE</span>}
+                                                        {(op?.stato === 'CONFIRMED' || (!op?.stato && op?.confermato)) && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-1.5 py-0.5 rounded">CONFERMATO</span>}
+                                                        {(op?.stato === 'PENDING' || (!op?.stato && op?.inForse)) && !op?.confermato && !op?.annullato && <span className="text-[10px] font-bold bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">IN FORSE</span>}
+                                                        {(op?.stato === 'CANCELLED' || (!op?.stato && op?.annullato)) && <span className="text-[10px] font-bold bg-red-100 text-red-700 px-1.5 py-0.5 rounded">ANNULLATO</span>}
+                                                        {op?.stato === 'SOLD_OUT' && <span className="text-[10px] font-bold bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">SOLD OUT</span>}
+                                                        {op?.stato === 'COMPLETED' && <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">CONCLUSO</span>}
                                                         {!op && <span className="text-[10px] font-medium text-gray-400">Standard</span>}
 
                                                         {/* Alerts */}
@@ -108,9 +111,29 @@ export function GruppiSection({ stats, upcomingEvents }: GruppiSectionProps) {
                                                 <div className="text-[10px] text-gray-400">prenotati</div>
                                             </div>
                                         </div>
-                                        {/* Progress Bar (Visual Flair) */}
-                                        <div className="h-1 w-full bg-gray-100 rounded-full mt-2 overflow-hidden">
-                                            <div className="h-full bg-blue-500 rounded-full" style={{ width: `${Math.min((sold / 50) * 100, 100)}%` }}></div>
+                                        {/* Progress Bar (Break-even or default) */}
+                                        <div className="mt-2">
+                                            {op?.minPartecipanti > 0 ? (
+                                                <div className="w-full">
+                                                    <div className="flex justify-between text-[10px] text-gray-400 mb-0.5">
+                                                        <span>Break-even: {op.minPartecipanti}</span>
+                                                        <span>{Math.round((sold / op.minPartecipanti) * 100)}%</span>
+                                                    </div>
+                                                    <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                                        <div
+                                                            className={`h-full rounded-full ${sold >= op.minPartecipanti ? 'bg-green-500' : 'bg-orange-400'}`}
+                                                            style={{ width: `${Math.min((sold / op.minPartecipanti) * 100, 100)}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                // Fallback visual bar just to show something if confirmed/sold out, or hide? 
+                                                // User wants visual bar. Defaulting to relative small bar or hidden.
+                                                // Let's keep a generic bar roughly based on 50 capacity if no min set, but greyed out to imply "untracked target"
+                                                <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-blue-200 rounded-full" style={{ width: `${Math.min((sold / 50) * 100, 100)}%` }}></div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 );
