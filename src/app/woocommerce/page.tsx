@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { OrdersList } from "@/components/woocommerce/OrdersList";
-import { ProductsList } from "@/components/woocommerce/ProductsList";
 import { WooDashboard } from "@/components/woocommerce/WooDashboard";
-import { ShoppingBag, Package, LayoutDashboard } from "lucide-react";
+import { ShoppingBag, LayoutDashboard } from "lucide-react";
 
 export default function WooCommercePage() {
     const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "products">("dashboard");
@@ -31,7 +30,7 @@ export default function WooCommercePage() {
                             }`}
                     >
                         <LayoutDashboard className="h-4 w-4" />
-                        Dashboard Eventi
+                        Catalogo Eventi
                     </button>
                     <button
                         onClick={() => setActiveTab("orders")}
@@ -43,23 +42,12 @@ export default function WooCommercePage() {
                         <ShoppingBag className="h-4 w-4" />
                         Tutti gli Ordini
                     </button>
-                    <button
-                        onClick={() => setActiveTab("products")}
-                        className={`flex items-center gap-2 border-b-2 pb-3 text-sm font-medium transition-colors whitespace-nowrap ${activeTab === "products"
-                            ? "border-blue-600 text-blue-600"
-                            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                            }`}
-                    >
-                        <Package className="h-4 w-4" />
-                        Catalogo Prodotti
-                    </button>
                 </div>
 
                 {/* Content */}
                 <div>
                     {activeTab === "dashboard" && <WooDashboard />}
                     {activeTab === "orders" && <OrdersList />}
-                    {activeTab === "products" && <ProductsList />}
                 </div>
             </div>
         </div>
