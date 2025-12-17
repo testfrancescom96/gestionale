@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { DollarSign, TrendingUp, Briefcase, ShoppingBag, PieChart } from "lucide-react";
 import { getWooCommerceRevenue } from "@/lib/woocommerce";
 
+export const dynamic = "force-dynamic";
+
 export default async function ReportPage() {
     const currenYear = new Date().getFullYear();
     const startDate = new Date(currenYear, 0, 1);
