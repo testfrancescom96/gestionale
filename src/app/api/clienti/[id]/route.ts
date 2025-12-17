@@ -46,7 +46,6 @@ export async function PUT(
                 citta: body.citta || null,
                 cap: body.cap || null,
                 provincia: body.provincia || null,
-                provincia: body.provincia || null,
                 codiceFiscale: body.codiceFiscale || null,
                 stato: body.stato || undefined, // Only update if provided
             },
