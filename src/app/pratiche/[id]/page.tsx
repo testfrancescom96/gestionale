@@ -481,3 +481,4 @@ export default async function DettaglioPraticaPage({
             </div>
             );
 }
+// End of component
