@@ -12,6 +12,7 @@ export function OrdersList() {
     const [syncingId, setSyncingId] = useState<string | null>(null);
     const [groupedOrders, setGroupedOrders] = useState<YearGroup[]>([]);
     const [expandedYears, setExpandedYears] = useState<Record<number, boolean>>({});
+    const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
     const [editingOrder, setEditingOrder] = useState<any | null>(null);
 
     const fetchOrders = async () => {
@@ -38,6 +39,13 @@ export function OrdersList() {
         setExpandedYears(prev => ({
             ...prev,
             [year]: !prev[year]
+        }));
+    };
+
+    const toggleMonth = (monthKey: string) => {
+        setExpandedMonths(prev => ({
+            ...prev,
+            [monthKey]: !prev[monthKey]
         }));
     };
 
@@ -109,12 +117,11 @@ export function OrdersList() {
                             </button>
 
                             {/* Year Content */}
-                            {/* Year Content */}
                             {expandedYears[yearGroup.year] && (
                                 <div className="p-0 border-t border-gray-200 bg-white animate-in slide-in-from-top-2 duration-200">
                                     {yearGroup.months.map((monthGroup) => {
                                         const monthKey = `${yearGroup.year}-${monthGroup.month}`;
-                                        const isMonthExpanded = expandedYears[monthKey] || false; // Using same state object with string keys for months? No, type is Record<number, bool>. create new state.
+                                        const isMonthExpanded = expandedMonths[monthKey] || false;
 
                                         // Quick fix: let's use a separate local component for Month or just a new state.
                                         // Given I cannot easily add a new component file without multiple calls, I will add state for months.
