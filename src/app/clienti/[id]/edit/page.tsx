@@ -24,7 +24,6 @@ export default function ModificaClientePage({ params }: { params: Promise<{ id: 
         cap: "",
         provincia: "",
         codiceFiscale: "",
-        codiceFiscale: "",
         dataNascita: "",
         stato: "ATTIVO",
     });
