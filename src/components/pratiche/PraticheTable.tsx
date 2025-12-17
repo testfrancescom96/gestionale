@@ -34,8 +34,8 @@ const statoColors: Record<string, string> = {
     ELABORATO: "bg-gray-100 text-gray-800",
     ANNULLATO: "bg-red-100 text-red-800",
     // Legacy statuses
-    BOZZA: "bg-red-100 text-red-800",
-    DA_ELABORARE: "bg-gray-100 text-gray-800",
+    BOZZA: "bg-amber-100 text-amber-800 ring-1 ring-inset ring-amber-600/20",
+    DA_ELABORARE: "bg-amber-100 text-amber-800 ring-1 ring-inset ring-amber-600/20",
     CONFERMATO: "bg-green-100 text-green-800",
 };
 
@@ -87,10 +87,18 @@ export function PraticheTable({ pratiche }: { pratiche: Pratica[] }) {
                     {pratiche.map((pratica) => (
                         <tr
                             key={pratica.id}
-                            className="transition-colors hover:bg-gray-50"
+                            className={`transition-colors hover:bg-gray-50 ${(pratica.stato === "BOZZA" || pratica.stato === "DA_ELABORARE")
+                                ? "bg-amber-50"
+                                : ""
+                                }`}
                         >
                             <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                                 #{pratica.numero || "—"}
+                                {(pratica.stato === "BOZZA" || pratica.stato === "DA_ELABORARE") && (
+                                    <span className="ml-2 inline-flex items-center rounded-md bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                                        BOZZA
+                                    </span>
+                                )}
                             </td>
                             <td className="px-6 py-4">
                                 <div className="text-sm font-medium text-gray-900">
@@ -140,8 +148,8 @@ export function PraticheTable({ pratiche }: { pratiche: Pratica[] }) {
                                     : "—"}
                             </td>
                             <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                <div>{format(new Date(pratica.createdAt), "dd/MM/yyyy", { locale: it })}</div>
-                                <div className="text-xs text-gray-400">{format(new Date(pratica.createdAt), "HH:mm", { locale: it })}</div>
+                                <div suppressHydrationWarning>{format(new Date(pratica.createdAt), "dd/MM/yyyy", { locale: it })}</div>
+                                <div className="text-xs text-gray-400" suppressHydrationWarning>{format(new Date(pratica.createdAt), "HH:mm", { locale: it })}</div>
                             </td>
                             <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                                 <Link

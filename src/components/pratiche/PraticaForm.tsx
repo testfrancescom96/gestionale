@@ -253,7 +253,8 @@ export function PraticaForm({ initialData, isEditing = false }: PraticaFormProps
             router.refresh();
         } catch (error) {
             console.error("Errore:", error);
-            alert("Errore durante il salvataggio della pratica. Riprova.");
+            // @ts-ignore
+            alert(`Errore durante il salvataggio: ${error.message || "Riprova."}`);
         } finally {
             setIsSubmitting(false);
         }

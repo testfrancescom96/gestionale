@@ -95,9 +95,9 @@ export function OrderEditModal({ isOpen, order, onClose, onSave }: OrderEditModa
 
             onSave();
             onClose();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("Errore durante il salvataggio");
+            alert(`⚠️ ERRORE DETTAGLIATO: ${error.message}`);
         } finally {
             setIsSubmitting(false);
         }

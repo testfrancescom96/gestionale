@@ -117,19 +117,26 @@ export default async function ClientiPage() {
                                 {clienti.map((cliente) => (
                                     <tr
                                         key={cliente.id}
-                                        className="transition-colors hover:bg-gray-50"
+                                        className={`transition-colors hover:bg-gray-50 ${cliente.stato === "BOZZA" ? "bg-amber-50" : ""}`}
                                     >
                                         <td className="whitespace-nowrap px-6 py-4">
                                             <div className="flex items-center">
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                                                    <span className="text-sm font-medium text-blue-600">
+                                                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${cliente.stato === "BOZZA" ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600"}`}>
+                                                    <span className="text-sm font-medium">
                                                         {cliente.nome[0]}
                                                         {cliente.cognome[0]}
                                                     </span>
                                                 </div>
                                                 <div className="ml-4">
-                                                    <div className="font-medium text-gray-900">
-                                                        {cliente.nome} {cliente.cognome}
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="font-medium text-gray-900">
+                                                            {cliente.nome} {cliente.cognome}
+                                                        </div>
+                                                        {cliente.stato === "BOZZA" && (
+                                                            <span className="inline-flex items-center rounded-md bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                                                                BOZZA
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -159,8 +166,8 @@ export default async function ClientiPage() {
                                             </span>
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                            <div>{format(new Date(cliente.createdAt), "dd/MM/yyyy", { locale: it })}</div>
-                                            <div className="text-xs text-gray-400">{format(new Date(cliente.createdAt), "HH:mm", { locale: it })}</div>
+                                            <div suppressHydrationWarning>{format(new Date(cliente.createdAt), "dd/MM/yyyy", { locale: it })}</div>
+                                            <div className="text-xs text-gray-400" suppressHydrationWarning>{format(new Date(cliente.createdAt), "HH:mm", { locale: it })}</div>
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                                             <div className="flex items-center justify-end gap-3">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Edit2, User, Save, X, AlertTriangle } from "lucide-react";
+import { Plus, Trash2, Edit2, User, Save, X, AlertCircle } from "lucide-react";
 
 interface Partecipante {
     id: string;
@@ -37,7 +37,12 @@ export function ParticipantsList({ praticaId, numPartecipantiAttesi }: { pratica
             const res = await fetch(`/api/pratiche/${praticaId}/partecipanti`);
             if (res.ok) {
                 const data = await res.json();
-                setPartecipanti(data);
+                if (Array.isArray(data)) {
+                    setPartecipanti(data);
+                } else {
+                    console.error("Participants data is not an array:", data);
+                    setPartecipanti([]);
+                }
             }
         } catch (error) {
             console.error("Errore caricamento partecipanti", error);
@@ -92,7 +97,12 @@ export function ParticipantsList({ praticaId, numPartecipantiAttesi }: { pratica
                 await loadPartecipanti();
                 setIsEditing(null);
             } else {
-                alert("Errore durante il salvataggio");
+                try {
+                    const data = await res.json();
+                    alert(`Errore: ${data.error || "Errore durante il salvataggio"}`);
+                } catch (e) {
+                    alert("Errore durante il salvataggio");
+                }
             }
         } catch (error) {
             console.error("Errore salvataggio", error);
@@ -134,7 +144,7 @@ export function ParticipantsList({ praticaId, numPartecipantiAttesi }: { pratica
             {/* Warning Coerenza */}
             {showWarning && !isLoading && (
                 <div className="mb-4 flex items-center gap-2 rounded-md bg-amber-50 p-3 text-sm text-amber-800 border border-amber-200">
-                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                    <AlertCircle className="h-4 w-4 text-amber-600" />
                     <span>
                         Attenzione: Hai dichiarato <strong>{numPartecipantiAttesi}</strong> persone nella pratica, ma ne risultano inserite <strong>{partecipanti.length}</strong>.
                     </span>
@@ -227,7 +237,15 @@ export function ParticipantsList({ praticaId, numPartecipantiAttesi }: { pratica
                                 <div>
                                     <p className="font-medium text-gray-900">{p.nome} {p.cognome}</p>
                                     <p className="text-xs text-gray-500">
-                                        {p.tipo} • {p.dataNascita ? new Date(p.dataNascita).toLocaleDateString() : "Data nascita mancante"}
+                                        {p.tipo} • {(() => {
+                                            if (!p.dataNascita) return "Data nascita mancante";
+                                            try {
+                                                const d = new Date(p.dataNascita);
+                                                return isNaN(d.getTime()) ? "Data invalida" : d.toLocaleDateString();
+                                            } catch {
+                                                return "Data invalida";
+                                            }
+                                        })()}
                                     </p>
                                     {p.sistemazione && (
                                         <p className="text-xs text-blue-600 font-medium mt-1">

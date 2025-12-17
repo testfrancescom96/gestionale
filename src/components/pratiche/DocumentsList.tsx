@@ -19,7 +19,12 @@ export function DocumentsList({ praticaId }: { praticaId: string }) {
             const res = await fetch(`/api/pratiche/${praticaId}/documenti`);
             if (res.ok) {
                 const data = await res.json();
-                setDocuments(data);
+                if (Array.isArray(data)) {
+                    setDocuments(data);
+                } else {
+                    console.error("Documents data is not an array:", data);
+                    setDocuments([]);
+                }
             }
         } catch (error) {
             console.error("Errore caricamento documenti", error);
@@ -104,7 +109,13 @@ export function DocumentsList({ praticaId }: { praticaId: string }) {
                                 <div>
                                     <p className="text-sm font-medium text-gray-900">{doc.name}</p>
                                     <p className="text-xs text-gray-500">
-                                        {formatSize(doc.size)} • {new Date(doc.createdAt).toLocaleDateString()}
+                                        {formatSize(doc.size)} • {(() => {
+                                            if (!doc.createdAt) return "Data n/d";
+                                            try {
+                                                const d = new Date(doc.createdAt);
+                                                return isNaN(d.getTime()) ? "Data n/d" : d.toLocaleDateString();
+                                            } catch { return "Data n/d"; }
+                                        })()}
                                     </p>
                                 </div>
                             </div>

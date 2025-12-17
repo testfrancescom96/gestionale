@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+const safeDate = (d: any) => {
+    if (!d) return null;
+    const date = new Date(d);
+    return isNaN(date.getTime()) ? null : date;
+};
+
 export async function PUT(
     request: NextRequest,
 ) {
@@ -68,8 +74,8 @@ export async function PUT(
             tipologia: body.tipologia,
             destinazione: body.destinazione,
             periodoRichiesto: body.periodoRichiesto || null,
-            dataPartenza: body.dataPartenza ? new Date(body.dataPartenza) : null,
-            dataRitorno: body.dataRitorno ? new Date(body.dataRitorno) : null,
+            dataPartenza: safeDate(body.dataPartenza),
+            dataRitorno: safeDate(body.dataRitorno),
 
             // Partecipanti
             numPartecipanti: (body.numAdulti || 0) + (body.numBambini || 0),
@@ -148,7 +154,7 @@ export async function PUT(
                 create: body.partecipanti.map((p: any) => ({
                     nome: p.nome || "",
                     cognome: p.cognome || "",
-                    dataNascita: p.dataNascita ? new Date(p.dataNascita) : null,
+                    dataNascita: safeDate(p.dataNascita),
                     tipo: p.tipo || "ADULTO",
                     sistemazione: p.sistemazione || null // New field
                 }))
@@ -165,10 +171,17 @@ export async function PUT(
             success: true,
             pratica,
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Errore modifica pratica:", error);
+        // Extract inner error message if possible
+        const errorMessage = error.message || "Errore sconosciuto";
+        const errorStack = error.stack;
+
         return NextResponse.json(
-            { error: "Errore durante la modifica della pratica" },
+            {
+                error: `Errore durante la modifica: ${errorMessage}`,
+                details: errorStack
+            },
             { status: 500 }
         );
     }

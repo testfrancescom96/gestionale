@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
                 provincia: body.provincia || null,
                 codiceFiscale: body.codiceFiscale || null,
                 dataNascita: body.dataNascita ? new Date(body.dataNascita) : null,
+                stato: body.stato || "ATTIVO",
             },
         });
 

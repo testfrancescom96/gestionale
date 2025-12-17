@@ -52,28 +52,14 @@ export function GruppiSection({ stats, upcomingEvents }: GruppiSectionProps) {
                             {upcomingEvents.map(evt => {
                                 const eventDate = evt.eventDate ? new Date(evt.eventDate) : null;
                                 const op = evt.operational;
-
-                                // Fake capacity logic if not in DB, assuming standard bus 50 if managed stock, or generic
-                                const stock = evt.manage_stock ? evt.stock_quantity : 50;
-                                // If stock managed, stock_quantity is remaining. So sold = capacity - remaining? 
-                                // WooCommerce "stock_quantity" is remaining stock.
-                                // But we don't know initial stock easily unless we have a field. 
-                                // Let's use orders count for occupancy visualization "Venduti: X"
-                                // For bar, if stock managed, we can guess Capacity = stock + sold.
-                                // Or just show number sold.
-
-                                // Let's rely on booking count passed in or calculated.
-                                // Since I don't have order count per product efficiently here without deep query, 
-                                // I will assume the parent passes pre-calculated 'sold' count if possible, 
-                                // OR we visualizes just what we have.
-                                // Wait, I fetch `upcomingEvents` in page.tsx. I can include order items count there.
-
                                 const sold = evt._count?.orderItems || 0;
-                                // If manage stock, use it remaining to calc gauge?
-                                // Let's purely use "Sold" count for now.
 
                                 return (
-                                    <div key={evt.id} className="p-3 bg-white border rounded-lg hover:shadow-md transition-shadow relative overflow-hidden group">
+                                    <Link
+                                        key={evt.id}
+                                        href={`/woocommerce?highlight=${evt.id}`}
+                                        className="block p-3 bg-white border rounded-lg hover:shadow-md transition-shadow relative overflow-hidden group hover:border-blue-300"
+                                    >
                                         <div className="flex justify-between items-start mb-2">
                                             <div className="flex gap-3">
                                                 <div className="bg-blue-50 text-blue-700 rounded-md p-1.5 text-center min-w-[3rem]">
@@ -127,15 +113,12 @@ export function GruppiSection({ stats, upcomingEvents }: GruppiSectionProps) {
                                                     </div>
                                                 </div>
                                             ) : (
-                                                // Fallback visual bar just to show something if confirmed/sold out, or hide? 
-                                                // User wants visual bar. Defaulting to relative small bar or hidden.
-                                                // Let's keep a generic bar roughly based on 50 capacity if no min set, but greyed out to imply "untracked target"
                                                 <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
                                                     <div className="h-full bg-blue-200 rounded-full" style={{ width: `${Math.min((sold / 50) * 100, 100)}%` }}></div>
                                                 </div>
                                             )}
                                         </div>
-                                    </div>
+                                    </Link>
                                 );
                             })}
                         </div>

@@ -37,6 +37,7 @@ model Cliente {
   
   // Classificazione
   tipologia       String    @default("NUOVO") // NUOVO, STORICO
+  stato           String    @default("ATTIVO") // ATTIVO, BOZZA
   note            String?
   
   // Relazioni

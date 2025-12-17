@@ -16,3 +16,66 @@ LEGENDA:
 - I prodotti WooCommerce senza data (o SKU non standard) vengono raggruppati in "Date Varie" o in fondo alla lista.
 - La tabella `ViaggioOperativo` è collegata ai prodotti Woo tramite `wooProductId`.
 - Per le sponsorizzate serve: Ad Account ID e User Access Token (con permessi ads_read).
+
+
+
+
+apunti per francesco: VERIFICARE SE QUESTI AGGIORNAMENTI SONO STATI ESEGUITI CORRETTAMENTE
+
+verifica le bozze se vengono creato correttamepte per pratiche ed anagrafiche
+- verifica se dashboard è stata migliorata
+- verifica che ordini e prodotti si sincronizzano perfettamente e siano personalizzabili, con sincro reale con woocomerce (verifica su woocommerce)
+
+- complimenti per la dashboard , le prossime partenze sono perfette. dobbiamo avere un modo anche per gestire i viaggi che sono stati annullati. quando mettiamo un viaggio sold out quindi con 0 all'inventario oppure con uno stato tipo in bozza su woocoomerce.. in questi casi dobbiamo avere il modo di salezionare se quel viaggio è passato, Sold Out,in attesa di conferma,oppure confermato. (dovrà avere anche una barra di percentuale di progresso per raggiungere il minimo di partecipanti per coprire le spese. ora questo dato non lo abbiamo ancora, ma mettiamolo visivo intanto in qualche modo, cosi poi ci lavoriamo meglio, perché dovremmo gestire per ogni prodotto le spese di quel viaggio da poter registrare 
+) .
+- in tutti i prodotti, nelle tendine comprimi anche quelle degli anni, cosi clicchiamo prima sui singoli prodotti (idem in ordini)
+-la bozza (DI ANAGRAFICHE E PRATICHE, SU QUESTI PUNTO è TANTO CHE PERDIAMO TEMPO.. RISOLVI CON CALMA) con quele logica la stai salvando? poi vendo che non è specificata visualmente, non capisco subito che abbiamo un'anagrafica da controllare in quanto in bozzza e non salvata
+
+- se vado su dettagli delle pratiche mi esce di nuovo questo errore:
+
+Application error: a client-side exception has occurred while loading gestionale.goontheroad.it (see the browser console for more information).
+
+
+
+
+
+poi ti chiedo:
+
+- 
+
+- NEGLI ORDINI DI WOOCOMMERCE, NON VEDO LA DATA,(e l'orario) COME MAI?
+- in tutti i prodotti, nelle tendine comprimi anche quelle degli anni, cosi clicchiamo prima sui singoli prodotti (idem in ordini)
+- da verificare i dati di meta, prima funzionavano ora non da nessun dato, nemmeno se clicchiamo su sincronizza (vedere se anche qui abbiamo limiti, di invio e scaricamento di dati)
+- quando apro il sito perché leggo ad esempio che l'ultimo aggiornamento è di quell'orario? aggiorna qualcosa una volta che entriamo nel sito?
+- nelle pratiche e nelle anagrafiche, se clicco su "Filtri" non ho nessun filtro disponibile (lavora bene su questo aspetto, ci potrà tornare utile anche per una logica che sarà presente anche al momento dell'estrazione dei dati contabili per il commercialista)
+- Le impostazioni potremmo renderle moooolto piu personalizzabili.. che dici?
+- se in dashboard clicco su una pratica recente, vedo l'errore: "Application error: a client-side exception has occurred while loading gestionale.goontheroad.it (see the browser console for more information).
+- report è molto bello! possiamo renderlo ancora migliora con opzioni di grafici, con parametri impostabili.. per avere delle stime anche visive insomma dei dati.. da maschio o femmina, da persone che prenotano da lanciano, quelli che prenotano da pescara.. a vedere in quali mesic'è stato piu incasso, o piu ordini etc..etc.. magari anche con possibilità di scaricare quei dati
+
+- dobbiamo gestire dei proditti generati in altro modo su woocommerce.. ti dico dobbiamo scennerizzare questo:
+
+Evento: Ciaspolata sulla Maielletta
+SKU: 3ciaspolata011225
+1 Prenotazioni
+
+qui diamo la possibilità al cliente di selezionare la data. quindi penso sia un prodotto che contenga altri prodotti.
+
+- dobbiamo avere la possibilità di scaricare una lista passeggieri per il capogruppo , magari con dei dati aggiuntivi, tipo "titolo ""vettore" "autista" - "contatto" "note" e attualmente ti faccio vedere con un file Excel ed un pdf grafico (cosi capisci anche che stampiamo un qualcosa di accettabile per il capogruppo), ti metto quindi i due file dentro la cartella gestionale:
+
+1. Navetta Bus concerto Marracash Roma 13 12 2025.xlsx    ( te lo salvo anche in .csv )
+2. Navetta Bus concerto Marracash Roma 13 12 2025 - Fogli Google.pdf
+
+- dobbiamo avere una lista da poter condividere con i nostri collaboratori (magari per un viaggio che condividiamo l'organizzazione con altre agenzie viaggi) , dobbiamo ovviamente aver la possibilità di scegliere che dati mostrare a loro. ti metto un esempio del file che attualmente abbiamo condiviso con i nostri collaboratori (anche qui ti mando sia file Excel che file pdf ), ecco i due file:
+
+1. Ponte Immacolata 041225.xlsx   ( te lo salvo anche in .csv )
+2. Liste da rivedere con nuovi dati presenti in file temporaneo - Fogli Google.pdf
+
+
+
+Modifica futura, dobbiamo modificare la parte grafica assolutamente di login al gestionale.. cosi fa cagare.. mettiamola nel sito magari e non nel pupup.. cosi poi dalle impostazioni (solo del mio acount master) potrò aggiungere operatori e generare l'accesso per ognuno .
+Il mio account master deve avere ovviamente molte piu impostazioni.. perché devo inviare i dati al commercialista
+
+
+- AGGIUNGIAMO UNA CATEGORIA IN WORK IN PROGRESS (SHOP
+)
+

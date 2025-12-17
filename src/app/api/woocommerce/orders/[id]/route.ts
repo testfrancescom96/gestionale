@@ -31,29 +31,9 @@ export async function PUT(
         }
 
         // 2. Call WooCommerce API
-        const consumerKey = process.env.WOOCOMMERCE_KEY;
-        const consumerSecret = process.env.WOOCOMMERCE_SECRET;
-        const wooUrl = process.env.WOOCOMMERCE_URL;
-
-        if (!consumerKey || !consumerSecret || !wooUrl) {
-            return NextResponse.json({ error: "WooCommerce credentials missing" }, { status: 500 });
-        }
-
-        const res = await fetch(`${wooUrl}/wp-json/wc/v3/orders/${orderId}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Basic ${btoa(`${consumerKey}:${consumerSecret}`)}`
-            },
-            body: JSON.stringify(wooData)
-        });
-
-        if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.message || "Failed to update order in WooCommerce");
-        }
-
-        const updatedWooOrder = await res.json();
+        // Use shared library to ensure correct credentials
+        const { updateWooOrder } = await import("@/lib/woocommerce");
+        const updatedWooOrder = await updateWooOrder(orderId, wooData);
 
         // 3. Update Local DB
         // We set manuallyModified = true

@@ -24,7 +24,9 @@ export default function ModificaClientePage({ params }: { params: Promise<{ id: 
         cap: "",
         provincia: "",
         codiceFiscale: "",
+        codiceFiscale: "",
         dataNascita: "",
+        stato: "ATTIVO",
     });
 
     useEffect(() => {
@@ -43,7 +45,9 @@ export default function ModificaClientePage({ params }: { params: Promise<{ id: 
                         cap: data.cap || "",
                         provincia: data.provincia || "",
                         codiceFiscale: data.codiceFiscale || "",
+                        codiceFiscale: data.codiceFiscale || "",
                         dataNascita: data.dataNascita ? new Date(data.dataNascita).toISOString().split('T')[0] : "",
+                        stato: data.stato || "ATTIVO",
                     });
                 } else {
                     alert("Cliente non trovato");
@@ -67,7 +71,12 @@ export default function ModificaClientePage({ params }: { params: Promise<{ id: 
             const res = await fetch(`/api/clienti/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    // If saving while in draft, keep it draft unless changed?
+                    // For now, let's trust the user selection if we add a selector, or maybe just "activate" button?
+                    // Simpler: Just save what is in formData.
+                }),
             });
 
             if (res.ok) {
@@ -97,7 +106,15 @@ export default function ModificaClientePage({ params }: { params: Promise<{ id: 
                 <Link href="/clienti" className="rounded-full bg-gray-100 p-2 hover:bg-gray-200">
                     <ArrowLeft className="h-6 w-6 text-gray-600" />
                 </Link>
-                <h1 className="text-2xl font-bold text-gray-900">Modifica Cliente</h1>
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Modifica Cliente</h1>
+                    {/* @ts-ignore */}
+                    {formData.stato === "BOZZA" && (
+                        <span className="mt-1 inline-flex items-center rounded-md bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                            BOZZA
+                        </span>
+                    )}
+                </div>
             </div>
 
             <div className="max-w-2xl rounded-lg bg-white p-6 shadow-lg">
@@ -255,21 +272,37 @@ export default function ModificaClientePage({ params }: { params: Promise<{ id: 
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-6 border-t mt-6">
-                        <Link
-                            href="/clienti"
-                            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                        >
-                            Annulla
-                        </Link>
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-                        >
-                            <Save className="h-4 w-4" />
-                            {isSubmitting ? "Salvataggio..." : "Salva Modifiche"}
-                        </button>
+                    <div className="flex justify-between gap-3 pt-6 border-t mt-6 items-center">
+                        <div>
+                            <label className="mr-2 text-sm font-medium text-gray-700">Stato:</label>
+                            <select
+                                name="stato"
+                                // @ts-ignore
+                                value={formData.stato || "ATTIVO"}
+                                // @ts-ignore
+                                onChange={handleChange}
+                                className="rounded-md border border-gray-300 py-1.5 pl-3 pr-8 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            >
+                                <option value="ATTIVO">ATTIVO</option>
+                                <option value="BOZZA">BOZZA</option>
+                            </select>
+                        </div>
+                        <div className="flex gap-3">
+                            <Link
+                                href="/clienti"
+                                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            >
+                                Annulla
+                            </Link>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                            >
+                                <Save className="h-4 w-4" />
+                                {isSubmitting ? "Salvataggio..." : "Salva Modifiche"}
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>

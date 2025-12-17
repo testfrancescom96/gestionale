@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { ChevronDown, ChevronRight, Package, Pencil, ClipboardList, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
@@ -14,10 +14,11 @@ interface EventGroupProps {
     data: GroupedEvent;
     orders: any[];
     updatedOrderIds?: number[];
+    highlightId?: number | null;
     onRefresh?: () => void;
 }
 
-export function EventGroup({ data, orders, updatedOrderIds, onRefresh }: EventGroupProps) {
+export function EventGroup({ data, orders, updatedOrderIds, highlightId, onRefresh }: EventGroupProps) {
     // Determine if the group (Month) is expanded
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -29,6 +30,23 @@ export function EventGroup({ data, orders, updatedOrderIds, onRefresh }: EventGr
 
     // Workflow state
     const [workflowProduct, setWorkflowProduct] = useState<any | null>(null);
+
+    // Auto-expand and scroll if highlightId matches a product in this group
+    useEffect(() => {
+        if (highlightId && data.products.some(p => p.id === highlightId)) {
+            setIsExpanded(true);
+            setExpandedProducts(prev => ({ ...prev, [highlightId]: true }));
+
+            // Wait for render then scroll
+            setTimeout(() => {
+                const el = document.getElementById(`product-${highlightId}`);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Optional: Add a temporary highlight flash
+                }
+            }, 300);
+        }
+    }, [highlightId, data.products]);
 
     const toggleProduct = (productId: number) => {
         setExpandedProducts(prev => ({
@@ -74,7 +92,7 @@ export function EventGroup({ data, orders, updatedOrderIds, onRefresh }: EventGr
                         const missingTasks = op && (!op.messaggioRiepilogoInviato || !op.listaPasseggeriInviata);
 
                         return (
-                            <div key={product.id} className="p-4 hover:bg-gray-50 transition-colors group">
+                            <div key={product.id} id={`product-${product.id}`} className="p-4 hover:bg-gray-50 transition-colors group">
                                 <div className="flex items-start justify-between">
                                     {/* Main Row Content (Clickable) */}
                                     <div className="flex items-start gap-3 flex-1 cursor-pointer" onClick={() => toggleProduct(product.id)}>
@@ -122,7 +140,7 @@ export function EventGroup({ data, orders, updatedOrderIds, onRefresh }: EventGr
                                                 e.stopPropagation();
                                                 setWorkflowProduct(product);
                                             }}
-                                            className={`p-2 rounded-full transition-colors opacity-0 group-hover:opacity-100 ${missingTasks && op?.confermato ? "text-orange-500 bg-orange-50 ring-1 ring-orange-200" : "text-gray-400 hover:text-purple-600 hover:bg-purple-50"
+                                            className={`p-2 rounded-full transition-colors ${missingTasks && op?.confermato ? "text-orange-500 bg-orange-50 ring-1 ring-orange-200" : "text-gray-400 hover:text-purple-600 hover:bg-purple-50"
                                                 }`}
                                             title="Workflow Operativo (Checklist)"
                                         >
@@ -134,7 +152,7 @@ export function EventGroup({ data, orders, updatedOrderIds, onRefresh }: EventGr
                                                 e.stopPropagation();
                                                 setEditingProduct(product);
                                             }}
-                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
                                             title="Modifica Prodotto"
                                         >
                                             <Pencil className="h-4 w-4" />
