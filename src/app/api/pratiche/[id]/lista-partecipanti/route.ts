@@ -24,7 +24,7 @@ export async function GET(
 
         const pdfBytes = await generatePassengerListPdf(pratica, pratica.partecipanti);
 
-        return new NextResponse(pdfBytes, {
+        return new NextResponse(Buffer.from(pdfBytes), {
             headers: {
                 "Content-Type": "application/pdf",
                 "Content-Disposition": `attachment; filename="Lista_Passeggeri_${pratica.numero || id}.pdf"`,
