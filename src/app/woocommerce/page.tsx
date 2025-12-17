@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { OrdersList } from "@/components/woocommerce/OrdersList";
 import { WooDashboard } from "@/components/woocommerce/WooDashboard";
-import { ShoppingBag, LayoutDashboard } from "lucide-react";
+import { ShoppingBag, LayoutDashboard, Loader2 } from "lucide-react";
 
 export default function WooCommercePage() {
     const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "products">("dashboard");
@@ -46,8 +46,10 @@ export default function WooCommercePage() {
 
                 {/* Content */}
                 <div>
-                    {activeTab === "dashboard" && <WooDashboard />}
-                    {activeTab === "orders" && <OrdersList />}
+                    <Suspense fallback={<div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div>}>
+                        {activeTab === "dashboard" && <WooDashboard />}
+                        {activeTab === "orders" && <OrdersList />}
+                    </Suspense>
                 </div>
             </div>
         </div>
