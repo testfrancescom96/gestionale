@@ -88,14 +88,17 @@ export function PraticheTable({ pratiche }: { pratiche: Pratica[] }) {
                         <tr
                             key={pratica.id}
                             className={`transition-colors hover:bg-gray-50 ${(pratica.stato === "BOZZA" || pratica.stato === "DA_ELABORARE")
-                                ? "bg-amber-50"
+                                ? "bg-amber-50 border-l-4 border-amber-400"
                                 : ""
                                 }`}
                         >
                             <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                                 #{pratica.numero || "—"}
                                 {(pratica.stato === "BOZZA" || pratica.stato === "DA_ELABORARE") && (
-                                    <span className="ml-2 inline-flex items-center rounded-md bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                                    <span className="ml-2 inline-flex items-center gap-1 rounded-md bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
                                         BOZZA
                                     </span>
                                 )}
