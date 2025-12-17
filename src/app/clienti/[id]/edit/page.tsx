@@ -44,7 +44,6 @@ export default function ModificaClientePage({ params }: { params: Promise<{ id: 
                         cap: data.cap || "",
                         provincia: data.provincia || "",
                         codiceFiscale: data.codiceFiscale || "",
-                        codiceFiscale: data.codiceFiscale || "",
                         dataNascita: data.dataNascita ? new Date(data.dataNascita).toISOString().split('T')[0] : "",
                         stato: data.stato || "ATTIVO",
                     });
