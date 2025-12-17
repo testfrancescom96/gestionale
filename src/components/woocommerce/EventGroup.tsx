@@ -169,17 +169,54 @@ export function EventGroup({ data, orders, updatedOrderIds, highlightId, onRefre
                                 {/* Break-even Progress Bar & Min Pax Info */}
                                 {op?.minPartecipanti > 0 && (
                                     <div className="mt-2 pl-[3.5rem] pr-2">
-                                        <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
-                                            <span>Progresso partecipanti (Min: {op.minPartecipanti})</span>
-                                            <span>{Math.round((bookingCount / op.minPartecipanti) * 100)}%</span>
-                                        </div>
-                                        <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                                            <div
-                                                className={`h-full rounded-full transition-all duration-500 ${bookingCount >= op.minPartecipanti ? 'bg-green-500' : 'bg-orange-400'
-                                                    }`}
-                                                style={{ width: `${Math.min((bookingCount / op.minPartecipanti) * 100, 100)}%` }}
-                                            />
-                                        </div>
+                                        {/* SOLD OUT */}
+                                        {op.stato === 'SOLD_OUT' && (
+                                            <>
+                                                <div className="flex items-center justify-between text-[10px] mb-1">
+                                                    <span className="font-semibold text-purple-600">🎉 TUTTO ESAURITO</span>
+                                                    <span className="text-purple-600">100%</span>
+                                                </div>
+                                                <div className="h-2 w-full bg-purple-500 rounded-full"></div>
+                                            </>
+                                        )}
+
+                                        {/* CANCELLED */}
+                                        {op.stato === 'CANCELLED' && (
+                                            <div className="opacity-60">
+                                                <div className="flex items-center justify-between text-[10px] mb-1">
+                                                    <span className="text-red-600 line-through">Evento annullato</span>
+                                                </div>
+                                                <div className="h-2 w-full bg-gray-300 rounded-full"></div>
+                                            </div>
+                                        )}
+
+                                        {/* COMPLETED */}
+                                        {op.stato === 'COMPLETED' && (
+                                            <>
+                                                <div className="flex items-center justify-between text-[10px] mb-1">
+                                                    <span className="font-semibold text-green-600">✓ Viaggio concluso</span>
+                                                    <span className="text-green-600">Completato</span>
+                                                </div>
+                                                <div className="h-2 w-full bg-green-500 rounded-full"></div>
+                                            </>
+                                        )}
+
+                                        {/* NORMAL STATES (PENDING, CONFIRMED) */}
+                                        {!['SOLD_OUT', 'CANCELLED', 'COMPLETED'].includes(op.stato || '') && (
+                                            <>
+                                                <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
+                                                    <span>Progresso partecipanti (Min: {op.minPartecipanti})</span>
+                                                    <span>{Math.round((bookingCount / op.minPartecipanti) * 100)}%</span>
+                                                </div>
+                                                <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                                                    <div
+                                                        className={`h-full rounded-full transition-all duration-500 ${bookingCount >= op.minPartecipanti ? 'bg-green-500' : 'bg-orange-400'
+                                                            }`}
+                                                        style={{ width: `${Math.min((bookingCount / op.minPartecipanti) * 100, 100)}%` }}
+                                                    />
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                 )}
 

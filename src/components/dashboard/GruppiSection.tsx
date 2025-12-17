@@ -101,16 +101,50 @@ export function GruppiSection({ stats, upcomingEvents }: GruppiSectionProps) {
                                         <div className="mt-2">
                                             {op?.minPartecipanti > 0 ? (
                                                 <div className="w-full">
-                                                    <div className="flex justify-between text-[10px] text-gray-400 mb-0.5">
-                                                        <span>Break-even: {op.minPartecipanti}</span>
-                                                        <span>{Math.round((sold / op.minPartecipanti) * 100)}%</span>
-                                                    </div>
-                                                    <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                                        <div
-                                                            className={`h-full rounded-full ${sold >= op.minPartecipanti ? 'bg-green-500' : 'bg-orange-400'}`}
-                                                            style={{ width: `${Math.min((sold / op.minPartecipanti) * 100, 100)}%` }}
-                                                        />
-                                                    </div>
+                                                    {/* SOLD OUT */}
+                                                    {op.stato === 'SOLD_OUT' && (
+                                                        <>
+                                                            <div className="flex justify-between text-[10px] mb-0.5">
+                                                                <span className="font-semibold text-purple-600">🎉 ESAURITO</span>
+                                                                <span className="text-purple-600">100%</span>
+                                                            </div>
+                                                            <div className="h-1.5 w-full bg-purple-500 rounded-full"></div>
+                                                        </>
+                                                    )}
+
+                                                    {/* CANCELLED */}
+                                                    {op.stato === 'CANCELLED' && (
+                                                        <div className="opacity-60">
+                                                            <div className="text-[10px] text-red-600 line-through mb-0.5">Annullato</div>
+                                                            <div className="h-1.5 w-full bg-gray-300 rounded-full"></div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* COMPLETED */}
+                                                    {op.stato === 'COMPLETED' && (
+                                                        <>
+                                                            <div className="flex justify-between text-[10px] mb-0.5">
+                                                                <span className="font-semibold text-green-600">✓ Concluso</span>
+                                                            </div>
+                                                            <div className="h-1.5 w-full bg-green-500 rounded-full"></div>
+                                                        </>
+                                                    )}
+
+                                                    {/* NORMAL STATES */}
+                                                    {!['SOLD_OUT', 'CANCELLED', 'COMPLETED'].includes(op.stato || '') && (
+                                                        <>
+                                                            <div className="flex justify-between text-[10px] text-gray-400 mb-0.5">
+                                                                <span>Break-even: {op.minPartecipanti}</span>
+                                                                <span>{Math.round((sold / op.minPartecipanti) * 100)}%</span>
+                                                            </div>
+                                                            <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                                                <div
+                                                                    className={`h-full rounded-full ${sold >= op.minPartecipanti ? 'bg-green-500' : 'bg-orange-400'}`}
+                                                                    style={{ width: `${Math.min((sold / op.minPartecipanti) * 100, 100)}%` }}
+                                                                />
+                                                            </div>
+                                                        </>
+                                                    )}
                                                 </div>
                                             ) : (
                                                 <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
