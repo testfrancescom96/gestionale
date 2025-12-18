@@ -197,9 +197,44 @@ export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'sm
     else {
         // Rapid (by limit)
         if (onProgress) onProgress(`Recupero ultimi ${value} ordini...`);
-        params.set("per_page", value.toString());
-        const res = await fetchWooOrders(params);
-        orders = res.orders;
+
+        // Fix: WooCommerce max per_page is 100. If we want more, we must paginate.
+        if (value <= 100) {
+            params.set("per_page", value.toString());
+            const res = await fetchWooOrders(params);
+            orders = res.orders;
+        } else {
+            // value > 100, we need to loop
+            let remaining = value;
+            let page = 1;
+
+            while (remaining > 0) {
+                const batchSize = Math.min(remaining, 100);
+                params.set("page", page.toString());
+                params.set("per_page", batchSize.toString());
+
+                if (onProgress) onProgress(`Scaricamento ordini... (batch ${page}, ${batchSize} items)`);
+
+                try {
+                    const res = await fetchWooOrders(params);
+                    if (!res.orders || res.orders.length === 0) break;
+
+                    orders = [...orders, ...res.orders];
+                    remaining -= res.orders.length;
+                    page++;
+
+                    // If we got fewer than asked, we reached end of list
+                    if (res.orders.length < batchSize) break;
+
+                    // Small delay to be gentle
+                    await new Promise(r => setTimeout(r, 200));
+
+                } catch (e) {
+                    console.error("Error fetching batch:", e);
+                    break;
+                }
+            }
+        }
     }
 
     let count = 0;
