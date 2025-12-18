@@ -736,3 +736,22 @@ model ManualBooking {
   
   @@index([wooProductId])
 }
+
+// ==================== SYSTEM SETTINGS ====================
+model SystemSettings {
+  id                    Int       @id @default(1)
+  
+  // Backup Settings
+  backupEnabled         Boolean   @default(true)
+  backupIntervalMinutes Int       @default(30)  // 15, 30, 60, 120
+  backupRetentionCount  Int       @default(48)  // Numero backup da mantenere
+  backupToGoogleDrive   Boolean   @default(false)
+  lastBackupAt          DateTime?
+  lastBackupStatus      String?   // "success", "failed"
+  lastBackupError       String?
+  
+  // Sync Settings
+  wooSyncIntervalMinutes Int      @default(60)
+  
+  updatedAt             DateTime  @updatedAt
+}

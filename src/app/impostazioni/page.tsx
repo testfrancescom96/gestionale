@@ -3,6 +3,7 @@
 import { Settings } from "lucide-react";
 import { OperatoriManager } from "@/components/impostazioni/OperatoriManager";
 import { ListManager } from "@/components/impostazioni/ListManager";
+import { BackupManager } from "@/components/impostazioni/BackupManager";
 import { useState, useEffect } from "react";
 
 export default function SettingsPage() {
@@ -28,6 +29,8 @@ export default function SettingsPage() {
 
             <div className="space-y-6">
                 <OperatoriManager />
+
+                <BackupManager />
 
                 <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
                     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">

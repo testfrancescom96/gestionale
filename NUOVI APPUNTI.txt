@@ -1,0 +1,18 @@
+- per le bozze vedo che in anagrafica cliente, abbiamo dei problemi.. se ne apro una nuova mi chiede annulla, salva come bozza o salva e attiva
+- Per avere un quadro completo, sarebbe interessante collegarci il sito dell'agenzia dell'entrate se possibile.. oppure sistemi secondati come il portale che utilizziamo attualmente FATTURA24, (solo che in quest'ultimo ad esempio non vediamo alcuni tipi di fattura/autofatture)
+- per i fornitori, dobbiamo vedere tutte le pratiche collegate.. per esempio i vettori dovremmo avere i singoli vettori, con i viaggi a cui sono collegati. 
+PER I VETTORI , TI METTO ATTUALMENTE IL FILE xlxs (anche csv) . PER VEDERE COME LI GESTISCO ATTUALMENTE. IL FILE SI CHIAMA:  "NOLEGGIO BUS VETTORE ESEMPIO"
+- meta/marketing, aggiungiamo piu dati! statistiche etc..etc..
+- Poi dobbiamo collegare le transazioni bancarie (bonifici, pagamenti online , pagamenti col pos) .. poi vediamo come perfezionarla intanto creiamo la scheda.
+- devo produrre la prima nota e fatturazione. materiale da dare al commercialista. nella cartella gestionale hai
+1. PRIMA NOTA NOVEMBRE
+2. FATTURAZIONE NOVEMBRE
+sono entrambi file xlsx , ma ti ci metto dentro anche i file csv
+- ti metto nella cartella anche gli estratti conto bancari mensili che mando di solito al commercialista
+1.  DETEUSKE ESTRATTO CONTO
+2.  HYPE ESTRATTO CONTO
+3.  PAYPAL ESTRATTO CONTO
+4.  REVOLUT ESTRATTO CONTO
+5.  VIVA ESTRATTO CONTO
+sono tutti e 5 file xls, ma ti ci metto anche i file csv
+
