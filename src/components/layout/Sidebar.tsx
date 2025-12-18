@@ -15,6 +15,7 @@ import {
     Wallet,
     Bus
 } from "lucide-react";
+import { logout } from "@/app/login/actions";
 
 const navSections = [
     {
@@ -143,26 +144,13 @@ export function Sidebar({ user }: SidebarProps) {
                 )}
 
                 {/* Logout Button */}
-                <form action="/api/auth/logout" method="POST">
-                    {/* Wait, I don't have this API route. I should use the server action directly. */}
-                    {/* But passing server action to onClick needs care. Use a submit button in a form. */}
-                    <button
-                        type="submit"
-                        // Using formAction if I import it, but cleaner to just use API route or server action imported
-                        // Let's assume I import logout from actions
-                        formAction={async () => {
-                            "use server";
-                            // Dynamic import to avoid cycle? No.
-                            // Actually importing 'logout' from '@/app/login/actions' works in Client Component if passed to formAction
-                            const { logout } = await import("@/app/login/actions");
-                            await logout();
-                        }}
-                        className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-200 transition-all hover:bg-red-900/30 hover:text-red-100"
-                    >
-                        <Megaphone className="h-5 w-5 rotate-180" /> {/* Log out icon usually LogOut */}
-                        Esci
-                    </button>
-                </form>
+                <button
+                    onClick={() => logout()}
+                    className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-200 transition-all hover:bg-red-900/30 hover:text-red-100"
+                >
+                    <Megaphone className="h-5 w-5 rotate-180" /> {/* Log out icon usually LogOut */}
+                    Esci
+                </button>
             </div>
         </div>
     );
