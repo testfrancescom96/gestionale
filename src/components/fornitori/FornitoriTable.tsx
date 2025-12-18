@@ -85,7 +85,14 @@ export function FornitoriTable({ fornitori }: FornitoriTableProps) {
                                 return (
                                     <tr key={f.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 font-medium text-gray-900">
-                                            {f.ragioneSociale}
+                                            <Link href={`/fornitori/${f.id}`} className="hover:text-blue-600 hover:underline">
+                                                {f.ragioneSociale}
+                                            </Link>
+                                            {f._count.pratiche > 0 && (
+                                                <span className="ml-2 text-xs text-gray-400">
+                                                    ({f._count.pratiche} pratiche)
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col">

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-// GET: Recupera singolo fornitore con servizi
+// GET: Recupera singolo fornitore con servizi e pratiche collegate
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -10,7 +10,30 @@ export async function GET(
     try {
         const fornitore = await prisma.fornitore.findUnique({
             where: { id },
-            include: { servizi: true } // Importante: includere i servizi
+            include: {
+                servizi: true,
+                // Costi dove questo fornitore è collegato
+                costi: {
+                    include: {
+                        pratica: {
+                            include: {
+                                cliente: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        pratica: { dataPartenza: 'desc' }
+                    }
+                },
+                // Pratiche dirette (campo fornitoreId in Pratica)
+                pratiche: {
+                    include: {
+                        cliente: true
+                    },
+                    orderBy: { dataPartenza: 'desc' },
+                    take: 50
+                }
+            }
         });
 
         if (!fornitore) {
