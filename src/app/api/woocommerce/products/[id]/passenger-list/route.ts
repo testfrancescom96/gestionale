@@ -109,6 +109,9 @@ export async function GET(
             return '-';
         };
 
+        // Initialize row counter
+        let rowNum = 1;
+
         // Add WooCommerce orders
         for (const item of product.orderItems) {
             const order = item.order;
