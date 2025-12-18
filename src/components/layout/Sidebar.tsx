@@ -12,7 +12,8 @@ import {
     Settings,
     ShoppingBag,
     Megaphone,
-    Wallet
+    Wallet,
+    Bus
 } from "lucide-react";
 
 const navSections = [
@@ -32,6 +33,7 @@ const navSections = [
         title: "VIAGGI DI GRUPPO",
         items: [
             { name: "Eventi / Gruppi", href: "/woocommerce", icon: ShoppingBag },
+            { name: "Vettori / Bus", href: "/vettori", icon: Bus },
         ]
     },
     {

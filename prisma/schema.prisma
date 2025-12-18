@@ -235,6 +235,7 @@ model Fornitore {
   costi               CostoPratica[] // Nuova gestione multi-fornitore
   fattureAcquisto     FatturaAcquisto[]
   customFields        CustomFieldValue[]
+  noleggi             NoleggioVettore[] @relation("VettoreNoleggi")
   
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
