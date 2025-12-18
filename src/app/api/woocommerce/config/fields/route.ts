@@ -37,9 +37,7 @@ export async function GET() {
             } catch (e) { }
         });
 
-        // 3. Merge results
-        const allKeys = new Set([...foundKeys]);
-        configMap.forEach((_, key) => allKeys.add(JSON.stringify({ key, label: configMap.get(key)?.label || key })));
+
 
         const result = [];
         // We need to deduplicate by KEY, because JSON.stringify might have different labels.

@@ -142,7 +142,7 @@ export async function GET(
 
         // JSON Response
         if (isJson) {
-            const columns = [
+            const columns: { header: string; key: string; isDynamic?: boolean }[] = [
                 { header: 'N°', key: 'num' },
                 { header: 'Cognome', key: 'cognome' },
                 { header: 'Nome', key: 'nome' },
