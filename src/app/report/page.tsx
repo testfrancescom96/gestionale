@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { DollarSign, TrendingUp, Briefcase, ShoppingBag, PieChart } from "lucide-react";
 import { getWooCommerceRevenue } from "@/lib/woocommerce";
+import { ReportCharts } from "@/components/report/ReportCharts";
 
 export const dynamic = "force-dynamic";
 
@@ -165,6 +166,12 @@ export default async function ReportPage() {
                         </p>
                     </div>
                 </div>
+            </div>
+
+            {/* Advanced Charts Section */}
+            <div className="mt-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Analisi Avanzata</h2>
+                <ReportCharts />
             </div>
         </div>
     );
