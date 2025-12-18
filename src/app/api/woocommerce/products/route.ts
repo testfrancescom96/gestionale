@@ -8,7 +8,17 @@ export async function GET(request: NextRequest) {
         // Fetch from LOCAL DB
         const products = await prisma.wooProduct.findMany({
             include: {
-                operational: true // Include operational status
+                operational: true, // Include operational status
+                manualBookings: true,
+                orderItems: {
+                    include: {
+                        order: {
+                            select: {
+                                manuallyModified: true
+                            }
+                        }
+                    }
+                }
             },
             orderBy: {
                 eventDate: 'asc' // Default sort by date
