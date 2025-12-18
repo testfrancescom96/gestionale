@@ -89,8 +89,8 @@ export async function GET(
         let dynamicColumns = fieldConfig.filter(c => c.mappingType === 'COLUMN');
 
         // Filter dynamic columns if selection acts on them
-        if (selectedColumnKeys) {
-            dynamicColumns = dynamicColumns.filter(c => selectedColumnKeys.includes(c.fieldKey));
+        if (selectedKeys) {
+            dynamicColumns = dynamicColumns.filter(c => selectedKeys.includes(c.fieldKey));
         }
 
         // Helper to find specific field value
