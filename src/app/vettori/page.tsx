@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
+import { NuovoFornitoreModal } from "@/components/fornitori/NuovoFornitoreModal";
 
 interface Noleggio {
     id: string;
@@ -34,6 +35,11 @@ interface Noleggio {
     pagato: boolean;
     dataPagamento?: string;
     note?: string;
+    // Bus details (optional)
+    hasBagno?: boolean;
+    hasPrese?: boolean;
+    targaBus?: string;
+    noteBus?: string;
 }
 
 interface Stats {
@@ -52,6 +58,7 @@ export default function VettoriPage() {
     const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString());
     const [filterVettore, setFilterVettore] = useState("");
     const [showForm, setShowForm] = useState(false);
+    const [showFornitoreModal, setShowFornitoreModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         dataPartenza: "",
@@ -327,13 +334,87 @@ export default function VettoriPage() {
                             placeholder="Evento / Destinazione"
                             required
                         />
+
+                        <div className="flex gap-2">
+                            <select
+                                value={formData.fornitoreId}
+                                onChange={(e) => {
+                                    const selected = fornitori.find(f => f.id === e.target.value);
+                                    setFormData({
+                                        ...formData,
+                                        fornitoreId: e.target.value,
+                                        nomeVettore: selected ? selected.ragioneSociale : formData.nomeVettore
+                                    });
+                                }}
+                                className="border rounded-lg px-3 py-2 text-sm flex-1"
+                            >
+                                <option value="">Seleziona Vettore...</option>
+                                {fornitori.filter(f => f.tipoFornitore === "VETTORE" || f.tipoFornitore === "AUTONOLEGGIO").map(f => (
+                                    <option key={f.id} value={f.id}>{f.ragioneSociale}</option>
+                                ))}
+                            </select>
+                            <button
+                                type="button"
+                                onClick={() => setShowFornitoreModal(true)}
+                                className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700"
+                                title="Nuovo Vettore (Anagrafica)"
+                            >
+                                <Plus className="h-4 w-4" />
+                            </button>
+                        </div>
+
                         <input
                             type="text"
                             value={formData.nomeVettore}
                             onChange={(e) => setFormData({ ...formData, nomeVettore: e.target.value })}
                             className="border rounded-lg px-3 py-2 text-sm"
-                            placeholder="Nome Vettore"
+                            placeholder="Nome Vettore (Manuale)"
                         />
+
+                        <input
+                            type="number"
+                            value={formData.capienzaBus}
+                            onChange={(e) => setFormData({ ...formData, capienzaBus: e.target.value })}
+                            className="border rounded-lg px-3 py-2 text-sm"
+                            placeholder="Capienza Bus"
+                        />
+
+                        <div className="flex flex-col gap-2 border p-2 rounded-lg bg-gray-50">
+                            <label className="flex items-center gap-2 text-sm">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.hasBagno}
+                                    onChange={(e) => setFormData({ ...formData, hasBagno: e.target.checked })}
+                                    className="rounded"
+                                />
+                                Bagno 🚻
+                            </label>
+                            <label className="flex items-center gap-2 text-sm">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.hasPrese}
+                                    onChange={(e) => setFormData({ ...formData, hasPrese: e.target.checked })}
+                                    className="rounded"
+                                />
+                                Prese USB 🔌
+                            </label>
+                        </div>
+
+                        <input
+                            type="text"
+                            value={formData.targaBus}
+                            onChange={(e) => setFormData({ ...formData, targaBus: e.target.value })}
+                            className="border rounded-lg px-3 py-2 text-sm"
+                            placeholder="Targa Bus"
+                        />
+                        <input
+                            type="text"
+                            value={formData.noteBus}
+                            onChange={(e) => setFormData({ ...formData, noteBus: e.target.value })}
+                            className="border rounded-lg px-3 py-2 text-sm"
+                            placeholder="Note Bus"
+                        />
+
                         <input
                             type="number"
                             value={formData.costoNoleggio}
@@ -380,7 +461,7 @@ export default function VettoriPage() {
                             value={formData.note}
                             onChange={(e) => setFormData({ ...formData, note: e.target.value })}
                             className="border rounded-lg px-3 py-2 text-sm md:col-span-2"
-                            placeholder="Note"
+                            placeholder="Note Noleggio"
                         />
                         <div className="flex gap-2 md:col-span-4">
                             <button
@@ -409,6 +490,7 @@ export default function VettoriPage() {
                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Evento</th>
                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vettore</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bus</th>
                             <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Noleggio</th>
                             <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">ZTL</th>
                             <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Fattura</th>
@@ -418,9 +500,9 @@ export default function VettoriPage() {
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                         {loading ? (
-                            <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-500">Caricamento...</td></tr>
+                            <tr><td colSpan={9} className="px-4 py-8 text-center text-gray-500">Caricamento...</td></tr>
                         ) : noleggi.length === 0 ? (
-                            <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-500">Nessun noleggio trovato</td></tr>
+                            <tr><td colSpan={9} className="px-4 py-8 text-center text-gray-500">Nessun noleggio trovato</td></tr>
                         ) : (
                             noleggi.map(n => (
                                 <tr key={n.id} className={`hover:bg-gray-50 ${n.pagato ? 'bg-green-50/30' : ''}`}>
@@ -435,6 +517,12 @@ export default function VettoriPage() {
                                     </td>
                                     <td className="px-4 py-3 text-gray-600">
                                         {n.nomeVettore || n.fornitore?.ragioneSociale || "-"}
+                                    </td>
+                                    <td className="px-4 py-3 text-gray-500 text-xs">
+                                        {(n as any).capienzaBus ? `${(n as any).capienzaBus} pax` : ''}
+                                        {(n as any).hasBagno && ' 🚻'}
+                                        {(n as any).hasPrese && ' 🔌'}
+                                        {(n as any).targaBus ? ` - ${(n as any).targaBus}` : ''}
                                     </td>
                                     <td className="px-4 py-3 text-right font-medium">€ {n.costoNoleggio.toLocaleString('it-IT')}</td>
                                     <td className="px-4 py-3 text-right text-gray-600">€ {n.costoZTL.toLocaleString('it-IT')}</td>
@@ -469,6 +557,21 @@ export default function VettoriPage() {
                     </tbody>
                 </table>
             </div>
+
+            <NuovoFornitoreModal
+                isOpen={showFornitoreModal}
+                onClose={() => setShowFornitoreModal(false)}
+                tipoPredefinito="VETTORE"
+                onFornitoreCreato={(newFornitore) => {
+                    setFornitori(prev => [...prev, newFornitore]);
+                    // Auto-select
+                    setFormData(prev => ({
+                        ...prev,
+                        fornitoreId: newFornitore.id,
+                        nomeVettore: newFornitore.ragioneSociale
+                    }));
+                }}
+            />
         </div>
     );
 }

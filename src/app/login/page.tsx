@@ -1,10 +1,9 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { login } from "./actions";
 import { useFormStatus } from "react-dom";
-import { Lock, User } from "lucide-react";
-import { redirect } from "next/navigation";
+import { Lock, User, Bus } from "lucide-react";
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -12,9 +11,16 @@ function SubmitButton() {
         <button
             type="submit"
             disabled={pending}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-            {pending ? "Accesso in corso..." : "Accedi"}
+            {pending ? (
+                <>
+                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Accesso in corso...
+                </>
+            ) : (
+                "Accedi al Gestionale"
+            )}
         </button>
     );
 }
@@ -23,67 +29,83 @@ export default function LoginPage() {
     // @ts-ignore
     const [state, formAction] = useActionState(login, null);
 
-    // Redirezione client-side se login ok? 
-    // No, il server action fa redirect o setta cookie e basta?
-    // login action non fa redirect nel try block per evitare NEXT_REDIRECT error caught.
-    // Modificherò l'action per fare redirect finale o gestire qui.
-    // Meglio gestire qui?
-    // Se il cookie è settato, il middleware o layout vedranno sessione.
-    // Ma `login` action deve fare redirect. Se uso useActionState, il redirect server-side funziona.
-
-    // Nota: l'action che ho scritto NON fa redirect finale. La modifico subito dopo.
-    // O uso redirect nel componente? 
-    // Meglio redirect server-side.
-
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-            <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
-                <div className="text-center mb-8">
-                    <h1 className="text-2xl font-bold text-gray-900">Gestionale Viaggi</h1>
-                    <p className="text-gray-500 mt-2">Accedi per continuare</p>
+        <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+            {/* Background with Overlay */}
+            <div
+                className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: "url('/login-bg.png')" }}
+            >
+                <div className="absolute inset-0 bg-blue-900/40 backdrop-blur-[2px]" />
+            </div>
+
+            {/* Glass Card */}
+            <div className="relative z-10 w-full max-w-md p-6 mx-4">
+                <div className="bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl rounded-3xl p-8 space-y-8">
+
+                    {/* Header / Logo */}
+                    <div className="text-center space-y-2">
+                        <div className="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-lg mb-4 transform rotate-3">
+                            <Bus className="h-8 w-8 text-white" />
+                        </div>
+                        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Benvenuto</h1>
+                        <p className="text-gray-500 font-medium">Gestionale Viaggi & Bus</p>
+                    </div>
+
+                    {/* Form */}
+                    <form action={formAction} className="space-y-5">
+                        <div className="space-y-1">
+                            <label className="text-sm font-semibold text-gray-700 ml-1">Utente</label>
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <User className="h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+                                </div>
+                                <input
+                                    name="username"
+                                    type="text"
+                                    required
+                                    className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white/50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-600 transition-all"
+                                    placeholder="Inserisci username"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="text-sm font-semibold text-gray-700 ml-1">Password</label>
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Lock className="h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+                                </div>
+                                <input
+                                    name="password"
+                                    type="password"
+                                    required
+                                    className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white/50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-600 transition-all"
+                                    placeholder="Inserisci password"
+                                />
+                            </div>
+                        </div>
+
+                        {state?.error && (
+                            <div className="p-4 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3 animate-in fade-in slide-in-from-top-1">
+                                <div className="shrink-0 text-red-500">
+                                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <p className="text-sm font-medium text-red-800">{state.error}</p>
+                            </div>
+                        )}
+
+                        <div className="pt-2">
+                            <SubmitButton />
+                        </div>
+                    </form>
+
+                    <div className="text-center text-xs text-gray-400">
+                        &copy; {new Date().getFullYear()} GOonTheROAD. Area Riservata.
+                    </div>
                 </div>
-
-                <form action={formAction} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Nome Utente
-                        </label>
-                        <div className="relative">
-                            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                            <input
-                                name="username"
-                                type="text"
-                                required
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                                placeholder="es. nome.cognome"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Password
-                        </label>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                            <input
-                                name="password"
-                                type="password"
-                                required
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                                placeholder="••••••••"
-                            />
-                        </div>
-                    </div>
-
-                    {state?.error && (
-                        <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg">
-                            {state.error}
-                        </div>
-                    )}
-
-                    <SubmitButton />
-                </form>
             </div>
         </div>
     );

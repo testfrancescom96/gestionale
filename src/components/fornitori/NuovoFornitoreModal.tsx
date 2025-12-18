@@ -7,9 +7,10 @@ interface NuovoFornitoreModalProps {
     isOpen: boolean;
     onClose: () => void;
     onFornitoreCreato: (fornitore: any) => void;
+    tipoPredefinito?: string;
 }
 
-export function NuovoFornitoreModal({ isOpen, onClose, onFornitoreCreato }: NuovoFornitoreModalProps) {
+export function NuovoFornitoreModal({ isOpen, onClose, onFornitoreCreato, tipoPredefinito }: NuovoFornitoreModalProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         denominazione: "",
@@ -19,6 +20,7 @@ export function NuovoFornitoreModal({ isOpen, onClose, onFornitoreCreato }: Nuov
         cap: "",
         telefono: "",
         email: "",
+        tipoFornitore: tipoPredefinito || "ALTRO"
     });
 
     // Reset form when opened
@@ -32,9 +34,10 @@ export function NuovoFornitoreModal({ isOpen, onClose, onFornitoreCreato }: Nuov
                 cap: "",
                 telefono: "",
                 email: "",
+                tipoFornitore: tipoPredefinito || "ALTRO"
             });
         }
-    }, [isOpen]);
+    }, [isOpen, tipoPredefinito]);
 
     if (!isOpen) return null;
 
