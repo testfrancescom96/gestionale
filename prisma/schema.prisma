@@ -803,8 +803,7 @@ model WooExportConfig {
   id          String   @id @default(uuid())
   fieldKey    String   @unique // Chiave nel JSON metaData (es. "pa_fermata" o "Luogo di ritrovo")
   label       String   // Etichetta leggibile (es. "Fermata Bus")
-  isPartenza  Boolean  @default(false) // Se true, mappa questo campo alla colonna "Punto Partenza"
-  isVisible   Boolean  @default(true)  // Se true, mostra come colonna dedicata (in futuro)
+  mappingType String   @default("COLUMN") // "PARTENZA", "CF", "ADDRESS", "CAP", "COLUMN", "HIDDEN"
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

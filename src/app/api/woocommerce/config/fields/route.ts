@@ -46,8 +46,7 @@ export async function GET() {
             result.push({
                 fieldKey: key,
                 label: saved?.label || hintLabel || key,
-                isPartenza: saved?.isPartenza || false,
-                isVisible: saved?.isVisible || true, // Default true for discovered fields? Maybe make default true
+                mappingType: saved?.mappingType || "COLUMN", // Default to VISIBLE column
                 isSaved: !!saved
             });
         }
@@ -62,21 +61,18 @@ export async function GET() {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { fieldKey, label, isPartenza, isVisible } = body;
+        const { fieldKey, label, mappingType } = body;
 
-        // If isPartenza is true, we should probably unset others to avoid conflicts?
-        // Or just let the user decide. Let's ensure only one isPartenza for cleanliness, but not strictly required by logic.
-        if (isPartenza) {
-            await prisma.wooExportConfig.updateMany({
-                where: { isPartenza: true },
-                data: { isPartenza: false }
-            });
-        }
+        // If mappingType is "PARTENZA", unset others? Not strictly needed if we filter by type in export.
+        // But for UI cleanliness, maybe we want only one Partenza? 
+        // Let's keep it flexible for now, maybe multiply pickup points? 
+        // Actually, logic usually expects one Partenza column. 
+        // Let's settle on: Last one saved wins logic in export, or specific query.
 
         const config = await prisma.wooExportConfig.upsert({
             where: { fieldKey },
-            update: { label, isPartenza, isVisible },
-            create: { fieldKey, label, isPartenza, isVisible }
+            update: { label, mappingType },
+            create: { fieldKey, label, mappingType }
         });
 
         return NextResponse.json(config);

@@ -5,8 +5,7 @@ import { Loader2, X, Save, Check } from "lucide-react";
 interface FieldConfig {
     fieldKey: string;
     label: string;
-    isPartenza: boolean;
-    isVisible: boolean;
+    mappingType: string;
     isSaved: boolean;
 }
 
@@ -97,19 +96,24 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                                     </div>
 
                                     <div className="col-span-5 flex items-center justify-center gap-4">
-                                        {/* Is Partenza Toggle */}
-                                        <label className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-all ${field.isPartenza
-                                                ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold'
-                                                : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                                            }`}>
-                                            <input
-                                                type="checkbox"
-                                                className="hidden"
-                                                checked={field.isPartenza}
-                                                onChange={() => handleSave({ ...field, isPartenza: !field.isPartenza })}
-                                            />
-                                            {field.isPartenza ? '📍 Punto Partenza' : '📍 Imposta Partenza'}
-                                        </label>
+                                        <select
+                                            value={field.mappingType}
+                                            onChange={(e) => handleSave({ ...field, mappingType: e.target.value })}
+                                            className={`
+                                                w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+                                                ${field.mappingType === 'PARTENZA' ? 'border-blue-500 bg-blue-50 text-blue-700 font-bold' : ''}
+                                                ${field.mappingType === 'HIDDEN' ? 'text-gray-400 bg-gray-50' : ''}
+                                                ${field.mappingType === 'CF' ? 'border-purple-500 bg-purple-50 text-purple-700 font-bold' : ''}
+                                            `}
+                                        >
+                                            <option value="COLUMN">📊 Colonna Extra</option>
+                                            <option value="PARTENZA">📍 Punto Partenza</option>
+                                            <option value="CF">🆔 Codice Fiscale</option>
+                                            <option value="ADDRESS">🏠 Indirizzo / Città</option>
+                                            <option value="CAP">📮 CAP</option>
+                                            <option value="NOTE">📝 Note</option>
+                                            <option value="HIDDEN">🚫 Nascondi (Ignora)</option>
+                                        </select>
                                     </div>
 
                                     <div className="col-span-2 text-right">

@@ -56,78 +56,130 @@ export async function GET(
         // Empty row
         worksheet.addRow([]);
 
-        // Header row
-        const headerRow = worksheet.addRow(['N°', 'Cognome', 'Nome', 'Telefono', 'Punto Partenza', 'Pax', 'Note']);
-        headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-        headerRow.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FF4472C4' }
-        };
-        headerRow.alignment = { horizontal: 'center' };
 
-        // Column widths
-        worksheet.columns = [
-            { key: 'num', width: 6 },
-            { key: 'cognome', width: 18 },
-            { key: 'nome', width: 18 },
-            { key: 'telefono', width: 15 },
-            { key: 'puntoPartenza', width: 20 },
-            { key: 'pax', width: 6 },
-            { key: 'note', width: 25 }
-        ];
 
         // 1. Get Config
         const fieldConfig = await prisma.wooExportConfig.findMany();
-        const partenzaConfig = fieldConfig.find(c => c.isPartenza);
 
-        // Helper to find "Punto Partenza" using Dynamic Config OR Fallback
+        // Define Mapped Fields
+        const partenzaConfig = fieldConfig.find(c => c.mappingType === 'PARTENZA');
+        const cfConfig = fieldConfig.find(c => c.mappingType === 'CF');
+        const addressConfig = fieldConfig.find(c => c.mappingType === 'ADDRESS');
+        const capConfig = fieldConfig.find(c => c.mappingType === 'CAP');
+        const noteConfig = fieldConfig.find(c => c.mappingType === 'NOTE');
+
+        // Dynamic Columns (those marked as COLUMN)
+        const dynamicColumns = fieldConfig.filter(c => c.mappingType === 'COLUMN');
+
+        // Helper to find specific field value
+        const getMetaValue = (metaDataStr: string | null, key: string | undefined): string | null => {
+            if (!metaDataStr || !key) return null;
+            try {
+                const meta = JSON.parse(metaDataStr);
+                if (Array.isArray(meta)) {
+                    const match = meta.find((m: any) =>
+                        (m.key === key) || (m.display_key === key)
+                    );
+                    if (match) return match.value || match.display_value;
+                }
+            } catch (e) { return null; }
+            return null;
+        };
+
         const findPartenza = (metaDataStr: string | null): string => {
+            // Priority: Configured > Smart Search
+            if (partenzaConfig) {
+                const val = getMetaValue(metaDataStr, partenzaConfig.fieldKey);
+                if (val) return val;
+            }
+            // Fallback
             if (!metaDataStr) return '-';
             try {
                 const meta = JSON.parse(metaDataStr);
                 if (Array.isArray(meta)) {
-                    // Strategy 1: Use Configured Field
-                    if (partenzaConfig) {
-                        const match = meta.find((m: any) =>
-                            (m.key === partenzaConfig.fieldKey) ||
-                            (m.display_key === partenzaConfig.fieldKey)
-                        );
-                        if (match) return match.value || match.display_value;
-                    }
-
-                    // Strategy 2: Fallback (Smart Search) if no config or no match
-                    if (!partenzaConfig) {
-                        const found = meta.find((m: any) => {
-                            const key = (m.key || m.display_key || '').toLowerCase();
-                            return key.includes('partenza') || key.includes('fermata') || key.includes('luogo') || key.includes('ritiro');
-                        });
-                        return found ? (found.value || found.display_value) : '-';
-                    }
+                    const found = meta.find((m: any) => {
+                        const key = (m.key || m.display_key || '').toLowerCase();
+                        return key.includes('partenza') || key.includes('fermata') || key.includes('luogo') || key.includes('ritiro');
+                    });
+                    return found ? (found.value || found.display_value) : '-';
                 }
-            } catch (e) { return '-'; }
+            } catch (e) { }
             return '-';
         };
 
         // Initialize row counter
         let rowNum = 1;
 
+        // Prepare Columns
+        const columns = [
+            { header: 'N°', key: 'num', width: 6 },
+            { header: 'Cognome', key: 'cognome', width: 18 },
+            { header: 'Nome', key: 'nome', width: 18 },
+            { header: 'Telefono', key: 'telefono', width: 15 },
+            { header: 'Punto Partenza', key: 'puntoPartenza', width: 25 }, // Wider for bus stops
+        ];
+
+        // Add Optional Standard Columns if configured
+        if (cfConfig) columns.push({ header: 'C.F.', key: 'cf', width: 18 });
+        if (addressConfig) columns.push({ header: 'Indirizzo', key: 'address', width: 25 });
+        if (capConfig) columns.push({ header: 'CAP', key: 'cap', width: 10 });
+
+        // Add Dynamic Extra Columns
+        dynamicColumns.forEach(col => {
+            columns.push({ header: col.label, key: `dyn_${col.fieldKey}`, width: 20 });
+        });
+
+        // Always add Note and Pax at the end standardly? Or Pax before notes?
+        columns.push({ header: 'Pax', key: 'pax', width: 6 });
+
+        // Notes column (System + Mapped)
+        columns.push({ header: 'Note', key: 'note', width: 25 });
+
+        // Apply Columns to Worksheet (Header Row creation)
+        const headerRow = worksheet.addRow(columns.map(c => c.header));
+        headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4472C4' } };
+        headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+
+        // Set widths
+        worksheet.columns = columns.map(c => ({ width: c.width }));
+
+
         // Add WooCommerce orders
         for (const item of product.orderItems) {
             const order = item.order;
             if (order) {
-                const puntoPartenza = findPartenza(item.metaData);
-
-                // Add Row
-                const row = worksheet.addRow([
+                const rowData: any[] = [
                     rowNum++,
                     order.billingLastName || '',
                     order.billingFirstName || '',
                     order.billingPhone || '',
-                    puntoPartenza,
-                    item.quantity,
-                    `Ordine #${order.id}`
-                ]);
+                    findPartenza(item.metaData)
+                ];
+
+                // Append Optional Standard Fields
+                if (cfConfig) rowData.push(getMetaValue(item.metaData, cfConfig.fieldKey) || '');
+                if (addressConfig) rowData.push(getMetaValue(item.metaData, addressConfig.fieldKey) || '');
+                if (capConfig) rowData.push(getMetaValue(item.metaData, capConfig.fieldKey) || '');
+
+                // Append Dynamic Columns
+                dynamicColumns.forEach(col => {
+                    rowData.push(getMetaValue(item.metaData, col.fieldKey) || '');
+                });
+
+                // Pax
+                rowData.push(item.quantity);
+
+                // Notes (Combine Configured Note Field + Order ID)
+                let noteContent = `Ordine #${order.id}`;
+                if (noteConfig) {
+                    const extraNote = getMetaValue(item.metaData, noteConfig.fieldKey);
+                    if (extraNote) noteContent = `${extraNote} | ${noteContent}`;
+                }
+                rowData.push(noteContent);
+
+                // Add Row
+                const row = worksheet.addRow(rowData);
 
                 // Alternate row colors (Light Gray)
                 if (rowNum % 2 === 0) {
@@ -152,16 +204,32 @@ export async function GET(
         }
 
         // Add Manual Bookings
+        // Add Manual Bookings
         for (const booking of product.manualBookings) {
-            const row = worksheet.addRow([
+            // Build base row
+            const rowData: any[] = [
                 rowNum++,
                 booking.cognome,
                 booking.nome,
                 booking.telefono || '',
-                booking.puntoPartenza || '',
-                booking.numPartecipanti,
-                booking.note || 'Manuale'
-            ]);
+                booking.puntoPartenza || ''
+            ];
+
+            // Fill empty slots for Standard Optional Fields
+            if (cfConfig) rowData.push(''); // No CF in manual yet
+            if (addressConfig) rowData.push(''); // No Address
+            if (capConfig) rowData.push(''); // No CAP
+
+            // Fill empty slots for Dynamic Columns
+            dynamicColumns.forEach(() => rowData.push(''));
+
+            // Pax
+            rowData.push(booking.numPartecipanti);
+
+            // Notes
+            rowData.push(booking.note || 'Manuale');
+
+            const row = worksheet.addRow(rowData);
 
             // Mark manual bookings with light purple background
             row.fill = {
