@@ -29,8 +29,22 @@ export async function GET() {
                     meta.forEach((m: any) => {
                         const key = m.key || m.display_key;
                         const label = m.display_key || m.key; // Use display key as label hint
-                        if (key && !key.startsWith('_')) { // Skip internal Woo meta
-                            foundKeys.add(JSON.stringify({ key, label }));
+                        if (key) {
+                            // Logic to determine relevance. 
+                            // Standard Woo usage: public keys don't start with _.
+                            // But Fiscal fields often do (e.g. _billing_cf).
+                            const isInternal = key.startsWith('_');
+                            const isRelevantInternal = isInternal && (
+                                key.startsWith('_billing_') ||
+                                key.startsWith('_shipping_') ||
+                                key.includes('cf') ||
+                                key.includes('piva') ||
+                                key.includes('vat')
+                            );
+
+                            if (!isInternal || isRelevantInternal) {
+                                foundKeys.add(JSON.stringify({ key, label }));
+                            }
                         }
                     });
                 }
