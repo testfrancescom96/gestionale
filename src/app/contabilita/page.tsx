@@ -10,7 +10,8 @@ import {
     ArrowUpCircle,
     ArrowDownCircle,
     Filter,
-    RefreshCw
+    RefreshCw,
+    Plus
 } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
@@ -34,7 +35,17 @@ export default function ContabilitaPage() {
     const [dateFrom, setDateFrom] = useState("");
     const [dateTo, setDateTo] = useState("");
 
-    const banche = ["TUTTE", "DEUTSCHE", "HYPE", "PAYPAL", "REVOLUT", "VIVA"];
+    // Form transazione manuale
+    const [showManualForm, setShowManualForm] = useState(false);
+    const [manualForm, setManualForm] = useState({
+        data: format(new Date(), 'yyyy-MM-dd'),
+        descrizione: "",
+        importo: "",
+        tipo: "USCITA" as "ENTRATA" | "USCITA",
+        banca: "MANUALE"
+    });
+
+    const banche = ["TUTTE", "DEUTSCHE", "HYPE", "PAYPAL", "REVOLUT", "VIVA", "MANUALE"];
 
     // Calcola totali
     const totaleEntrate = transazioni
@@ -45,7 +56,128 @@ export default function ContabilitaPage() {
         .reduce((sum, t) => sum + t.importo, 0);
     const saldo = totaleEntrate - totaleUscite;
 
-    // Import CSV
+    // Parse Revolut CSV (comma-separated, columns: Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State,Balance)
+    const parseRevolutCsv = (text: string, banca: string): Transazione[] => {
+        const lines = text.split('\n');
+        const transactions: Transazione[] = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            // Revolut uses comma as separator
+            const parts = line.split(',');
+            if (parts.length < 6) continue;
+
+            const dateStr = parts[2]; // Started Date
+            const descrizione = parts[4] || 'Transazione Revolut';
+            const amount = parseFloat(parts[5]?.replace(/[^\d.-]/g, '')) || 0;
+
+            if (amount === 0) continue;
+
+            transactions.push({
+                id: `${banca}-${i}-${Date.now()}`,
+                data: dateStr.split(' ')[0] || dateStr, // Take date only
+                descrizione: descrizione.substring(0, 200),
+                importo: Math.abs(amount),
+                tipo: amount > 0 ? "ENTRATA" : "USCITA",
+                categoria: "Da Categorizzare",
+                banca
+            });
+        }
+        return transactions;
+    };
+
+    // Parse Deutsche Bank CSV (semicolon-separated)
+    const parseDeutscheCsv = (text: string, banca: string): Transazione[] => {
+        const lines = text.split('\n');
+        const transactions: Transazione[] = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            const parts = line.split(';');
+            if (parts.length < 5) continue;
+
+            const data = parts[0];
+            const dare = parseFloat(parts[2]?.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+            const avere = parseFloat(parts[3]?.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+            const operazione = parts[5] || '';
+            const dettagli = parts[6] || '';
+
+            if (dare === 0 && avere === 0) continue;
+
+            transactions.push({
+                id: `${banca}-${i}-${Date.now()}`,
+                data,
+                descrizione: `${operazione} - ${dettagli}`.substring(0, 200),
+                importo: avere > 0 ? avere : dare,
+                tipo: avere > 0 ? "ENTRATA" : "USCITA",
+                categoria: "Da Categorizzare",
+                banca,
+                riferimento: dettagli.match(/Causale:\s*([^\n]+)/)?.[1] || ''
+            });
+        }
+        return transactions;
+    };
+
+    // Generic CSV parser
+    const parseGenericCsv = (text: string, banca: string): Transazione[] => {
+        const lines = text.split('\n');
+        const transactions: Transazione[] = [];
+
+        // Detect separator
+        const firstLine = lines[0] || '';
+        const separator = firstLine.includes(';') ? ';' : firstLine.includes('\t') ? '\t' : ',';
+
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            const parts = line.split(separator);
+            if (parts.length < 2) continue;
+
+            // Try to find date and amount
+            let data = '';
+            let importo = 0;
+            let descrizione = '';
+
+            for (const part of parts) {
+                const cleanPart = part.replace(/"/g, '').trim();
+                // Date detection
+                if (!data && cleanPart.match(/\d{2}[\/-]\d{2}[\/-]\d{2,4}/)) {
+                    data = cleanPart;
+                }
+                // Amount detection
+                if (importo === 0) {
+                    const num = parseFloat(cleanPart.replace(/[^\d,.-]/g, '').replace(',', '.'));
+                    if (!isNaN(num) && num !== 0) {
+                        importo = num;
+                    }
+                }
+                // Description (longest text)
+                if (cleanPart.length > descrizione.length && !cleanPart.match(/^[\d,.\-€]+$/)) {
+                    descrizione = cleanPart;
+                }
+            }
+
+            if (!data || importo === 0) continue;
+
+            transactions.push({
+                id: `${banca}-${i}-${Date.now()}`,
+                data,
+                descrizione: descrizione.substring(0, 200) || 'Transazione',
+                importo: Math.abs(importo),
+                tipo: importo > 0 ? "ENTRATA" : "USCITA",
+                categoria: "Da Categorizzare",
+                banca
+            });
+        }
+        return transactions;
+    };
+
+    // Import CSV/XLS
     const handleImportCSV = async (e: React.ChangeEvent<HTMLInputElement>, banca: string) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -56,42 +188,22 @@ export default function ContabilitaPage() {
         reader.onload = (event) => {
             try {
                 const text = event.target?.result as string;
-                const lines = text.split('\n');
-                const newTransazioni: Transazione[] = [];
+                let newTransazioni: Transazione[] = [];
 
-                // Skip header (prima riga)
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-
-                    // Parse basato su formato Deutsche Bank (può essere esteso per altri)
-                    const parts = line.split(';');
-                    if (parts.length < 5) continue;
-
-                    const data = parts[0];
-                    const dare = parseFloat(parts[2]?.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
-                    const avere = parseFloat(parts[3]?.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
-                    const operazione = parts[5] || '';
-                    const dettagli = parts[6] || '';
-
-                    if (dare === 0 && avere === 0) continue;
-
-                    newTransazioni.push({
-                        id: `${banca}-${i}-${Date.now()}`,
-                        data,
-                        descrizione: `${operazione} - ${dettagli}`.substring(0, 200),
-                        importo: avere > 0 ? avere : dare,
-                        tipo: avere > 0 ? "ENTRATA" : "USCITA",
-                        categoria: "Da Categorizzare",
-                        banca,
-                        riferimento: dettagli.match(/Causale:\s*([^\n]+)/)?.[1] || ''
-                    });
+                // Use appropriate parser based on bank
+                if (banca === 'REVOLUT') {
+                    newTransazioni = parseRevolutCsv(text, banca);
+                } else if (banca === 'DEUTSCHE') {
+                    newTransazioni = parseDeutscheCsv(text, banca);
+                } else {
+                    // Generic parser for other banks
+                    newTransazioni = parseGenericCsv(text, banca);
                 }
 
                 setTransazioni(prev => [...prev, ...newTransazioni]);
                 alert(`Importate ${newTransazioni.length} transazioni da ${banca}`);
             } catch (error) {
-                console.error("Errore parsing CSV:", error);
+                console.error("Errore parsing file:", error);
                 alert("Errore durante l'importazione del file");
             } finally {
                 setLoading(false);
@@ -100,6 +212,34 @@ export default function ContabilitaPage() {
 
         reader.readAsText(file);
         e.target.value = ''; // Reset input
+    };
+
+    // Add manual transaction
+    const handleAddManual = () => {
+        if (!manualForm.descrizione || !manualForm.importo) {
+            alert("Compila descrizione e importo");
+            return;
+        }
+
+        const newTrans: Transazione = {
+            id: `MANUALE-${Date.now()}`,
+            data: manualForm.data,
+            descrizione: manualForm.descrizione,
+            importo: parseFloat(manualForm.importo) || 0,
+            tipo: manualForm.tipo,
+            categoria: "Manuale",
+            banca: manualForm.banca
+        };
+
+        setTransazioni(prev => [...prev, newTrans]);
+        setManualForm({
+            data: format(new Date(), 'yyyy-MM-dd'),
+            descrizione: "",
+            importo: "",
+            tipo: "USCITA",
+            banca: "MANUALE"
+        });
+        setShowManualForm(false);
     };
 
     // Export Prima Nota
@@ -219,11 +359,11 @@ export default function ContabilitaPage() {
             <div className="flex flex-wrap gap-4 mb-6">
                 {/* Import Buttons */}
                 <div className="flex gap-2 flex-wrap">
-                    {banche.filter(b => b !== "TUTTE").map(banca => (
+                    {banche.filter(b => b !== "TUTTE" && b !== "MANUALE").map(banca => (
                         <label key={banca} className="cursor-pointer">
                             <input
                                 type="file"
-                                accept=".csv"
+                                accept=".csv,.xls,.xlsx"
                                 className="hidden"
                                 onChange={(e) => handleImportCSV(e, banca)}
                             />
@@ -233,6 +373,15 @@ export default function ContabilitaPage() {
                             </span>
                         </label>
                     ))}
+
+                    {/* Manual Transaction Button */}
+                    <button
+                        onClick={() => setShowManualForm(!showManualForm)}
+                        className="flex items-center gap-1 px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+                    >
+                        <Plus className="h-4 w-4" />
+                        Manuale
+                    </button>
                 </div>
 
                 <div className="flex-1" />
@@ -255,6 +404,58 @@ export default function ContabilitaPage() {
                     Esporta Fatturazione
                 </button>
             </div>
+
+            {/* Manual Transaction Form */}
+            {showManualForm && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+                    <h3 className="font-medium text-purple-800 mb-3">Aggiungi Transazione Manuale</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                        <input
+                            type="date"
+                            value={manualForm.data}
+                            onChange={(e) => setManualForm({ ...manualForm, data: e.target.value })}
+                            className="border rounded-lg px-3 py-2 text-sm"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Descrizione *"
+                            value={manualForm.descrizione}
+                            onChange={(e) => setManualForm({ ...manualForm, descrizione: e.target.value })}
+                            className="md:col-span-2 border rounded-lg px-3 py-2 text-sm"
+                        />
+                        <input
+                            type="number"
+                            step="0.01"
+                            placeholder="Importo € *"
+                            value={manualForm.importo}
+                            onChange={(e) => setManualForm({ ...manualForm, importo: e.target.value })}
+                            className="border rounded-lg px-3 py-2 text-sm"
+                        />
+                        <select
+                            value={manualForm.tipo}
+                            onChange={(e) => setManualForm({ ...manualForm, tipo: e.target.value as "ENTRATA" | "USCITA" })}
+                            className="border rounded-lg px-3 py-2 text-sm"
+                        >
+                            <option value="USCITA">Uscita</option>
+                            <option value="ENTRATA">Entrata</option>
+                        </select>
+                    </div>
+                    <div className="mt-3 flex justify-end gap-2">
+                        <button
+                            onClick={() => setShowManualForm(false)}
+                            className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800"
+                        >
+                            Annulla
+                        </button>
+                        <button
+                            onClick={handleAddManual}
+                            className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700"
+                        >
+                            Aggiungi
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Filters */}
             <div className="flex gap-4 mb-4 items-center">

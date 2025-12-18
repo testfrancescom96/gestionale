@@ -32,8 +32,8 @@ const navSections = [
     {
         title: "VIAGGI DI GRUPPO",
         items: [
-            { name: "Eventi / Gruppi", href: "/woocommerce", icon: ShoppingBag },
-            { name: "Vettori / Bus", href: "/vettori", icon: Bus },
+            { name: "Prodotti / Ordini", href: "/woocommerce", icon: ShoppingBag },
+            { name: "Capigruppo / Guide", href: "/capigruppo", icon: Users },
         ]
     },
     {
@@ -41,6 +41,7 @@ const navSections = [
         items: [
             { name: "Clienti", href: "/clienti", icon: Users },
             { name: "Fornitori", href: "/fornitori", icon: Building2 },
+            { name: "Vettori / Bus", href: "/vettori", icon: Bus },
         ]
     },
     {

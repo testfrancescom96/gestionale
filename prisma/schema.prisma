@@ -642,6 +642,21 @@ model ViaggioOperativo {
   @@index([dataViaggio])
 }
 
+// ==================== CAPIGRUPPO E GUIDE ====================
+model Capogruppo {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  cognome   String
+  telefono  String?
+  email     String?
+  citta     String?
+  tipo      String   @default("CAPOGRUPPO") // CAPOGRUPPO, GUIDA
+  note      String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // ==================== WOOCOMMERCE CACHE ====================
 model WooProduct {
   id          Int      @id // Mapped from WooCommerce ID
