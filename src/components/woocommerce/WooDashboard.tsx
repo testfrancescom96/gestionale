@@ -206,41 +206,63 @@ export function WooDashboard() {
                             </button>
                         </div>
                         {/* Dropdown Menu */}
-                        <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-100 hidden group-hover:block z-50 overflow-hidden">
+                        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-100 hidden group-hover:block z-50 overflow-hidden">
                             <div className="p-3 bg-gray-50 border-b border-gray-100">
-                                <p className="text-xs text-gray-500 uppercase font-semibold">Strategia Sync</p>
+                                <p className="text-xs text-gray-500 uppercase font-semibold">Opzioni Sincronizzazione</p>
                             </div>
 
+                            {/* Quick Options */}
                             <button
-                                onClick={() => triggerSync('rapid')}
-                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
+                                onClick={() => { setSyncLimit(100); triggerSync('rapid'); }}
+                                className="w-full text-left px-4 py-3 hover:bg-blue-50 text-sm text-gray-700 border-b"
                             >
-                                <span className="font-bold block text-blue-700">Controlla Recenti (Ultimi {syncLimit})</span>
-                                <span className="text-xs text-gray-500">Verifica novità solo negli ultimi {syncLimit} ordini.</span>
+                                <span className="font-bold block text-blue-700">🔄 Ultimi 100 Ordini</span>
+                                <span className="text-xs text-gray-500">Controlla i 100 ordini più recenti.</span>
                             </button>
 
                             <button
-                                onClick={() => triggerSync('smart')}
-                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
+                                onClick={() => { setSyncLimit(200); triggerSync('rapid'); }}
+                                className="w-full text-left px-4 py-3 hover:bg-blue-50 text-sm text-gray-700 border-b"
                             >
-                                <div>
-                                    <span className="font-bold block">Smart Sync</span>
-                                    <span className="text-xs text-gray-500">Basato solo sulla Data Scansione (Veloce).</span>
-                                </div>
+                                <span className="font-bold block text-blue-700">🔄 Ultimi 200 Ordini</span>
+                                <span className="text-xs text-gray-500">Controlla i 200 ordini più recenti.</span>
                             </button>
+
+                            {/* Custom Input */}
+                            <div className="px-4 py-3 border-b bg-gray-50">
+                                <p className="text-xs font-semibold text-gray-600 mb-2">📝 Personalizzato:</p>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        value={syncLimit}
+                                        onChange={(e) => setSyncLimit(parseInt(e.target.value) || 100)}
+                                        className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                        placeholder="N° ordini"
+                                        min={10}
+                                        max={5000}
+                                    />
+                                    <button
+                                        onClick={() => triggerSync('rapid')}
+                                        className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-blue-700"
+                                    >
+                                        Sync
+                                    </button>
+                                </div>
+                            </div>
 
                             <button
                                 onClick={() => triggerSync('days30')}
                                 className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
                             >
-                                <span className="font-bold block">Ultimi 30 Giorni</span>
+                                <span className="font-bold block">📅 Ultimi 30 Giorni</span>
                                 <span className="text-xs text-gray-500">Ricarica tutto il mese corrente.</span>
                             </button>
+
                             <button
                                 onClick={() => triggerSync('full')}
-                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700"
+                                className="w-full text-left px-4 py-3 hover:bg-red-50 text-sm text-gray-700"
                             >
-                                <span className="font-bold block text-red-600">Completa (Tutto)</span>
+                                <span className="font-bold block text-red-600">⚠️ Completa (Tutto)</span>
                                 <span className="text-xs text-gray-500">Lento. Scarica l'intero database.</span>
                             </button>
                         </div>
