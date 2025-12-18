@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { Loader2, RefreshCw, ArrowRight, Eye, CheckCircle, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, RefreshCw, ArrowRight, Eye, CheckCircle, ChevronDown, ChevronRight, Settings } from "lucide-react";
 import { groupOrdersByDate, YearGroup } from "@/lib/woo-utils";
 
 import { OrderEditModal } from "./OrderEditModal";
@@ -9,6 +9,9 @@ import { OrderEditModal } from "./OrderEditModal";
 export function OrdersList() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [syncing, setSyncing] = useState(false);
+    const [syncLimit, setSyncLimit] = useState(100);
+    const [progressMsg, setProgressMsg] = useState("");
     const [syncingId, setSyncingId] = useState<string | null>(null);
     const [groupedOrders, setGroupedOrders] = useState<YearGroup[]>([]);
     const [expandedYears, setExpandedYears] = useState<Record<number, boolean>>({});
@@ -73,7 +76,62 @@ export function OrdersList() {
         }
     };
 
-    if (loading) {
+    // Sync WooCommerce con streaming
+    const triggerSync = async (type: 'rapid' | 'full' | 'days30', limit?: number) => {
+        setSyncing(true);
+        setProgressMsg("Avvio connessione...");
+
+        const params = new URLSearchParams();
+        params.set("type", "all");
+
+        if (type === 'rapid') {
+            params.set("limit", (limit || syncLimit).toString());
+            params.set("order_mode", "rapid");
+            params.set("mode", "incremental");
+        } else if (type === 'days30') {
+            params.set("days", "30");
+            params.set("order_mode", "days");
+            params.set("mode", "incremental");
+        } else if (type === 'full') {
+            params.set("limit", "10000");
+            params.set("order_mode", "full");
+            params.set("mode", "full");
+        }
+
+        const eventSource = new EventSource(`/api/woocommerce/sync/stream?${params.toString()}`);
+
+        eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.status === 'progress' || data.status === 'info') {
+                    setProgressMsg(data.message);
+                } else if (data.status === 'done') {
+                    eventSource.close();
+                    fetchOrders();
+                    setSyncing(false);
+                    setProgressMsg("");
+                    const count = data.result?.updatedIds?.length || 0;
+                    alert(`Sincronizzazione completata! ${count} ordini aggiornati.`);
+                } else if (data.status === 'error') {
+                    eventSource.close();
+                    setSyncing(false);
+                    setProgressMsg("");
+                    alert("Errore: " + data.message);
+                }
+            } catch (e) {
+                console.error("SSE Parse Error", e);
+            }
+        };
+
+        eventSource.onerror = () => {
+            eventSource.close();
+            setSyncing(false);
+            setProgressMsg("");
+            fetchOrders();
+        };
+    };
+
+    if (loading && !syncing) {
         return (
             <div className="flex justify-center p-10">
                 <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
@@ -84,14 +142,90 @@ export function OrdersList() {
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border">
-                <h3 className="font-semibold text-gray-800">Tutti gli Ordini WooCommerce</h3>
-                <button
-                    onClick={fetchOrders}
-                    className="p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-gray-100"
-                    title="Aggiorna Ordini"
-                >
-                    <RefreshCw className="h-5 w-5" />
-                </button>
+                <div>
+                    <h3 className="font-semibold text-gray-800">Tutti gli Ordini WooCommerce</h3>
+                    {syncing && progressMsg && (
+                        <p className="text-sm text-blue-600 mt-1">{progressMsg}</p>
+                    )}
+                </div>
+
+                {/* Sync Dropdown */}
+                <div className="relative group">
+                    <div className="flex rounded-md shadow-sm">
+                        <button
+                            onClick={() => triggerSync('rapid')}
+                            disabled={syncing}
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-l-lg text-sm font-medium transition-colors border-r border-blue-700"
+                        >
+                            <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+                            {syncing ? 'Sync in corso...' : `Aggiorna (${syncLimit})`}
+                        </button>
+                        <button className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2 rounded-r-lg disabled:opacity-50">
+                            <ChevronDown className="h-4 w-4" />
+                        </button>
+                    </div>
+
+                    {/* Dropdown Menu */}
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-100 hidden group-hover:block z-50 overflow-hidden">
+                        <div className="p-3 bg-gray-50 border-b border-gray-100">
+                            <p className="text-xs text-gray-500 uppercase font-semibold">Opzioni Sincronizzazione</p>
+                        </div>
+
+                        <button
+                            onClick={() => { setSyncLimit(100); triggerSync('rapid', 100); }}
+                            className="w-full text-left px-4 py-3 hover:bg-blue-50 text-sm text-gray-700 border-b"
+                        >
+                            <span className="font-bold block text-blue-700">🔄 Ultimi 100 Ordini</span>
+                            <span className="text-xs text-gray-500">Controlla i 100 ordini più recenti.</span>
+                        </button>
+
+                        <button
+                            onClick={() => { setSyncLimit(200); triggerSync('rapid', 200); }}
+                            className="w-full text-left px-4 py-3 hover:bg-blue-50 text-sm text-gray-700 border-b"
+                        >
+                            <span className="font-bold block text-blue-700">🔄 Ultimi 200 Ordini</span>
+                            <span className="text-xs text-gray-500">Controlla i 200 ordini più recenti.</span>
+                        </button>
+
+                        {/* Custom Input */}
+                        <div className="px-4 py-3 border-b bg-gray-50">
+                            <p className="text-xs font-semibold text-gray-600 mb-2">📝 Personalizzato:</p>
+                            <div className="flex gap-2">
+                                <input
+                                    type="number"
+                                    value={syncLimit}
+                                    onChange={(e) => setSyncLimit(parseInt(e.target.value) || 100)}
+                                    className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                    placeholder="N° ordini"
+                                    min={10}
+                                    max={5000}
+                                />
+                                <button
+                                    onClick={() => triggerSync('rapid')}
+                                    className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-blue-700"
+                                >
+                                    Sync
+                                </button>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => triggerSync('days30')}
+                            className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
+                        >
+                            <span className="font-bold block">📅 Ultimi 30 Giorni</span>
+                            <span className="text-xs text-gray-500">Ricarica tutto il mese corrente.</span>
+                        </button>
+
+                        <button
+                            onClick={() => triggerSync('full')}
+                            className="w-full text-left px-4 py-3 hover:bg-red-50 text-sm text-gray-700"
+                        >
+                            <span className="font-bold block text-red-600">⚠️ Completa (Tutto)</span>
+                            <span className="text-xs text-gray-500">Lento. Scarica l'intero database.</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div className="space-y-4">
