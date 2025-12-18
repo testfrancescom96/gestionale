@@ -312,7 +312,8 @@ export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'sm
                         wooProductId: item.product_id || null,
                         productName: item.name,
                         quantity: quantity,
-                        total: total
+                        total: total,
+                        metaData: JSON.stringify(item.meta_data || [])
                     }
                 });
             } catch (e) {
@@ -324,7 +325,8 @@ export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'sm
                         // wooProductId: undefined, // Don't link
                         productName: item.name,
                         quantity: quantity,
-                        total: total
+                        total: total,
+                        metaData: JSON.stringify(item.meta_data || [])
                     }
                 });
             }

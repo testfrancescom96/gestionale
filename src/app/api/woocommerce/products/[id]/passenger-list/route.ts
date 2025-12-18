@@ -79,27 +79,59 @@ export async function GET(
 
         let rowNum = 1;
 
+        // Helper to find "Punto Partenza" in metadata
+        const findPartenza = (metaDataStr: string | null): string => {
+            if (!metaDataStr) return '-';
+            try {
+                const meta = JSON.parse(metaDataStr);
+                if (Array.isArray(meta)) {
+                    // Look for common keys
+                    const found = meta.find((m: any) => {
+                        const key = (m.key || m.display_key || '').toLowerCase();
+                        return key.includes('partenza') || key.includes('fermata') || key.includes('luogo') || key.includes('ritiro');
+                    });
+                    return found ? (found.value || found.display_value) : '-';
+                }
+            } catch (e) { return '-'; }
+            return '-';
+        };
+
         // Add WooCommerce orders
         for (const item of product.orderItems) {
             const order = item.order;
             if (order) {
+                const puntoPartenza = findPartenza(item.metaData);
+
+                // Add Row
                 const row = worksheet.addRow([
                     rowNum++,
                     order.billingLastName || '',
                     order.billingFirstName || '',
                     order.billingPhone || '',
-                    '-', // Punto partenza non disponibile da WooCommerce
+                    puntoPartenza,
                     item.quantity,
                     `Ordine #${order.id}`
                 ]);
-                // Alternate row colors
+
+                // Alternate row colors (Light Gray)
                 if (rowNum % 2 === 0) {
                     row.fill = {
                         type: 'pattern',
                         pattern: 'solid',
-                        fgColor: { argb: 'FFF2F2F2' }
+                        fgColor: { argb: 'FFF9FAFB' } // Very light gray
                     };
                 }
+
+                // Borders
+                row.eachCell((cell) => {
+                    cell.border = {
+                        top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+                        left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+                        bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+                        right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
+                    };
+                    cell.font = { size: 11, name: 'Calibri' };
+                });
             }
         }
 
@@ -114,32 +146,35 @@ export async function GET(
                 booking.numPartecipanti,
                 booking.note || 'Manuale'
             ]);
-            // Mark manual bookings with light green background
+
+            // Mark manual bookings with light purple background
             row.fill = {
                 type: 'pattern',
                 pattern: 'solid',
-                fgColor: { argb: 'FFE2EFDA' }
+                fgColor: { argb: 'FFF3E8FF' } // Light Purple
             };
-        }
 
-        // Add borders to all data cells
-        const lastRow = worksheet.rowCount;
-        for (let r = 4; r <= lastRow; r++) {
-            for (let c = 1; c <= 7; c++) {
-                const cell = worksheet.getCell(r, c);
+            // Borders
+            row.eachCell((cell) => {
                 cell.border = {
-                    top: { style: 'thin' },
-                    left: { style: 'thin' },
-                    bottom: { style: 'thin' },
-                    right: { style: 'thin' }
+                    top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+                    left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+                    bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+                    right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
                 };
-            }
+                cell.font = { size: 11, name: 'Calibri' };
+            });
         }
 
         // Summary row
         worksheet.addRow([]);
-        const summaryRow = worksheet.addRow(['', '', '', '', 'TOTALE:', rowNum - 1, '']);
-        summaryRow.font = { bold: true };
+        const totalPax = product.orderItems.reduce((acc, i) => acc + i.quantity, 0) +
+            product.manualBookings.reduce((acc, b) => acc + b.numPartecipanti, 0);
+
+        const summaryRow = worksheet.addRow(['', '', '', '', 'TOTALE PASSEGGERI:', totalPax, '']);
+        summaryRow.font = { bold: true, size: 12 };
+        summaryRow.getCell(6).alignment = { horizontal: 'center' };
+        summaryRow.getCell(6).font = { bold: true, size: 12, color: { argb: 'FF1D4ED8' } }; // Blue Text
 
         // Generate buffer
         const buffer = await workbook.xlsx.writeBuffer();

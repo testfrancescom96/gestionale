@@ -792,6 +792,7 @@ model WooOrderItem {
   productName     String
   quantity        Int
   total           Float
+  metaData        String? // JSON string per attributi extra (es. fermata bus)
   
   @@index([wooOrderId])
   @@index([wooProductId])
