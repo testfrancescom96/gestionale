@@ -98,19 +98,23 @@ export function ProductBookings({ product, orders, updatedOrderIds = [], onRefre
         }
     };
 
-    const handleDownloadList = async () => {
+    const handleDownloadList = async (forShare = false) => {
         setDownloadingList(true);
         try {
-            const response = await fetch(`/api/woocommerce/products/${product.id}/passenger-list`);
+            const url = forShare
+                ? `/api/woocommerce/products/${product.id}/export-passengers?share=true`
+                : `/api/woocommerce/products/${product.id}/passenger-list`;
+            const response = await fetch(url);
             if (response.ok) {
                 const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
+                const downloadUrl = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = `Lista_Passeggeri_${product.name.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
+                a.href = downloadUrl;
+                const suffix = forShare ? '_Condivisibile' : '';
+                a.download = `Lista_Passeggeri${suffix}_${product.name.replace(/[^a-zA-Z0-9]/g, '_')}.${forShare ? 'csv' : 'xlsx'}`;
                 document.body.appendChild(a);
                 a.click();
-                window.URL.revokeObjectURL(url);
+                window.URL.revokeObjectURL(downloadUrl);
                 a.remove();
             } else {
                 alert("Errore nel download della lista");
@@ -155,12 +159,21 @@ export function ProductBookings({ product, orders, updatedOrderIds = [], onRefre
                         Aggiungi
                     </button>
                     <button
-                        onClick={handleDownloadList}
+                        onClick={() => handleDownloadList(false)}
                         disabled={downloadingList || totalBookings === 0}
                         className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded hover:bg-blue-100 border border-blue-200 font-medium disabled:opacity-50"
                     >
                         {downloadingList ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileSpreadsheet className="h-3 w-3" />}
                         Lista Excel
+                    </button>
+                    <button
+                        onClick={() => handleDownloadList(true)}
+                        disabled={downloadingList || totalBookings === 0}
+                        className="flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded hover:bg-purple-100 border border-purple-200 font-medium disabled:opacity-50"
+                        title="Scarica lista senza telefoni/email per collaboratori esterni"
+                    >
+                        {downloadingList ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileSpreadsheet className="h-3 w-3" />}
+                        Condividi
                     </button>
                 </div>
             </div>
