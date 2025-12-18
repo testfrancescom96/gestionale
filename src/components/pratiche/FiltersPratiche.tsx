@@ -17,20 +17,46 @@ export function FiltersPratiche() {
     const searchParams = useSearchParams();
     const [isOpen, setIsOpen] = useState(false);
 
+    // Dynamic options loaded from API
+    const [operatori, setOperatori] = useState<string[]>([]);
+    const [tipologie, setTipologie] = useState<string[]>([]);
+    const [destinazioni, setDestinazioni] = useState<string[]>([]);
+
     const [filters, setFilters] = useState({
         status: [] as string[],
+        operatore: "",
+        tipologia: "",
+        destinazione: "",
         dateFrom: "",
         dateTo: "",
     });
+
+    // Load filter options
+    useEffect(() => {
+        fetch("/api/pratiche/filter-options")
+            .then(res => res.json())
+            .then(data => {
+                setOperatori(data.operatori || []);
+                setTipologie(data.tipologie || []);
+                setDestinazioni(data.destinazioni || []);
+            })
+            .catch(console.error);
+    }, []);
 
     // Load filters from URL on mount
     useEffect(() => {
         const statusParam = searchParams.get("status");
         const dateFromParam = searchParams.get("dateFrom");
         const dateToParam = searchParams.get("dateTo");
+        const operatoreParam = searchParams.get("operatore");
+        const tipologiaParam = searchParams.get("tipologia");
+        const destinazioneParam = searchParams.get("destinazione");
 
         setFilters({
             status: statusParam ? statusParam.split(",") : [],
+            operatore: operatoreParam || "",
+            tipologia: tipologiaParam || "",
+            destinazione: destinazioneParam || "",
             dateFrom: dateFromParam || "",
             dateTo: dateToParam || "",
         });
@@ -48,11 +74,17 @@ export function FiltersPratiche() {
     const applyFilters = () => {
         const params = new URLSearchParams(searchParams.toString());
 
-        if (filters.status.length > 0) {
-            params.set("status", filters.status.join(","));
-        } else {
-            params.delete("status");
-        }
+        if (filters.status.length > 0) params.set("status", filters.status.join(","));
+        else params.delete("status");
+
+        if (filters.operatore) params.set("operatore", filters.operatore);
+        else params.delete("operatore");
+
+        if (filters.tipologia) params.set("tipologia", filters.tipologia);
+        else params.delete("tipologia");
+
+        if (filters.destinazione) params.set("destinazione", filters.destinazione);
+        else params.delete("destinazione");
 
         if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
         else params.delete("dateFrom");
@@ -65,16 +97,25 @@ export function FiltersPratiche() {
     };
 
     const clearFilters = () => {
-        setFilters({ status: [], dateFrom: "", dateTo: "" });
+        setFilters({ status: [], operatore: "", tipologia: "", destinazione: "", dateFrom: "", dateTo: "" });
         const params = new URLSearchParams(searchParams.toString());
         params.delete("status");
+        params.delete("operatore");
+        params.delete("tipologia");
+        params.delete("destinazione");
         params.delete("dateFrom");
         params.delete("dateTo");
         router.push(`?${params.toString()}`);
         setIsOpen(false);
     };
 
-    const activeFilterCount = (filters.status.length > 0 ? 1 : 0) + (filters.dateFrom ? 1 : 0) + (filters.dateTo ? 1 : 0);
+    const activeFilterCount =
+        (filters.status.length > 0 ? 1 : 0) +
+        (filters.operatore ? 1 : 0) +
+        (filters.tipologia ? 1 : 0) +
+        (filters.destinazione ? 1 : 0) +
+        (filters.dateFrom ? 1 : 0) +
+        (filters.dateTo ? 1 : 0);
 
     return (
         <div className="relative">
@@ -87,7 +128,7 @@ export function FiltersPratiche() {
                 Filtri
                 {activeFilterCount > 0 && (
                     <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] text-white">
-                        {filters.status.length + (filters.dateFrom ? 1 : 0) + (filters.dateTo ? 1 : 0)}
+                        {activeFilterCount}
                     </span>
                 )}
             </button>
@@ -95,7 +136,7 @@ export function FiltersPratiche() {
             {isOpen && (
                 <>
                     <div className="fixed inset-0 z-30" onClick={() => setIsOpen(false)} />
-                    <div className="absolute right-0 z-40 mt-2 w-72 rounded-lg border border-gray-100 bg-white p-4 shadow-lg ring-1 ring-gray-900/5">
+                    <div className="absolute right-0 z-40 mt-2 w-80 rounded-lg border border-gray-100 bg-white p-4 shadow-lg ring-1 ring-gray-900/5 max-h-[80vh] overflow-y-auto">
                         <div className="mb-4 flex items-center justify-between">
                             <h3 className="font-semibold text-gray-900">Filtra per</h3>
                             <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-500">
@@ -120,6 +161,51 @@ export function FiltersPratiche() {
                                         </label>
                                     ))}
                                 </div>
+                            </div>
+
+                            {/* Operatore */}
+                            <div>
+                                <label className="mb-2 block text-xs font-semibold uppercase text-gray-500">Operatore</label>
+                                <select
+                                    value={filters.operatore}
+                                    onChange={(e) => setFilters(prev => ({ ...prev, operatore: e.target.value }))}
+                                    className="w-full rounded border border-gray-300 p-2 text-sm"
+                                >
+                                    <option value="">Tutti</option>
+                                    {operatori.map(op => (
+                                        <option key={op} value={op}>{op}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Tipologia */}
+                            <div>
+                                <label className="mb-2 block text-xs font-semibold uppercase text-gray-500">Tipologia</label>
+                                <select
+                                    value={filters.tipologia}
+                                    onChange={(e) => setFilters(prev => ({ ...prev, tipologia: e.target.value }))}
+                                    className="w-full rounded border border-gray-300 p-2 text-sm"
+                                >
+                                    <option value="">Tutte</option>
+                                    {tipologie.map(t => (
+                                        <option key={t} value={t}>{t}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Destinazione */}
+                            <div>
+                                <label className="mb-2 block text-xs font-semibold uppercase text-gray-500">Destinazione</label>
+                                <select
+                                    value={filters.destinazione}
+                                    onChange={(e) => setFilters(prev => ({ ...prev, destinazione: e.target.value }))}
+                                    className="w-full rounded border border-gray-300 p-2 text-sm"
+                                >
+                                    <option value="">Tutte</option>
+                                    {destinazioni.slice(0, 50).map(d => (
+                                        <option key={d} value={d}>{d}</option>
+                                    ))}
+                                </select>
                             </div>
 
                             {/* Date Range */}
@@ -169,3 +255,4 @@ export function FiltersPratiche() {
         </div>
     );
 }
+

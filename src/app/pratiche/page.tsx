@@ -5,7 +5,15 @@ import { PraticheTable } from "@/components/pratiche/PraticheTable";
 import { SearchInput } from "@/components/common/SearchInput";
 import { FiltersPratiche } from "@/components/pratiche/FiltersPratiche";
 
-async function getPratiche(query?: string, status?: string, dateFrom?: string, dateTo?: string) {
+async function getPratiche(
+    query?: string,
+    status?: string,
+    dateFrom?: string,
+    dateTo?: string,
+    operatore?: string,
+    tipologia?: string,
+    destinazione?: string
+) {
     const whereClause: any = { AND: [] };
 
     // Search Query
@@ -30,12 +38,26 @@ async function getPratiche(query?: string, status?: string, dateFrom?: string, d
         }
     }
 
+    // Operatore Filter
+    if (operatore) {
+        whereClause.AND.push({ operatore });
+    }
+
+    // Tipologia Filter
+    if (tipologia) {
+        whereClause.AND.push({ tipologia });
+    }
+
+    // Destinazione Filter
+    if (destinazione) {
+        whereClause.AND.push({ destinazione });
+    }
+
     // Date Filters
     if (dateFrom) {
         whereClause.AND.push({ createdAt: { gte: new Date(dateFrom) } });
     }
     if (dateTo) {
-        // Add one day to include the end date fully if it's just YYYY-MM-DD
         const endDate = new Date(dateTo);
         endDate.setHours(23, 59, 59, 999);
         whereClause.AND.push({ createdAt: { lte: endDate } });
@@ -59,10 +81,10 @@ async function getPratiche(query?: string, status?: string, dateFrom?: string, d
 export default async function PratichePage({
     searchParams,
 }: {
-    searchParams: Promise<{ q?: string; status?: string; dateFrom?: string; dateTo?: string }>;
+    searchParams: Promise<{ q?: string; status?: string; dateFrom?: string; dateTo?: string; operatore?: string; tipologia?: string; destinazione?: string }>;
 }) {
-    const { q, status, dateFrom, dateTo } = await searchParams;
-    const pratiche = await getPratiche(q, status, dateFrom, dateTo);
+    const { q, status, dateFrom, dateTo, operatore, tipologia, destinazione } = await searchParams;
+    const pratiche = await getPratiche(q, status, dateFrom, dateTo, operatore, tipologia, destinazione);
 
     return (
         <div className="p-8">
