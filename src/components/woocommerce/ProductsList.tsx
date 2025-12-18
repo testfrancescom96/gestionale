@@ -77,14 +77,27 @@ export function ProductsList() {
                                 {product.name}
                             </h4>
                             <div className="mt-2 flex items-center justify-between">
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${product.stock_status === 'instock' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                    }`}>
-                                    {product.stock_status === 'instock' ? 'Disponibile' : 'Esaurito'}
-                                </span>
+                                <div className="flex gap-1 flex-wrap">
+                                    <span className={`text-xs px-2 py-0.5 rounded-full ${product.stock_status === 'instock' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                        }`}>
+                                        {product.stock_status === 'instock' ? 'Disponibile' : 'Esaurito'}
+                                    </span>
+                                    {product.type === 'variable' && (
+                                        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">
+                                            Variabile
+                                        </span>
+                                    )}
+                                </div>
                                 <span className="font-semibold text-blue-600">
                                     {product.price} {product.currency_symbol}
                                 </span>
                             </div>
+                            {/* Variations count for variable products */}
+                            {product.type === 'variable' && product.variations && product.variations.length > 0 && (
+                                <p className="mt-2 text-xs text-gray-500">
+                                    📅 {product.variations.length} date disponibili
+                                </p>
+                            )}
                         </div>
                     </div>
                 ))}
