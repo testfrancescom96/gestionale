@@ -115,7 +115,7 @@ export function groupOrdersByDate(orders: any[]): YearGroup[] {
     const datedMap = new Map<string, any[]>();
 
     orders.forEach(o => {
-        const dateStr = o.date_created; // ISO string 
+        const dateStr = o.dateCreated || o.date_created; // Support both formats
         if (dateStr) {
             const date = new Date(dateStr);
             if (isValid(date)) {

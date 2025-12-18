@@ -28,6 +28,12 @@ export function WooDashboard() {
 
     const [expandedYears, setExpandedYears] = useState<Record<number, boolean>>({});
 
+
+    // Effect: Auto-load data on mount
+    useEffect(() => {
+        loadLocalData();
+    }, []);
+
     // Effect to handle highlight auto-expansion once data is loaded
     useEffect(() => {
         if (highlightId && groupedEvents.years.length > 0) {
