@@ -100,26 +100,9 @@ export function WooDashboard() {
 
     // ... existing sync logic ...
 
-    const [progressMsg, setProgressMsg] = useState("");
 
-    const triggerSync = async (type: 'smart' | 'rapid' | 'full' | 'days30' | 'days90') => {
-        setLoading(true);
-        // ... (Sync simplified logic here, assuming existing implementation is preserved by not replacing it, oh wait I am in replace mode)
-        // Since I'm replacing a huge chunk, I must be careful not to delete triggerSync body.
-        // Actually, the TARGET content in this replace IS NOT including triggerSync body, so it's safe.
-        // Wait, I am targeting lines 28-86 of the original file (approx).
-        // Let's ensure I match the target content exactly.
-    };
 
-    // Note: I will only replace the top section to add State + Handlers, avoiding the triggerSync complexity.
 
-    // ...
-    /* 
-       Actually, splitting this into smaller replacements is safer. 
-       1. Add State and Handlers at top.
-       2. Add Modal JSX.
-       3. Pass prop to EventGroup.
-    */
 
 
     // ... existing sync logic ...

@@ -81,8 +81,6 @@ export async function GET(
 
         // Dynamic Columns (those marked as COLUMN)
         // Filter based on query param 'columns' if present
-        const columnsParam = request.nextUrl.searchParams.get('columns');
-        const selectedColumnKeys = columnsParam ? columnsParam.split(',') : null;
 
         // If 'columns' param is present, we filter ALL fields (including standard ones like CF, Address, etc. if they match key)
         // But for now, let's keep robust logic.
