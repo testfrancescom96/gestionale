@@ -193,7 +193,135 @@ export default function NuovoClientePage() {
                 </div>
 
                 <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-6">
-                    {/* ... (existing fields) ... */}
+                    {/* Dati Personali */}
+                    <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
+                        <h2 className="mb-4 text-lg font-semibold text-gray-900">Dati Personali</h2>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Nome *</label>
+                                <input
+                                    type="text"
+                                    value={formData.nome}
+                                    onChange={(e) => handleChange("nome", e.target.value)}
+                                    className={`mt-1 w-full rounded-lg border ${errors.nome ? "border-red-500" : "border-gray-300"} px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                                />
+                                {errors.nome && <p className="mt-1 text-xs text-red-500">{errors.nome}</p>}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Cognome *</label>
+                                <input
+                                    type="text"
+                                    value={formData.cognome}
+                                    onChange={(e) => handleChange("cognome", e.target.value)}
+                                    className={`mt-1 w-full rounded-lg border ${errors.cognome ? "border-red-500" : "border-gray-300"} px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                                />
+                                {errors.cognome && <p className="mt-1 text-xs text-red-500">{errors.cognome}</p>}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Codice Fiscale</label>
+                                <input
+                                    type="text"
+                                    value={formData.codiceFiscale}
+                                    onChange={(e) => handleChange("codiceFiscale", e.target.value.toUpperCase())}
+                                    maxLength={16}
+                                    className={`mt-1 w-full rounded-lg border ${errors.codiceFiscale ? "border-red-500" : "border-gray-300"} px-3 py-2 text-sm uppercase focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                                    placeholder="Inserisci per calcolare data nascita"
+                                />
+                                {errors.codiceFiscale && <p className="mt-1 text-xs text-red-500">{errors.codiceFiscale}</p>}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Data di Nascita</label>
+                                <input
+                                    type="date"
+                                    value={formData.dataNascita}
+                                    onChange={(e) => handleChange("dataNascita", e.target.value)}
+                                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Contatti */}
+                    <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
+                        <h2 className="mb-4 text-lg font-semibold text-gray-900">Contatti</h2>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Telefono</label>
+                                <input
+                                    type="tel"
+                                    value={formData.telefono}
+                                    onChange={(e) => handleChange("telefono", e.target.value)}
+                                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Email</label>
+                                <input
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={(e) => handleChange("email", e.target.value)}
+                                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Indirizzo */}
+                    <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
+                        <h2 className="mb-4 text-lg font-semibold text-gray-900">Indirizzo</h2>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-6">
+                            <div className="md:col-span-4">
+                                <label className="block text-sm font-medium text-gray-700">Via</label>
+                                <input
+                                    type="text"
+                                    value={formData.via}
+                                    onChange={(e) => handleChange("via", e.target.value)}
+                                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700">N° Civico</label>
+                                <input
+                                    type="text"
+                                    value={formData.civico}
+                                    onChange={(e) => handleChange("civico", e.target.value)}
+                                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700">CAP</label>
+                                <input
+                                    type="text"
+                                    value={formData.cap}
+                                    onChange={(e) => handleChange("cap", e.target.value)}
+                                    maxLength={5}
+                                    className={`mt-1 w-full rounded-lg border ${errors.cap ? "border-red-500" : "border-gray-300"} px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                                />
+                                {errors.cap && <p className="mt-1 text-xs text-red-500">{errors.cap}</p>}
+                            </div>
+                            <div className="md:col-span-3">
+                                <label className="block text-sm font-medium text-gray-700">Città</label>
+                                <input
+                                    type="text"
+                                    value={formData.citta}
+                                    onChange={(e) => handleChange("citta", e.target.value)}
+                                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div className="md:col-span-1">
+                                <label className="block text-sm font-medium text-gray-700">Provincia</label>
+                                <input
+                                    type="text"
+                                    value={formData.provincia}
+                                    onChange={(e) => handleChange("provincia", e.target.value.toUpperCase())}
+                                    maxLength={2}
+                                    className={`mt-1 w-full rounded-lg border ${errors.provincia ? "border-red-500" : "border-gray-300"} px-3 py-2 text-sm uppercase focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                                    placeholder="es. PE"
+                                />
+                                {errors.provincia && <p className="mt-1 text-xs text-red-500">{errors.provincia}</p>}
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Actions */}
                     <div className="flex justify-end gap-3 items-center">
