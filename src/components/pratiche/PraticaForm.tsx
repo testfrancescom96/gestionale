@@ -23,6 +23,9 @@ export function PraticaForm({ initialData, isEditing = false }: PraticaFormProps
         destinazione: initialData?.destinazione || "",
         tipologia: initialData?.tipologia || "CROCIERA",
         periodoRichiesto: initialData?.periodoRichiesto || "",
+        dataRichiesta: initialData?.dataRichiesta
+            ? new Date(initialData.dataRichiesta).toISOString().split('T')[0]
+            : new Date().toISOString().split('T')[0], // Default a oggi
         dataPartenza: initialData?.dataPartenza ? new Date(initialData.dataPartenza).toISOString().split('T')[0] : "",
         dataRitorno: initialData?.dataRitorno ? new Date(initialData.dataRitorno).toISOString().split('T')[0] : "",
         numAdulti: initialData?.numAdulti || 2,

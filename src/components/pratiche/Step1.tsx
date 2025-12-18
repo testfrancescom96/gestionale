@@ -242,6 +242,19 @@ export function Step1({ formData, setFormData }: Step1Props) {
 
                     <div>
                         <label className="mb-2 block text-sm font-medium text-gray-700">
+                            Data Creazione Pratica
+                        </label>
+                        <input
+                            type="date"
+                            value={formData.dataRichiesta}
+                            onChange={(e) => handleChange("dataRichiesta", e.target.value)}
+                            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                        <p className="mt-1 text-xs text-gray-500">Default: data odierna</p>
+                    </div>
+
+                    <div>
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
                             Data Partenza
                         </label>
                         <input
