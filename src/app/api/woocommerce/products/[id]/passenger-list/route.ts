@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import ExcelJS from 'exceljs';
@@ -6,9 +7,9 @@ import { it } from 'date-fns/locale';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    context: { params: Promise<{ id: string }> }
 ) {
-    const { id } = await params;
+    const { id } = await context.params;
     const productId = parseInt(id);
 
     if (isNaN(productId)) {
@@ -16,16 +17,11 @@ export async function GET(
     }
 
     try {
-        // Fetch product
         const product = await prisma.wooProduct.findUnique({
             where: { id: productId },
             include: {
                 manualBookings: true,
-                orderItems: {
-                    include: {
-                        order: true
-                    }
-                }
+                orderItems: { include: { order: true } }
             }
         });
 
@@ -33,75 +29,33 @@ export async function GET(
             return NextResponse.json({ error: "Prodotto non trovato" }, { status: 404 });
         }
 
-        // Create Excel workbook
-        const workbook = new ExcelJS.Workbook();
-        workbook.creator = 'Gestionale Go On The Road';
-        workbook.created = new Date();
-
-        const worksheet = workbook.addWorksheet('Lista Passeggeri');
-
-        // Title row
-        const eventDate = product.eventDate ? format(new Date(product.eventDate), "dd MMMM yyyy", { locale: it }) : "Data N/D";
-        worksheet.mergeCells('A1:G1');
-        const titleCell = worksheet.getCell('A1');
-        titleCell.value = `Lista Passeggeri - ${product.name}`;
-        titleCell.font = { bold: true, size: 16 };
-        titleCell.alignment = { horizontal: 'center' };
-
-        worksheet.mergeCells('A2:G2');
-        worksheet.getCell('A2').value = `Data: ${eventDate}`;
-        worksheet.getCell('A2').font = { italic: true, size: 12 };
-        worksheet.getCell('A2').alignment = { horizontal: 'center' };
-
-        // Empty row
-        worksheet.addRow([]);
-
-
+        // Check format
+        const formatType = request.nextUrl.searchParams.get('format');
+        const isJson = formatType === 'json';
 
         // 1. Get Config
         const fieldConfig = await prisma.wooExportConfig.findMany();
-
-        // Define Mapped Fields
         const columnsParam = request.nextUrl.searchParams.get('columns');
         const selectedKeys = columnsParam ? columnsParam.split(',') : null;
-
-        // Helper to check if a field is selected (enabled by default if no param)
         const isSelected = (key: string) => !selectedKeys || selectedKeys.includes(key);
 
         const partenzaConfig = fieldConfig.find(c => c.mappingType === 'PARTENZA');
-
-        // Only enable if configured AND selected
         const cfConfig = fieldConfig.find(c => c.mappingType === 'CF' && isSelected(c.fieldKey));
         const addressConfig = fieldConfig.find(c => c.mappingType === 'ADDRESS' && isSelected(c.fieldKey));
         const capConfig = fieldConfig.find(c => c.mappingType === 'CAP' && isSelected(c.fieldKey));
-
-        // Note: System "Note" always exists, but we might want to hide the "Mapped" note field?
-        // Let's treat Note Config similar to others
         const noteConfig = fieldConfig.find(c => c.mappingType === 'NOTE' && isSelected(c.fieldKey));
 
-        // Dynamic Columns (those marked as COLUMN)
-        // Filter based on query param 'columns' if present
-
-        // If 'columns' param is present, we filter ALL fields (including standard ones like CF, Address, etc. if they match key)
-        // But for now, let's keep robust logic.
-        // DownloadOptionsModal sends KEYS.
-
         let dynamicColumns = fieldConfig.filter(c => c.mappingType === 'COLUMN');
-
-        // Filter dynamic columns if selection acts on them
         if (selectedKeys) {
             dynamicColumns = dynamicColumns.filter(c => selectedKeys.includes(c.fieldKey));
         }
 
-        // Helper to find specific field value
         const getMetaValue = (metaDataStr: string | null, key: string | undefined): string | null => {
             if (!metaDataStr || !key) return null;
             try {
                 const meta = JSON.parse(metaDataStr);
                 if (Array.isArray(meta)) {
-                    const match = meta.find((m: any) =>
-                        (m.key === key) || (m.display_key === key)
-                    );
+                    const match = meta.find((m: any) => (m.key === key) || (m.display_key === key));
                     if (match) return match.value || match.display_value;
                 }
             } catch (e) { return null; }
@@ -109,12 +63,10 @@ export async function GET(
         };
 
         const findPartenza = (metaDataStr: string | null): string => {
-            // Priority: Configured > Smart Search
             if (partenzaConfig) {
                 const val = getMetaValue(metaDataStr, partenzaConfig.fieldKey);
                 if (val) return val;
             }
-            // Fallback
             if (!metaDataStr) return '-';
             try {
                 const meta = JSON.parse(metaDataStr);
@@ -129,163 +81,152 @@ export async function GET(
             return '-';
         };
 
-        // Initialize row counter
+        // Prepare Data
+        const dataRows: any[] = [];
         let rowNum = 1;
 
-        // Prepare Columns
-        const columns = [
-            { header: 'N°', key: 'num', width: 6 },
-            { header: 'Cognome', key: 'cognome', width: 18 },
-            { header: 'Nome', key: 'nome', width: 18 },
-            { header: 'Telefono', key: 'telefono', width: 15 },
-            { header: 'Punto Partenza', key: 'puntoPartenza', width: 25 }, // Wider for bus stops
-        ];
-
-        // Add Optional Standard Columns if configured
-        if (cfConfig) columns.push({ header: 'C.F.', key: 'cf', width: 18 });
-        if (addressConfig) columns.push({ header: 'Indirizzo', key: 'address', width: 25 });
-        if (capConfig) columns.push({ header: 'CAP', key: 'cap', width: 10 });
-
-        // Add Dynamic Extra Columns
-        dynamicColumns.forEach(col => {
-            columns.push({ header: col.label, key: `dyn_${col.fieldKey}`, width: 20 });
-        });
-
-        // Always add Note and Pax at the end standardly? Or Pax before notes?
-        columns.push({ header: 'Pax', key: 'pax', width: 6 });
-
-        // Notes column (System + Mapped)
-        columns.push({ header: 'Note', key: 'note', width: 25 });
-
-        // Apply Columns to Worksheet (Header Row creation)
-        const headerRow = worksheet.addRow(columns.map(c => c.header));
-        headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-        headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4472C4' } };
-        headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
-
-        // Set widths
-        worksheet.columns = columns.map(c => ({ width: c.width }));
-
-
-        // Add WooCommerce orders
+        // Orders
         for (const item of product.orderItems) {
             const order = item.order;
             if (order) {
-                const rowData: any[] = [
-                    rowNum++,
-                    order.billingLastName || '',
-                    order.billingFirstName || '',
-                    order.billingPhone || '',
-                    findPartenza(item.metaData)
-                ];
-
-                // Append Optional Standard Fields
-                if (cfConfig) rowData.push(getMetaValue(item.metaData, cfConfig.fieldKey) || '');
-                if (addressConfig) rowData.push(getMetaValue(item.metaData, addressConfig.fieldKey) || '');
-                if (capConfig) rowData.push(getMetaValue(item.metaData, capConfig.fieldKey) || '');
-
-                // Append Dynamic Columns
+                const row: any = {
+                    num: rowNum++,
+                    cognome: order.billingLastName || '',
+                    nome: order.billingFirstName || '',
+                    telefono: order.billingPhone || '',
+                    puntoPartenza: findPartenza(item.metaData),
+                    source: 'order',
+                    orderId: order.id,
+                    pax: item.quantity,
+                    note: '',
+                    dynamic: {}
+                };
+                if (cfConfig) row.cf = getMetaValue(item.metaData, cfConfig.fieldKey) || '';
+                if (addressConfig) row.address = getMetaValue(item.metaData, addressConfig.fieldKey) || '';
+                if (capConfig) row.cap = getMetaValue(item.metaData, capConfig.fieldKey) || '';
                 dynamicColumns.forEach(col => {
-                    rowData.push(getMetaValue(item.metaData, col.fieldKey) || '');
+                    row.dynamic[col.fieldKey] = getMetaValue(item.metaData, col.fieldKey) || '';
                 });
 
-                // Pax
-                rowData.push(item.quantity);
-
-                // Notes (Combine Configured Note Field + Order ID)
                 let noteContent = `Ordine #${order.id}`;
                 if (noteConfig) {
                     const extraNote = getMetaValue(item.metaData, noteConfig.fieldKey);
                     if (extraNote) noteContent = `${extraNote} | ${noteContent}`;
                 }
-                rowData.push(noteContent);
-
-                // Add Row
-                const row = worksheet.addRow(rowData);
-
-                // Alternate row colors (Light Gray)
-                if (rowNum % 2 === 0) {
-                    row.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: 'FFF9FAFB' } // Very light gray
-                    };
-                }
-
-                // Borders
-                row.eachCell((cell) => {
-                    cell.border = {
-                        top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
-                        left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
-                        bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
-                        right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
-                    };
-                    cell.font = { size: 11, name: 'Calibri' };
-                });
+                row.note = noteContent;
+                dataRows.push(row);
             }
         }
 
-        // Add Manual Bookings
-        // Add Manual Bookings
+        // Manual Bookings
         for (const booking of product.manualBookings) {
-            // Build base row
-            const rowData: any[] = [
-                rowNum++,
-                booking.cognome,
-                booking.nome,
-                booking.telefono || '',
-                booking.puntoPartenza || ''
-            ];
-
-            // Fill empty slots for Standard Optional Fields
-            if (cfConfig) rowData.push(''); // No CF in manual yet
-            if (addressConfig) rowData.push(''); // No Address
-            if (capConfig) rowData.push(''); // No CAP
-
-            // Fill empty slots for Dynamic Columns
-            dynamicColumns.forEach(() => rowData.push(''));
-
-            // Pax
-            rowData.push(booking.numPartecipanti);
-
-            // Notes
-            rowData.push(booking.note || 'Manuale');
-
-            const row = worksheet.addRow(rowData);
-
-            // Mark manual bookings with light purple background
-            row.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FFF3E8FF' } // Light Purple
+            const row: any = {
+                num: rowNum++,
+                cognome: booking.cognome,
+                nome: booking.nome,
+                telefono: booking.telefono || '',
+                puntoPartenza: booking.puntoPartenza || '',
+                source: 'manual',
+                pax: booking.numPartecipanti,
+                note: booking.note || 'Manuale',
+                dynamic: {}
             };
+            if (cfConfig) row.cf = '';
+            if (addressConfig) row.address = '';
+            if (capConfig) row.cap = '';
+            dynamicColumns.forEach(col => {
+                row.dynamic[col.fieldKey] = '';
+            });
+            dataRows.push(row);
+        }
 
-            // Borders
-            row.eachCell((cell) => {
-                cell.border = {
-                    top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
-                    left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
-                    bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
-                    right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
-                };
-                cell.font = { size: 11, name: 'Calibri' };
+        // JSON Response
+        if (isJson) {
+            const columns = [
+                { header: 'N°', key: 'num' },
+                { header: 'Cognome', key: 'cognome' },
+                { header: 'Nome', key: 'nome' },
+                { header: 'Telefono', key: 'telefono' },
+                { header: 'Punto Partenza', key: 'puntoPartenza' },
+            ];
+            if (cfConfig) columns.push({ header: 'C.F.', key: 'cf' });
+            if (addressConfig) columns.push({ header: 'Indirizzo', key: 'address' });
+            if (capConfig) columns.push({ header: 'CAP', key: 'cap' });
+            dynamicColumns.forEach(col => columns.push({ header: col.label, key: col.fieldKey, isDynamic: true }));
+            columns.push({ header: 'Pax', key: 'pax' });
+            columns.push({ header: 'Note', key: 'note' });
+
+            return NextResponse.json({
+                productName: product.name,
+                eventDate: product.eventDate ? format(new Date(product.eventDate), "dd MMMM yyyy", { locale: it }) : "Data N/D",
+                columns,
+                rows: dataRows
             });
         }
 
-        // Summary row
-        worksheet.addRow([]);
-        const totalPax = product.orderItems.reduce((acc, i) => acc + i.quantity, 0) +
-            product.manualBookings.reduce((acc, b) => acc + b.numPartecipanti, 0);
+        // Excel Response
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Lista Passeggeri');
+        const eventDateStr = product.eventDate ? format(new Date(product.eventDate), "dd MMMM yyyy", { locale: it }) : "Data N/D";
 
+        worksheet.mergeCells('A1:G1');
+        worksheet.getCell('A1').value = `Lista Passeggeri - ${product.name}`;
+        worksheet.getCell('A1').font = { bold: true, size: 16 };
+        worksheet.getCell('A1').alignment = { horizontal: 'center' };
+
+        worksheet.mergeCells('A2:G2');
+        worksheet.getCell('A2').value = `Data: ${eventDateStr}`;
+        worksheet.getCell('A2').font = { italic: true, size: 12 };
+        worksheet.getCell('A2').alignment = { horizontal: 'center' };
+        worksheet.addRow([]);
+
+        const headerCols = [
+            { header: 'N°', key: 'num', width: 6 },
+            { header: 'Cognome', key: 'cognome', width: 18 },
+            { header: 'Nome', key: 'nome', width: 18 },
+            { header: 'Telefono', key: 'telefono', width: 15 },
+            { header: 'Punto Partenza', key: 'puntoPartenza', width: 25 },
+        ];
+        if (cfConfig) headerCols.push({ header: 'C.F.', key: 'cf', width: 18 });
+        if (addressConfig) headerCols.push({ header: 'Indirizzo', key: 'address', width: 25 });
+        if (capConfig) headerCols.push({ header: 'CAP', key: 'cap', width: 10 });
+        dynamicColumns.forEach(col => headerCols.push({ header: col.label, key: col.fieldKey, width: 20 }));
+        headerCols.push({ header: 'Pax', key: 'pax', width: 6 });
+        headerCols.push({ header: 'Note', key: 'note', width: 25 });
+
+        worksheet.columns = headerCols.map(c => ({ width: c.width }));
+        const headerRow = worksheet.addRow(headerCols.map(c => c.header));
+        headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4472C4' } };
+        headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+
+        dataRows.forEach((d, idx) => {
+            const rowValues = [d.num, d.cognome, d.nome, d.telefono, d.puntoPartenza];
+            if (cfConfig) rowValues.push(d.cf);
+            if (addressConfig) rowValues.push(d.address);
+            if (capConfig) rowValues.push(d.cap);
+            dynamicColumns.forEach(col => rowValues.push(d.dynamic[col.fieldKey]));
+            rowValues.push(d.pax);
+            rowValues.push(d.note);
+
+            const row = worksheet.addRow(rowValues);
+            if (d.source === 'manual') row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3E8FF' } };
+            else if (d.num % 2 === 0) row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF9FAFB' } }; // Use d.num for alternating
+
+            row.eachCell(cell => {
+                cell.border = { top: { style: 'thin', color: { argb: 'FFE5E7EB' } }, left: { style: 'thin', color: { argb: 'FFE5E7EB' } }, bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } }, right: { style: 'thin', color: { argb: 'FFE5E7EB' } } };
+                cell.font = { size: 11, name: 'Calibri' };
+            });
+        });
+
+        worksheet.addRow([]);
+        const totalPax = dataRows.reduce((acc, r) => acc + (r.pax || 0), 0);
         const summaryRow = worksheet.addRow(['', '', '', '', 'TOTALE PASSEGGERI:', totalPax, '']);
         summaryRow.font = { bold: true, size: 12 };
         summaryRow.getCell(6).alignment = { horizontal: 'center' };
-        summaryRow.getCell(6).font = { bold: true, size: 12, color: { argb: 'FF1D4ED8' } }; // Blue Text
+        summaryRow.getCell(6).font = { bold: true, size: 12, color: { argb: 'FF1D4ED8' } };
 
-        // Generate buffer
         const buffer = await workbook.xlsx.writeBuffer();
-
-        // Generate filename
         const safeProductName = product.name.replace(/[^a-zA-Z0-9\s]/g, '').substring(0, 30);
         const filename = `Lista_Passeggeri_${safeProductName}_${format(new Date(), 'ddMMyyyy')}.xlsx`;
 

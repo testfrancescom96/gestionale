@@ -6,7 +6,7 @@ import { Loader2, RefreshCw, CalendarOff, ChevronDown, Settings, X } from "lucid
 import { groupProductsByDate, GroupedEvent, YearGroup } from "@/lib/woo-utils";
 import { EventGroup } from "./EventGroup";
 import { ExportSettingsModal } from "./ExportSettingsModal";
-import { DownloadOptionsModal } from "./DownloadOptionsModal";
+import { PassengerListModal } from "./PassengerListModal";
 
 import { useSearchParams } from "next/navigation";
 
@@ -30,18 +30,11 @@ export function WooDashboard() {
 
     const [expandedYears, setExpandedYears] = useState<Record<number, boolean>>({});
 
-    // Download Modal State
-    const [downloadTarget, setDownloadTarget] = useState<{ id: number; name: string } | null>(null);
+    // Preview Modal State
+    const [previewTargetId, setPreviewTargetId] = useState<number | null>(null);
 
     const handleDownloadClick = (p: any) => {
-        setDownloadTarget({ id: p.id, name: p.name });
-    };
-
-    const performDownload = (selectedColumns: string[]) => {
-        if (!downloadTarget) return;
-        const colParam = selectedColumns.length > 0 ? `?columns=${selectedColumns.join(',')}` : '';
-        window.open(`/api/woocommerce/products/${downloadTarget.id}/passenger-list${colParam}`, '_blank');
-        setDownloadTarget(null);
+        setPreviewTargetId(p.id);
     };
 
 
@@ -295,12 +288,11 @@ export function WooDashboard() {
                 </div>
             </div>
 
-            {downloadTarget && (
-                <DownloadOptionsModal
+            {previewTargetId && (
+                <PassengerListModal
                     isOpen={true}
-                    onClose={() => setDownloadTarget(null)}
-                    productName={downloadTarget.name}
-                    onConfirm={performDownload}
+                    onClose={() => setPreviewTargetId(null)}
+                    productId={previewTargetId}
                 />
             )}
 

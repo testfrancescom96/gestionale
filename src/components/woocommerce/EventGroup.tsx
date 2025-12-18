@@ -190,10 +190,11 @@ export function EventGroup({ data, orders, updatedOrderIds, highlightId, onRefre
                                                     e.stopPropagation();
                                                     onDownload(product);
                                                 }}
-                                                className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors"
-                                                title="Scarica Lista Passeggeri"
+                                                className="flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 rounded-full transition-all shadow-sm text-xs font-medium"
+                                                title="Apri Lista Passeggeri"
                                             >
-                                                <Download className="h-4 w-4" />
+                                                <ClipboardList className="h-3.5 w-3.5" />
+                                                <span>Lista</span>
                                             </button>
                                         )}
 

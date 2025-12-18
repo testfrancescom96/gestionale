@@ -38,17 +38,35 @@ export async function GET() {
         });
 
         // 3. Merge results
-        const result = [];
-        for (const k of foundKeys) {
-            const { key, label: hintLabel } = JSON.parse(k);
-            const saved = configMap.get(key);
+        const allKeys = new Set([...foundKeys]);
+        configMap.forEach((_, key) => allKeys.add(JSON.stringify({ key, label: configMap.get(key)?.label || key })));
 
+        const result = [];
+        // We need to deduplicate by KEY, because JSON.stringify might have different labels.
+        const processedKeys = new Set<string>();
+
+        // Priority 1: Saved Configs
+        for (const [key, config] of configMap.entries()) {
+            processedKeys.add(key);
             result.push({
                 fieldKey: key,
-                label: saved?.label || hintLabel || key,
-                mappingType: saved?.mappingType || "COLUMN", // Default to VISIBLE column
-                isSaved: !!saved
+                label: config.label,
+                mappingType: config.mappingType,
+                isSaved: true
             });
+        }
+
+        // Priority 2: Scanned Keys (if not already processed)
+        for (const k of foundKeys) {
+            const { key, label: hintLabel } = JSON.parse(k);
+            if (!processedKeys.has(key)) {
+                result.push({
+                    fieldKey: key,
+                    label: hintLabel || key,
+                    mappingType: "COLUMN",
+                    isSaved: false
+                });
+            }
         }
 
         return NextResponse.json(result);
