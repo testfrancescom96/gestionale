@@ -755,3 +755,51 @@ model SystemSettings {
   
   updatedAt             DateTime  @updatedAt
 }
+
+// ==================== GESTIONE VETTORI / NOLEGGI BUS ====================
+model NoleggioVettore {
+  id                String    @id @default(uuid())
+  
+  // Collegamento al fornitore (vettore)
+  fornitoreId       String?
+  fornitore         Fornitore? @relation("VettoreNoleggi", fields: [fornitoreId], references: [id])
+  nomeVettore       String?   // Nome alternativo se non collegato
+  
+  // Date
+  dataPartenza      DateTime
+  dataRientro       DateTime?
+  
+  // Evento/Viaggio
+  evento            String    // Descrizione evento (es. "Roma - concerto Calcutta")
+  
+  // Dettagli Bus
+  capienzaBus       Int?      // Numero posti
+  numAutisti        Int       @default(1)
+  
+  // Costi
+  costoNoleggio     Float     @default(0)
+  costoZTL          Float     @default(0)    // ZTL/Parcheggi
+  costoExtra        Float     @default(0)    // Altri costi
+  
+  // Fatturazione
+  numeroFattura     String?
+  fatturaRicevuta   Boolean   @default(false)
+  
+  // Pagamento
+  pagato            Boolean   @default(false)
+  dataPagamento     DateTime?
+  importoPagato     Float?
+  metodoPagamento   String?   // "bonifico", "contanti", etc.
+  
+  // Note
+  note              String?
+  
+  // Collegamento opzionale a WooProduct (viaggio di gruppo)
+  wooProductId      Int?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([fornitoreId])
+  @@index([dataPartenza])
+}
