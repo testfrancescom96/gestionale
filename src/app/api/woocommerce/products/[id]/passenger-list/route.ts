@@ -77,20 +77,33 @@ export async function GET(
             { key: 'note', width: 25 }
         ];
 
-        let rowNum = 1;
+        // 1. Get Config
+        const fieldConfig = await prisma.wooExportConfig.findMany();
+        const partenzaConfig = fieldConfig.find(c => c.isPartenza);
 
-        // Helper to find "Punto Partenza" in metadata
+        // Helper to find "Punto Partenza" using Dynamic Config OR Fallback
         const findPartenza = (metaDataStr: string | null): string => {
             if (!metaDataStr) return '-';
             try {
                 const meta = JSON.parse(metaDataStr);
                 if (Array.isArray(meta)) {
-                    // Look for common keys
-                    const found = meta.find((m: any) => {
-                        const key = (m.key || m.display_key || '').toLowerCase();
-                        return key.includes('partenza') || key.includes('fermata') || key.includes('luogo') || key.includes('ritiro');
-                    });
-                    return found ? (found.value || found.display_value) : '-';
+                    // Strategy 1: Use Configured Field
+                    if (partenzaConfig) {
+                        const match = meta.find((m: any) =>
+                            (m.key === partenzaConfig.fieldKey) ||
+                            (m.display_key === partenzaConfig.fieldKey)
+                        );
+                        if (match) return match.value || match.display_value;
+                    }
+
+                    // Strategy 2: Fallback (Smart Search) if no config or no match
+                    if (!partenzaConfig) {
+                        const found = meta.find((m: any) => {
+                            const key = (m.key || m.display_key || '').toLowerCase();
+                            return key.includes('partenza') || key.includes('fermata') || key.includes('luogo') || key.includes('ritiro');
+                        });
+                        return found ? (found.value || found.display_value) : '-';
+                    }
                 }
             } catch (e) { return '-'; }
             return '-';
