@@ -11,7 +11,8 @@ import {
     DollarSign,
     Settings,
     ShoppingBag,
-    Megaphone
+    Megaphone,
+    Wallet
 } from "lucide-react";
 
 const navSections = [
@@ -44,11 +45,13 @@ const navSections = [
         title: "CONTROLLO",
         items: [
             { name: "Scadenzario", href: "/scadenzario", icon: Calendar },
+            { name: "Contabilità", href: "/contabilita", icon: Wallet },
             { name: "Report", href: "/report", icon: DollarSign },
             { name: "Marketing", href: "/marketing", icon: Megaphone },
         ]
     }
 ];
+
 
 export function Sidebar() {
     const pathname = usePathname();
