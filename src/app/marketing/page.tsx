@@ -8,20 +8,33 @@ import {
     MousePointer2,
     TrendingUp,
     AlertCircle,
-    RefreshCw
+    RefreshCw,
+    Users,
+    FileText,
+    ShoppingCart,
+    MapPin,
+    Target,
+    ArrowUp,
+    ArrowDown
 } from "lucide-react";
 
 export default function MarketingPage() {
     const [activeTab, setActiveTab] = useState("overview");
     const [data, setData] = useState<any>(null);
+    const [businessData, setBusinessData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            const res = await fetch("/api/marketing/stats");
-            const json = await res.json();
-            setData(json);
+            const [metaRes, businessRes] = await Promise.all([
+                fetch("/api/marketing/stats"),
+                fetch("/api/marketing/business-stats")
+            ]);
+            const metaJson = await metaRes.json();
+            const businessJson = await businessRes.json();
+            setData(metaJson);
+            setBusinessData(businessJson);
         } catch (e) {
             console.error(e);
         } finally {
@@ -88,7 +101,11 @@ export default function MarketingPage() {
                     {/* OVERVIEW CONTENT */}
                     {activeTab === "overview" && data?.insights && (
                         <div className="space-y-6 fade-in">
-                            {/* KPI Cards */}
+                            {/* Meta Ads KPI Cards */}
+                            <h3 className="font-semibold text-gray-700 flex items-center gap-2">
+                                <Megaphone className="h-5 w-5 text-blue-500" />
+                                Sponsorizzate Meta
+                            </h3>
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                                     <div className="flex items-center justify-between mb-4">
@@ -131,6 +148,106 @@ export default function MarketingPage() {
                                     <h3 className="text-2xl font-bold text-gray-900">{formatMoney(data.insights.cpc)}</h3>
                                 </div>
                             </div>
+
+                            {/* Business Stats Section */}
+                            {businessData && (
+                                <>
+                                    <h3 className="font-semibold text-gray-700 flex items-center gap-2 mt-8">
+                                        <Target className="h-5 w-5 text-green-500" />
+                                        Performance Business (Ultimi 30gg)
+                                    </h3>
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="p-2 bg-blue-100 rounded-full">
+                                                    <FileText className="h-5 w-5 text-blue-600" />
+                                                </div>
+                                            </div>
+                                            <p className="text-sm font-medium text-gray-500">Pratiche Create</p>
+                                            <h3 className="text-2xl font-bold text-gray-900">{businessData.ultimi30giorni?.praticheCreate || 0}</h3>
+                                        </div>
+                                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="p-2 bg-green-100 rounded-full">
+                                                    <Target className="h-5 w-5 text-green-600" />
+                                                </div>
+                                            </div>
+                                            <p className="text-sm font-medium text-gray-500">Tasso Conversione</p>
+                                            <h3 className="text-2xl font-bold text-green-600">{businessData.ultimi30giorni?.conversionRate || 0}%</h3>
+                                        </div>
+                                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="p-2 bg-purple-100 rounded-full">
+                                                    <Users className="h-5 w-5 text-purple-600" />
+                                                </div>
+                                            </div>
+                                            <p className="text-sm font-medium text-gray-500">Nuovi Clienti</p>
+                                            <h3 className="text-2xl font-bold text-gray-900">{businessData.ultimi30giorni?.clientiNuovi || 0}</h3>
+                                        </div>
+                                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="p-2 bg-orange-100 rounded-full">
+                                                    <ShoppingCart className="h-5 w-5 text-orange-600" />
+                                                </div>
+                                            </div>
+                                            <p className="text-sm font-medium text-gray-500">Ordini WooCommerce</p>
+                                            <h3 className="text-2xl font-bold text-gray-900">{businessData.ultimi30giorni?.ordiniWoo || 0}</h3>
+                                        </div>
+                                    </div>
+
+                                    {/* Trend Annuale */}
+                                    <h3 className="font-semibold text-gray-700 flex items-center gap-2 mt-8">
+                                        <TrendingUp className="h-5 w-5 text-blue-500" />
+                                        Trend Annuale ({new Date().getFullYear()})
+                                    </h3>
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-500">Pratiche Anno</p>
+                                                    <h3 className="text-3xl font-bold text-gray-900">{businessData.annuale?.pratiche || 0}</h3>
+                                                    <p className="text-xs text-gray-400">vs {businessData.annuale?.praticheAnnoScorso || 0} anno scorso</p>
+                                                </div>
+                                                <div className={`flex items-center gap-1 px-3 py-1 rounded-full ${businessData.annuale?.trendPratiche >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                    {businessData.annuale?.trendPratiche >= 0 ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                                                    <span className="font-bold">{Math.abs(businessData.annuale?.trendPratiche || 0)}%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-500">Fatturato Anno</p>
+                                                    <h3 className="text-3xl font-bold text-gray-900">{formatMoney(businessData.annuale?.fatturato || 0)}</h3>
+                                                    <p className="text-xs text-gray-400">vs {formatMoney(businessData.annuale?.fatturatoAnnoScorso || 0)} anno scorso</p>
+                                                </div>
+                                                <div className={`flex items-center gap-1 px-3 py-1 rounded-full ${businessData.annuale?.trendFatturato >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                    {businessData.annuale?.trendFatturato >= 0 ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                                                    <span className="font-bold">{Math.abs(businessData.annuale?.trendFatturato || 0)}%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Top Destinazioni */}
+                                    {businessData.topDestinazioni?.length > 0 && (
+                                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mt-6">
+                                            <h4 className="font-semibold text-gray-700 flex items-center gap-2 mb-4">
+                                                <MapPin className="h-5 w-5 text-red-500" />
+                                                Top Destinazioni (30gg)
+                                            </h4>
+                                            <div className="space-y-3">
+                                                {businessData.topDestinazioni.map((d: any, i: number) => (
+                                                    <div key={i} className="flex items-center justify-between">
+                                                        <span className="text-gray-700">{d.destinazione}</span>
+                                                        <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">{d.count} pratiche</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
                     )}
 
