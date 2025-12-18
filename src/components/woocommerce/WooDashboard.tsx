@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Loader2, RefreshCw, CalendarOff, ChevronDown, Settings, X } from "lucide-react";
 import { groupProductsByDate, GroupedEvent, YearGroup } from "@/lib/woo-utils";
 import { EventGroup } from "./EventGroup";
+import { ExportSettingsModal } from "./ExportSettingsModal";
 
 import { useSearchParams } from "next/navigation";
 
@@ -164,6 +165,8 @@ export function WooDashboard() {
 
     return (
         <div className="space-y-6 relative">
+            <ExportSettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+
             {/* ... (Settings Modal and Header code omitted for brevity in search/replace context if not needed, but here I am inside main return) ... */}
 
             {/* Same Header/Settings Block as before... assuming I don't need to replace it all. 
