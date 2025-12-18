@@ -824,6 +824,7 @@ model ManualBooking {
   
   // Importo (opzionale)
   importo         Float?
+  pagato          Boolean   @default(false)
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
