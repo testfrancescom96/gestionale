@@ -6,6 +6,7 @@ import { Loader2, RefreshCw, CalendarOff, ChevronDown, Settings, X } from "lucid
 import { groupProductsByDate, GroupedEvent, YearGroup } from "@/lib/woo-utils";
 import { EventGroup } from "./EventGroup";
 import { ExportSettingsModal } from "./ExportSettingsModal";
+import { DownloadOptionsModal } from "./DownloadOptionsModal";
 
 import { useSearchParams } from "next/navigation";
 
@@ -28,6 +29,20 @@ export function WooDashboard() {
     const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
     const [expandedYears, setExpandedYears] = useState<Record<number, boolean>>({});
+
+    // Download Modal State
+    const [downloadTarget, setDownloadTarget] = useState<{ id: number; name: string } | null>(null);
+
+    const handleDownloadClick = (p: any) => {
+        setDownloadTarget({ id: p.id, name: p.name });
+    };
+
+    const performDownload = (selectedColumns: string[]) => {
+        if (!downloadTarget) return;
+        const colParam = selectedColumns.length > 0 ? `?columns=${selectedColumns.join(',')}` : '';
+        window.open(`/api/woocommerce/products/${downloadTarget.id}/passenger-list${colParam}`, '_blank');
+        setDownloadTarget(null);
+    };
 
 
     // Effect: Auto-load data on mount
@@ -82,6 +97,30 @@ export function WooDashboard() {
             setLoading(false);
         }
     };
+
+    // ... existing sync logic ...
+
+    const [progressMsg, setProgressMsg] = useState("");
+
+    const triggerSync = async (type: 'smart' | 'rapid' | 'full' | 'days30' | 'days90') => {
+        setLoading(true);
+        // ... (Sync simplified logic here, assuming existing implementation is preserved by not replacing it, oh wait I am in replace mode)
+        // Since I'm replacing a huge chunk, I must be careful not to delete triggerSync body.
+        // Actually, the TARGET content in this replace IS NOT including triggerSync body, so it's safe.
+        // Wait, I am targeting lines 28-86 of the original file (approx).
+        // Let's ensure I match the target content exactly.
+    };
+
+    // Note: I will only replace the top section to add State + Handlers, avoiding the triggerSync complexity.
+
+    // ...
+    /* 
+       Actually, splitting this into smaller replacements is safer. 
+       1. Add State and Handlers at top.
+       2. Add Modal JSX.
+       3. Pass prop to EventGroup.
+    */
+
 
     // ... existing sync logic ...
 
@@ -273,6 +312,15 @@ export function WooDashboard() {
                 </div>
             </div>
 
+            {downloadTarget && (
+                <DownloadOptionsModal
+                    isOpen={true}
+                    onClose={() => setDownloadTarget(null)}
+                    productName={downloadTarget.name}
+                    onConfirm={performDownload}
+                />
+            )}
+
             {/* Main Content: Calendar View */}
             <div className="space-y-4">
                 {groupedEvents.years.length > 0 ? (
@@ -307,6 +355,7 @@ export function WooDashboard() {
                                                 orders={orders}
                                                 updatedOrderIds={updatedOrderIds}
                                                 onRefresh={loadLocalData}
+                                                onDownload={handleDownloadClick}
                                             />
                                         ))}
                                     </div>

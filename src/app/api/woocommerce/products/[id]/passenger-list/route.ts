@@ -62,14 +62,38 @@ export async function GET(
         const fieldConfig = await prisma.wooExportConfig.findMany();
 
         // Define Mapped Fields
+        const columnsParam = request.nextUrl.searchParams.get('columns');
+        const selectedKeys = columnsParam ? columnsParam.split(',') : null;
+
+        // Helper to check if a field is selected (enabled by default if no param)
+        const isSelected = (key: string) => !selectedKeys || selectedKeys.includes(key);
+
         const partenzaConfig = fieldConfig.find(c => c.mappingType === 'PARTENZA');
-        const cfConfig = fieldConfig.find(c => c.mappingType === 'CF');
-        const addressConfig = fieldConfig.find(c => c.mappingType === 'ADDRESS');
-        const capConfig = fieldConfig.find(c => c.mappingType === 'CAP');
-        const noteConfig = fieldConfig.find(c => c.mappingType === 'NOTE');
+
+        // Only enable if configured AND selected
+        const cfConfig = fieldConfig.find(c => c.mappingType === 'CF' && isSelected(c.fieldKey));
+        const addressConfig = fieldConfig.find(c => c.mappingType === 'ADDRESS' && isSelected(c.fieldKey));
+        const capConfig = fieldConfig.find(c => c.mappingType === 'CAP' && isSelected(c.fieldKey));
+
+        // Note: System "Note" always exists, but we might want to hide the "Mapped" note field?
+        // Let's treat Note Config similar to others
+        const noteConfig = fieldConfig.find(c => c.mappingType === 'NOTE' && isSelected(c.fieldKey));
 
         // Dynamic Columns (those marked as COLUMN)
-        const dynamicColumns = fieldConfig.filter(c => c.mappingType === 'COLUMN');
+        // Filter based on query param 'columns' if present
+        const columnsParam = request.nextUrl.searchParams.get('columns');
+        const selectedColumnKeys = columnsParam ? columnsParam.split(',') : null;
+
+        // If 'columns' param is present, we filter ALL fields (including standard ones like CF, Address, etc. if they match key)
+        // But for now, let's keep robust logic.
+        // DownloadOptionsModal sends KEYS.
+
+        let dynamicColumns = fieldConfig.filter(c => c.mappingType === 'COLUMN');
+
+        // Filter dynamic columns if selection acts on them
+        if (selectedColumnKeys) {
+            dynamicColumns = dynamicColumns.filter(c => selectedColumnKeys.includes(c.fieldKey));
+        }
 
         // Helper to find specific field value
         const getMetaValue = (metaDataStr: string | null, key: string | undefined): string | null => {

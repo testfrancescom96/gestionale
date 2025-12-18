@@ -1,10 +1,9 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { ChevronDown, ChevronRight, Package, Pencil, ClipboardList, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { ChevronDown, ChevronRight, Package, Pencil, ClipboardList, CheckCircle2, AlertTriangle, XCircle, Download } from "lucide-react";
 import { GroupedEvent } from "@/lib/woo-utils";
 import { ProductBookings } from "./ProductBookings";
 import { ProductEditModal } from "./ProductEditModal";
@@ -16,35 +15,23 @@ interface EventGroupProps {
     updatedOrderIds?: number[];
     highlightId?: number | null;
     onRefresh?: () => void;
+    onDownload?: (product: any) => void;
 }
 
-export function EventGroup({ data, orders, updatedOrderIds, highlightId, onRefresh }: EventGroupProps) {
-    // Determine if the group (Month) is expanded
+export function EventGroup({ data, orders, updatedOrderIds, highlightId, onRefresh, onDownload }: EventGroupProps) {
     const [isExpanded, setIsExpanded] = useState(false);
-
-    // Track which products are expanded to show bookings
     const [expandedProducts, setExpandedProducts] = useState<Record<number, boolean>>({});
-
-    // Editing state
     const [editingProduct, setEditingProduct] = useState<any | null>(null);
-
-    // Workflow state
     const [workflowProduct, setWorkflowProduct] = useState<any | null>(null);
 
-    // Auto-expand and scroll if highlightId matches a product in this group
+    // Auto-expand if highlightId is present in this group
     useEffect(() => {
-        if (highlightId && data.products.some(p => p.id === highlightId)) {
-            setIsExpanded(true);
-            setExpandedProducts(prev => ({ ...prev, [highlightId]: true }));
-
-            // Wait for render then scroll
-            setTimeout(() => {
-                const el = document.getElementById(`product-${highlightId}`);
-                if (el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Optional: Add a temporary highlight flash
-                }
-            }, 300);
+        if (highlightId) {
+            const hasProduct = data.products.some(p => p.id === highlightId);
+            if (hasProduct) {
+                setIsExpanded(true);
+                setExpandedProducts(prev => ({ ...prev, [highlightId]: true }));
+            }
         }
     }, [highlightId, data.products]);
 
@@ -56,85 +43,160 @@ export function EventGroup({ data, orders, updatedOrderIds, highlightId, onRefre
     };
 
     return (
-        <div className="border rounded-lg bg-white overflow-hidden shadow-sm mb-4">
-            <button
+        <div className="border rounded-xl mb-4 overflow-hidden bg-white shadow-sm border-gray-100">
+            <div
+                className="bg-gray-50/50 p-4 flex items-center justify-between cursor-pointer hover:bg-gray-100/50 transition-colors"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
             >
                 <div className="flex items-center gap-3">
-                    {isExpanded ? <ChevronDown className="h-5 w-5 text-gray-500" /> : <ChevronRight className="h-5 w-5 text-gray-500" />}
-                    <div className="flex flex-col items-start">
-                        <span className="text-lg font-bold text-gray-800 capitalize">{data.monthName} {data.year}</span>
-                        <span className="text-xs text-gray-500">{data.products.length} Eventi programmati</span>
+                    <div className="bg-white p-1.5 rounded-md shadow-sm border border-gray-100 text-gray-400">
+                        {isExpanded ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-lg text-gray-800 capitalize leading-none mb-1">
+                            {data.monthName} {data.year}
+                        </h3>
+                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                            {data.products.length} Event{data.products.length === 1 ? 'o' : 'i'} in programma
+                        </p>
                     </div>
                 </div>
-            </button>
+            </div>
 
             {isExpanded && (
                 <div className="divide-y divide-gray-100">
-                    {data.products.map((product: any) => {
-                        // FIX: Ensure date is parsed correctly from JSON string
-                        const eventDate = product.eventDate ? new Date(product.eventDate) : null;
+                    {data.products.map((product) => {
+                        const op = product.operational;
+                        const manuallyModified = product.orderItems?.some((item: any) => item.order?.manuallyModified);
 
-                        // Count bookings for this product
-                        const bookingCount = orders.filter(o =>
-                            o.line_items?.some((item: any) => item.product_id === product.id)
-                        ).length;
+                        // Calculate stats
+                        const bookingCount = (product.orderItems?.reduce((acc: number, item: any) => acc + item.quantity, 0) || 0) +
+                            (product.manualBookings?.reduce((acc: number, b: any) => acc + b.numPartecipanti, 0) || 0);
 
-                        // Operational Status
-                        const op = product.viaggioOperativo;
-                        let statusIcon = null;
-                        if (op?.confermato) statusIcon = <span title="Viaggio Confermato"><CheckCircle2 className="h-5 w-5 text-green-600" /></span>;
-                        else if (op?.annullato) statusIcon = <span title="Viaggio Annullato"><XCircle className="h-5 w-5 text-red-600" /></span>;
-                        else if (op?.inForse) statusIcon = <span title="Viaggio in Forse"><AlertTriangle className="h-5 w-5 text-yellow-500" /></span>;
-
-                        // Checklist Status (Simple dot indicator if missing tasks?)
-                        const missingTasks = op && (!op.messaggioRiepilogoInviato || !op.listaPasseggeriInviata);
+                        const missingTasks = op ? (!op.autista || !op.accompagnatore || !op.busCompany) : true;
 
                         return (
-                            <div key={product.id} id={`product-${product.id}`} className="p-4 hover:bg-gray-50 transition-colors group">
+                            <div
+                                key={product.id}
+                                className={`p-4 transition-all duration-200 ${highlightId === product.id ? 'bg-blue-50/50 ring-1 ring-blue-100' : 'hover:bg-gray-50/30'}`}
+                            >
                                 <div className="flex items-start justify-between">
-                                    {/* Main Row Content (Clickable) */}
-                                    <div className="flex items-start gap-3 flex-1 cursor-pointer" onClick={() => toggleProduct(product.id)}>
-                                        <div className="bg-blue-100 text-blue-700 rounded-lg p-2 text-center min-w-[3.5rem] relative">
-                                            {eventDate ? (
-                                                <>
-                                                    <div className="text-xs font-medium uppercase">{format(eventDate, "MMM", { locale: it })}</div>
-                                                    <div className="text-xl font-bold">{format(eventDate, "dd")}</div>
-                                                </>
-                                            ) : (
-                                                <div className="text-xs font-bold text-gray-500">N/D</div>
+                                    <div className="flex-1 pr-4">
+                                        {/* Header Row: Status & Title */}
+                                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                                            {/* Status Badge */}
+                                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wider shadow-sm border ${op?.stato === 'SOLD_OUT' ? 'bg-purple-50 text-purple-700 border-purple-100' :
+                                                op?.stato === 'CANCELLED' ? 'bg-red-50 text-red-700 border-red-100' :
+                                                    op?.stato === 'COMPLETED' ? 'bg-green-50 text-green-700 border-green-100' :
+                                                        op?.confermato ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                                                            'bg-yellow-50 text-yellow-700 border-yellow-100'
+                                                }`}>
+                                                {op?.stato === 'SOLD_OUT' ? '🎉 Sold Out' :
+                                                    op?.stato === 'CANCELLED' ? '❌ Annullato' :
+                                                        op?.stato === 'COMPLETED' ? '✅ Completato' :
+                                                            op?.confermato ? '🚀 Confermato' : '⚠️ In Programma'}
+                                            </span>
+
+                                            {manuallyModified && (
+                                                <span className="text-[10px] bg-orange-50 text-orange-700 px-2 py-0.5 rounded-full border border-orange-100 flex items-center gap-1">
+                                                    <AlertTriangle className="h-3 w-3" /> Modifiche
+                                                </span>
                                             )}
-                                            {/* Status Badge overlay */}
-                                            {statusIcon && <div className="absolute -top-2 -right-2 bg-white rounded-full p-0.5 shadow-sm">{statusIcon}</div>}
                                         </div>
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                                                <h4 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-                                                    {product.name}
-                                                </h4>
-                                                {/* Workflow Status text/badge */}
-                                                {(op?.stato === 'CONFIRMED' || (!op?.stato && op?.confermato)) && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">CONFERMATO</span>}
-                                                {(op?.stato === 'PENDING' || (!op?.stato && op?.inForse)) && !op?.confermato && !op?.annullato && <span className="text-[10px] font-bold bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">IN FORSE</span>}
-                                                {(op?.stato === 'CANCELLED' || (!op?.stato && op?.annullato)) && <span className="text-[10px] font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">ANNULLATO</span>}
-                                                {op?.stato === 'SOLD_OUT' && <span className="text-[10px] font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">SOLD OUT</span>}
-                                                {op?.stato === 'COMPLETED' && <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">CONCLUSO</span>}
+
+                                        <h4 className="font-semibold text-gray-900 text-lg leading-tight mb-2">
+                                            {product.name}
+                                        </h4>
+
+                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
+                                            <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded text-xs font-medium">
+                                                <span>🗓</span>
+                                                <span>{product.eventDate ? format(new Date(product.eventDate), 'dd MMMM yyyy', { locale: it }) : 'Data N/D'}</span>
                                             </div>
 
-                                            <div className="flex items-center gap-4 mt-1">
-                                                <span className="text-xs text-gray-500 flex items-center gap-1">
-                                                    <Package className="h-3 w-3" /> SKU: {product.sku}
-                                                </span>
-                                                <span className={`text-xs px-2 py-0.5 rounded-full ${bookingCount > 0 ? 'bg-green-100 text-green-700 font-medium' : 'bg-gray-100 text-gray-500'
-                                                    }`}>
-                                                    {bookingCount} Prenotazioni
-                                                </span>
+                                            <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded text-xs font-medium">
+                                                <span>👥</span>
+                                                <span>{bookingCount} <span className="text-gray-400">Partecipanti</span></span>
                                             </div>
+
+                                            {op?.luogo && (
+                                                <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded text-xs font-medium">
+                                                    <span>📍</span>
+                                                    <span>{op.luogo}</span>
+                                                </div>
+                                            )}
                                         </div>
+
+                                        {/* Break-even Progress Bar & Min Pax Info */}
+                                        {op?.minPartecipanti > 0 && (
+                                            <div className="mt-3">
+                                                {/* SOLD OUT */}
+                                                {op.stato === 'SOLD_OUT' && (
+                                                    <>
+                                                        <div className="flex items-center justify-between text-[10px] mb-1">
+                                                            <span className="font-semibold text-purple-600">🎉 TUTTO ESAURITO</span>
+                                                            <span className="text-purple-600">100%</span>
+                                                        </div>
+                                                        <div className="h-1.5 w-full bg-purple-500 rounded-full"></div>
+                                                    </>
+                                                )}
+
+                                                {/* CANCELLED */}
+                                                {op.stato === 'CANCELLED' && (
+                                                    <div className="opacity-60">
+                                                        <div className="flex items-center justify-between text-[10px] mb-1">
+                                                            <span className="text-red-600 line-through">Evento annullato</span>
+                                                        </div>
+                                                        <div className="h-1.5 w-full bg-gray-300 rounded-full"></div>
+                                                    </div>
+                                                )}
+
+                                                {/* COMPLETED */}
+                                                {op.stato === 'COMPLETED' && (
+                                                    <>
+                                                        <div className="flex items-center justify-between text-[10px] mb-1">
+                                                            <span className="font-semibold text-green-600">✓ Viaggio concluso</span>
+                                                            <span className="text-green-600">Completato</span>
+                                                        </div>
+                                                        <div className="h-1.5 w-full bg-green-500 rounded-full"></div>
+                                                    </>
+                                                )}
+
+                                                {/* NORMAL STATES (PENDING, CONFIRMED) */}
+                                                {!['SOLD_OUT', 'CANCELLED', 'COMPLETED'].includes(op.stato || '') && (
+                                                    <>
+                                                        <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
+                                                            <span>Progresso partecipanti (Min: {op.minPartecipanti})</span>
+                                                            <span>{Math.round((bookingCount / op.minPartecipanti) * 100)}%</span>
+                                                        </div>
+                                                        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                                            <div
+                                                                className={`h-full rounded-full transition-all duration-500 ${bookingCount >= op.minPartecipanti ? 'bg-green-500' : 'bg-orange-400'
+                                                                    }`}
+                                                                style={{ width: `${Math.min((bookingCount / op.minPartecipanti) * 100, 100)}%` }}
+                                                            />
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Actions */}
                                     <div className="flex items-center gap-2">
+                                        {onDownload && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onDownload(product);
+                                                }}
+                                                className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors"
+                                                title="Scarica Lista Passeggeri"
+                                            >
+                                                <Download className="h-4 w-4" />
+                                            </button>
+                                        )}
+
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -166,74 +228,23 @@ export function EventGroup({ data, orders, updatedOrderIds, highlightId, onRefre
                                     </div>
                                 </div>
 
-                                {/* Break-even Progress Bar & Min Pax Info */}
-                                {op?.minPartecipanti > 0 && (
-                                    <div className="mt-2 pl-[3.5rem] pr-2">
-                                        {/* SOLD OUT */}
-                                        {op.stato === 'SOLD_OUT' && (
-                                            <>
-                                                <div className="flex items-center justify-between text-[10px] mb-1">
-                                                    <span className="font-semibold text-purple-600">🎉 TUTTO ESAURITO</span>
-                                                    <span className="text-purple-600">100%</span>
-                                                </div>
-                                                <div className="h-2 w-full bg-purple-500 rounded-full"></div>
-                                            </>
-                                        )}
-
-                                        {/* CANCELLED */}
-                                        {op.stato === 'CANCELLED' && (
-                                            <div className="opacity-60">
-                                                <div className="flex items-center justify-between text-[10px] mb-1">
-                                                    <span className="text-red-600 line-through">Evento annullato</span>
-                                                </div>
-                                                <div className="h-2 w-full bg-gray-300 rounded-full"></div>
-                                            </div>
-                                        )}
-
-                                        {/* COMPLETED */}
-                                        {op.stato === 'COMPLETED' && (
-                                            <>
-                                                <div className="flex items-center justify-between text-[10px] mb-1">
-                                                    <span className="font-semibold text-green-600">✓ Viaggio concluso</span>
-                                                    <span className="text-green-600">Completato</span>
-                                                </div>
-                                                <div className="h-2 w-full bg-green-500 rounded-full"></div>
-                                            </>
-                                        )}
-
-                                        {/* NORMAL STATES (PENDING, CONFIRMED) */}
-                                        {!['SOLD_OUT', 'CANCELLED', 'COMPLETED'].includes(op.stato || '') && (
-                                            <>
-                                                <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
-                                                    <span>Progresso partecipanti (Min: {op.minPartecipanti})</span>
-                                                    <span>{Math.round((bookingCount / op.minPartecipanti) * 100)}%</span>
-                                                </div>
-                                                <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                                                    <div
-                                                        className={`h-full rounded-full transition-all duration-500 ${bookingCount >= op.minPartecipanti ? 'bg-green-500' : 'bg-orange-400'
-                                                            }`}
-                                                        style={{ width: `${Math.min((bookingCount / op.minPartecipanti) * 100, 100)}%` }}
-                                                    />
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                )}
-
-                                {expandedProducts[product.id] && (
-                                    <ProductBookings
-                                        product={product}
-                                        orders={orders}
-                                        updatedOrderIds={updatedOrderIds}
-                                        onRefresh={onRefresh}
-                                    />
-                                )}
+                                {
+                                    expandedProducts[product.id] && (
+                                        <div className="mt-4 pt-4 border-t border-gray-100">
+                                            <ProductBookings
+                                                product={product}
+                                                orders={orders}
+                                                updatedOrderIds={updatedOrderIds}
+                                                onRefresh={onRefresh}
+                                            />
+                                        </div>
+                                    )
+                                }
                             </div>
                         );
                     })}
                 </div>
-            )
-            }
+            )}
 
             {/* Edit Modal */}
             {
@@ -267,4 +278,3 @@ export function EventGroup({ data, orders, updatedOrderIds, highlightId, onRefre
         </div >
     );
 }
-
