@@ -564,6 +564,8 @@ model CostoPratica {
 model Operatore {
   id        String   @id @default(uuid())
   nome      String   @unique // Es. "MANU", "AURORA"
+  password  String   @default("") // Hash bcrypt. Default vuoto per migrazione.
+  role      String   @default("OPERATORE") // "ADMIN", "OPERATORE"
   email     String?
   attivo    Boolean  @default(true)
   

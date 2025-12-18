@@ -10,16 +10,20 @@ export const metadata: Metadata = {
   description: "Sistema di gestione pratiche per agenzia viaggi",
 };
 
-export default function RootLayout({
+import { getSession } from "@/lib/auth";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getSession(); // Server-side fetch
+
   return (
     <html lang="it">
       <body className={inter.className}>
         <div className="flex h-screen overflow-hidden bg-gray-50">
-          <Sidebar />
+          <Sidebar user={session?.user} />
           <main className="flex-1 overflow-y-auto">
             {children}
           </main>

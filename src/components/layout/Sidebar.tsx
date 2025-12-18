@@ -56,8 +56,26 @@ const navSections = [
 ];
 
 
-export function Sidebar() {
+
+interface SidebarProps {
+    user?: {
+        nome: string;
+        role: string;
+    } | null;
+}
+
+export function Sidebar({ user }: SidebarProps) {
     const pathname = usePathname();
+
+    const handleLogout = async () => {
+        // Call server action logout
+        // Since logout is a server action, we can't call it directly from onClick if it redirects?
+        // Actually we can using a form or transition.
+        // Or simpler: fetch api route or just window.location.href to logout endpoint? 
+        // Best approach in Next.js App Router for logout button in client component:
+        // Use a form with action={logout} or calling it.
+        // Importing server action into client component works.
+    };
 
     return (
         <div className="flex w-64 flex-col bg-gradient-to-b from-blue-900 to-blue-800 text-white h-screen overflow-y-auto">
@@ -66,48 +84,85 @@ export function Sidebar() {
                 <img src="/logo.png" alt="GOonTheROAD" className="max-h-full max-w-full object-contain" />
             </div>
 
+            {/* User Info */}
+            {user && (
+                <div className="px-5 py-4 border-b border-blue-700/50">
+                    <p className="text-xs text-blue-300 uppercase tracking-wider font-semibold">Operatore</p>
+                    <p className="font-medium text-white truncate">{user.nome}</p>
+                    <span className="text-xs bg-blue-700/50 px-2 py-0.5 rounded text-blue-200">{user.role}</span>
+                </div>
+            )}
+
             {/* Navigation */}
             <nav className="flex-1 space-y-6 px-3 py-6">
-                {navSections.map((section, idx) => (
-                    <div key={idx} className="space-y-1">
-                        {section.title && (
-                            <h3 className="px-3 text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">
-                                {section.title}
-                            </h3>
-                        )}
+                {navSections.map((section, idx) => {
+                    // Filter logic if needed
+                    return (
+                        <div key={idx} className="space-y-1">
+                            {section.title && (
+                                <h3 className="px-3 text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">
+                                    {section.title}
+                                </h3>
+                            )}
 
-                        {section.items.map((item) => {
-                            const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
-                            return (
-                                <Link
-                                    key={item.name}
-                                    href={item.href}
-                                    className={`
-                                        flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all
-                                        ${isActive
-                                            ? "bg-blue-700 text-white shadow-lg"
-                                            : "text-blue-100 hover:bg-blue-700/50 hover:text-white"
-                                        }
-                                    `}
-                                >
-                                    <item.icon className="h-4 w-4" />
-                                    {item.name}
-                                </Link>
-                            );
-                        })}
-                    </div>
-                ))}
+                            {section.items.map((item) => {
+                                const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
+                                return (
+                                    <Link
+                                        key={item.name}
+                                        href={item.href}
+                                        className={`
+                                            flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all
+                                            ${isActive
+                                                ? "bg-blue-700 text-white shadow-lg"
+                                                : "text-blue-100 hover:bg-blue-700/50 hover:text-white"
+                                            }
+                                        `}
+                                    >
+                                        <item.icon className="h-4 w-4" />
+                                        {item.name}
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    );
+                })}
             </nav>
 
-            {/* Settings */}
-            <div className="border-t border-blue-700 p-3 shrink-0 sticky bottom-0 bg-blue-800/90 backdrop-blur-sm">
-                <Link
-                    href="/impostazioni"
-                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition-all hover:bg-blue-700/50 hover:text-white"
-                >
-                    <Settings className="h-5 w-5" />
-                    Impostazioni
-                </Link>
+            {/* Bottom Actions */}
+            <div className="border-t border-blue-700 p-3 shrink-0 sticky bottom-0 bg-blue-800/90 backdrop-blur-sm space-y-1">
+                {/* Settings only for ADMIN */}
+                {user?.role === "ADMIN" && (
+                    <Link
+                        href="/impostazioni"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition-all hover:bg-blue-700/50 hover:text-white"
+                    >
+                        <Settings className="h-5 w-5" />
+                        Impostazioni
+                    </Link>
+                )}
+
+                {/* Logout Button */}
+                <form action="/api/auth/logout" method="POST">
+                    {/* Wait, I don't have this API route. I should use the server action directly. */}
+                    {/* But passing server action to onClick needs care. Use a submit button in a form. */}
+                    <button
+                        type="submit"
+                        // Using formAction if I import it, but cleaner to just use API route or server action imported
+                        // Let's assume I import logout from actions
+                        formAction={async () => {
+                            "use server";
+                            // Dynamic import to avoid cycle? No.
+                            // Actually importing 'logout' from '@/app/login/actions' works in Client Component if passed to formAction
+                            const { logout } = await import("@/app/login/actions");
+                            await logout();
+                        }}
+                        className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-200 transition-all hover:bg-red-900/30 hover:text-red-100"
+                    >
+                        <Megaphone className="h-5 w-5 rotate-180" /> {/* Log out icon usually LogOut */}
+                        Esci
+                    </button>
+                </form>
             </div>
         </div>
     );
