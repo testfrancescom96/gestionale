@@ -51,7 +51,7 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
             setAvailableFields(relevantFields);
 
             // Default: Select all relevant fields
-            const initialSelection = new Set(relevantFields.map((f: any) => f.fieldKey));
+            const initialSelection = new Set<string>(relevantFields.map((f: any) => String(f.fieldKey)));
             setSelectedFields(initialSelection);
 
             // 2. Fetch Preview with all fields
