@@ -2,6 +2,9 @@
 title SUPER AGGIORNAMENTO AUTOMATICO (Passwordless)
 color 0A
 
+:: IMPORTANTE: Vai nella cartella del progetto
+cd /d "%~dp0"
+
 echo =======================================================
 echo      AGGIORNAMENTO TOTALE (GITHUB + SERVER)
 echo =======================================================

@@ -656,8 +656,9 @@ model WooProduct {
   eventDate   DateTime? // Parsed from SKU
   
   // Relations
-  orderItems  WooOrderItem[]
-  operational ViaggioOperativo?
+  orderItems      WooOrderItem[]
+  operational     ViaggioOperativo?
+  manualBookings  ManualBooking[]
   
   updatedAt   DateTime @updatedAt
 }
@@ -699,5 +700,39 @@ model WooOrderItem {
   total           Float
   
   @@index([wooOrderId])
+  @@index([wooProductId])
+}
+
+// ==================== PRENOTAZIONI MANUALI ====================
+model ManualBooking {
+  id              Int      @id @default(autoincrement())
+  
+  wooProductId    Int
+  product         WooProduct @relation(fields: [wooProductId], references: [id], onDelete: Cascade)
+  
+  // Dati Cliente
+  cognome         String
+  nome            String
+  telefono        String?
+  email           String?
+  
+  // Dati Viaggio
+  puntoPartenza   String?   // Fermata di salita
+  numPartecipanti Int       @default(1)
+  
+  // Dati Extra (per viaggi lunghi)
+  codiceFiscale   String?
+  camera          String?   // Es. "Doppia", "Singola"
+  
+  // Note e Custom
+  note            String?
+  customData      String?   // JSON per campi extra configurabili
+  
+  // Importo (opzionale)
+  importo         Float?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
   @@index([wooProductId])
 }
