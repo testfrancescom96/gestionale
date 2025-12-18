@@ -50,7 +50,7 @@ function parseVariationDate(attributes: any[]): Date | null {
  * @param mode 'full' | 'incremental'
  */
 export async function syncProducts(mode: 'full' | 'incremental' = 'incremental', onProgress?: (msg: string) => void) {
-    let products = [];
+    let products: any[] = [];
 
     if (mode === 'full') {
         products = await fetchAllWooProducts(new URLSearchParams({ status: 'any' }), onProgress);
@@ -157,7 +157,7 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental',
      * @param value Contextual value (limit for rapid, days for days)
      */
 export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'smart', value: number = 50, onProgress?: (msg: string) => void) {
-    let orders = [];
+    let orders: any[] = [];
     const params = new URLSearchParams({ status: 'any' });
 
     if (mode === 'days') {
