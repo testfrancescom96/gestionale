@@ -1,6 +1,49 @@
 import { prisma } from "@/lib/db";
-import { fetchAllWooProducts, fetchAllWooOrders, fetchWooProducts, fetchWooOrders } from "./woocommerce";
+import { fetchAllWooProducts, fetchAllWooOrders, fetchWooProducts, fetchWooOrders, fetchWooProductVariations } from "./woocommerce";
 import { parseSkuDate } from "./woo-utils";
+
+/**
+ * Parse event date from variation attributes
+ */
+function parseVariationDate(attributes: any[]): Date | null {
+    if (!attributes || !Array.isArray(attributes)) return null;
+
+    // Look for date-related attributes
+    for (const attr of attributes) {
+        const name = (attr.name || attr.option || '').toLowerCase();
+        const value = attr.option || attr.value || '';
+
+        // Common date attribute names
+        if (name.includes('data') || name.includes('date') || name.includes('giorno')) {
+            // Try to parse the date value
+            // Format: "15 Gennaio 2025", "2025-01-15", "15/01/2025", etc.
+            try {
+                // Try direct parse
+                const d = new Date(value);
+                if (!isNaN(d.getTime())) return d;
+
+                // Try Italian format "15 Gennaio 2025"
+                const italianMonths: Record<string, number> = {
+                    'gennaio': 0, 'febbraio': 1, 'marzo': 2, 'aprile': 3,
+                    'maggio': 4, 'giugno': 5, 'luglio': 6, 'agosto': 7,
+                    'settembre': 8, 'ottobre': 9, 'novembre': 10, 'dicembre': 11
+                };
+                const parts = value.toLowerCase().match(/(\d{1,2})\s+(\w+)\s+(\d{4})/);
+                if (parts) {
+                    const day = parseInt(parts[1]);
+                    const month = italianMonths[parts[2]];
+                    const year = parseInt(parts[3]);
+                    if (!isNaN(day) && month !== undefined && !isNaN(year)) {
+                        return new Date(year, month, day);
+                    }
+                }
+            } catch (e) {
+                // Continue to next attribute
+            }
+        }
+    }
+    return null;
+}
 
 /**
  * Sync Products from WooCommerce to Local DB
@@ -9,28 +52,26 @@ import { parseSkuDate } from "./woo-utils";
 export async function syncProducts(mode: 'full' | 'incremental' = 'incremental', onProgress?: (msg: string) => void) {
     let products = [];
 
-    // For now, even incremental touches most products to update stock/price, 
-    // but in a real scenario we'd query by date_modified.
-    // Given the user wants "All", let's use fetchAll if full, or just page 1 if incremental?
-    // The user's request imply they want control.
-
     if (mode === 'full') {
         products = await fetchAllWooProducts(new URLSearchParams({ status: 'any' }), onProgress);
     } else {
         if (onProgress) onProgress("Scaricamento rapido (ultima pagina)...");
-        // Incremental: Fetch last 100 items (page 1)
         const res = await fetchWooProducts(new URLSearchParams({ per_page: '100', status: 'any' }));
         products = res.products;
     }
 
     let count = 0;
+    let variationsCount = 0;
     const total = products.length;
+    const variableProducts: any[] = [];
+
     for (const p of products) {
         if (count % 10 === 0 && onProgress) {
             onProgress(`Salvataggio prodotti: ${count}/${total}...`);
         }
         // Parse event date from SKU
         const eventDate = parseSkuDate(p.sku);
+        const productType = p.type || 'simple';
 
         await prisma.wooProduct.upsert({
             where: { id: p.id },
@@ -39,6 +80,7 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental',
                 sku: p.sku,
                 price: parseFloat(p.price || "0"),
                 status: p.status,
+                productType: productType,
                 permalink: p.permalink,
                 dateModified: new Date(p.date_modified),
                 eventDate: eventDate
@@ -49,28 +91,71 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental',
                 sku: p.sku,
                 price: parseFloat(p.price || "0"),
                 status: p.status,
+                productType: productType,
                 permalink: p.permalink,
                 dateCreated: new Date(p.date_created),
                 dateModified: new Date(p.date_modified),
                 eventDate: eventDate
             }
         });
+
+        // Track variable products for variation sync
+        if (productType === 'variable') {
+            variableProducts.push(p);
+        }
         count++;
     }
 
-    return { count };
+    // Sync variations for variable products
+    if (variableProducts.length > 0 && onProgress) {
+        onProgress(`Sincronizzazione variazioni per ${variableProducts.length} prodotti variabili...`);
+    }
+
+    for (const vp of variableProducts) {
+        try {
+            const variations = await fetchWooProductVariations(vp.id);
+
+            for (const v of variations) {
+                const eventDate = parseVariationDate(v.attributes) || parseSkuDate(v.sku);
+
+                await prisma.wooProductVariation.upsert({
+                    where: { id: v.id },
+                    update: {
+                        name: v.name || vp.name,
+                        sku: v.sku,
+                        price: parseFloat(v.price || "0"),
+                        stockQuantity: v.stock_quantity,
+                        stockStatus: v.stock_status,
+                        attributes: JSON.stringify(v.attributes),
+                        eventDate: eventDate
+                    },
+                    create: {
+                        id: v.id,
+                        parentProductId: vp.id,
+                        name: v.name || vp.name,
+                        sku: v.sku,
+                        price: parseFloat(v.price || "0"),
+                        stockQuantity: v.stock_quantity,
+                        stockStatus: v.stock_status,
+                        attributes: JSON.stringify(v.attributes),
+                        eventDate: eventDate
+                    }
+                });
+                variationsCount++;
+            }
+        } catch (e) {
+            console.error(`Error syncing variations for product ${vp.id}:`, e);
+        }
+    }
+
+    return { count, variationsCount };
 }
 
 /**
  * Sync Orders from WooCommerce to Local DB
- * @param limit Number of orders to sync (default 50 for rapid sync)
- * @param days Look back N days (overrides limit if set)
- */
-/**
- * Sync Orders from WooCommerce to Local DB
  * @param mode 'rapid' | 'full' | 'smart' | 'days'
- * @param value Contextual value (limit for rapid, days for days)
- */
+     * @param value Contextual value (limit for rapid, days for days)
+     */
 export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'smart', value: number = 50, onProgress?: (msg: string) => void) {
     let orders = [];
     const params = new URLSearchParams({ status: 'any' });

@@ -649,6 +649,7 @@ model WooProduct {
   sku         String?
   price       Float?
   status      String
+  productType String   @default("simple") // simple, variable, grouped, external
   permalink   String?
   dateCreated DateTime?
   dateModified DateTime?
@@ -660,8 +661,32 @@ model WooProduct {
   orderItems      WooOrderItem[]
   operational     ViaggioOperativo?
   manualBookings  ManualBooking[]
+  variations      WooProductVariation[]
   
   updatedAt   DateTime @updatedAt
+}
+
+model WooProductVariation {
+  id              Int      @id // WooCommerce Variation ID
+  parentProductId Int
+  parent          WooProduct @relation(fields: [parentProductId], references: [id], onDelete: Cascade)
+  
+  name            String?  // Variation name/title
+  sku             String?
+  price           Float?
+  stockQuantity   Int?
+  stockStatus     String?  // instock, outofstock, onbackorder
+  
+  // Attributes (stored as JSON string for flexibility)
+  attributes      String?  // e.g. {"data_viaggio": "2025-01-15"}
+  
+  // Parsed event date from attributes
+  eventDate       DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([parentProductId])
 }
 
 model WooOrder {

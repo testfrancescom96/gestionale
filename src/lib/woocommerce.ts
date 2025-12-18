@@ -65,6 +65,28 @@ export async function fetchWooProducts(params: URLSearchParams): Promise<any> {
     };
 }
 
+// Fetch variations for a variable product
+export async function fetchWooProductVariations(productId: number): Promise<any[]> {
+    const queryParams = new URLSearchParams();
+    queryParams.set("consumer_key", WOO_CK);
+    queryParams.set("consumer_secret", WOO_CS);
+    queryParams.set("per_page", "100");
+
+    const response = await fetch(`${WOO_URL}/wp-json/wc/v3/products/${productId}/variations?${queryParams.toString()}`, {
+        headers: {
+            "Content-Type": "application/json",
+        },
+        cache: "no-store",
+    });
+
+    if (!response.ok) {
+        console.error(`Failed to fetch variations for product ${productId}: ${response.statusText}`);
+        return [];
+    }
+
+    return await response.json();
+}
+
 export async function updateWooOrder(id: number, data: any): Promise<any> {
     const queryParams = new URLSearchParams();
     queryParams.set("consumer_key", WOO_CK);
