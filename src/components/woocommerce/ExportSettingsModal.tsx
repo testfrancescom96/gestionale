@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Loader2, X, Save, Check } from "lucide-react";
+import { Loader2, X, Save, Check, Plus } from "lucide-react";
 
 interface FieldConfig {
     fieldKey: string;
@@ -19,6 +19,9 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState<string | null>(null); // key causing save
 
+    const [newFieldKey, setNewFieldKey] = useState("");
+    const [newFieldLabel, setNewFieldLabel] = useState("");
+
     useEffect(() => {
         if (isOpen) fetchFields();
     }, [isOpen]);
@@ -34,6 +37,18 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleManualAdd = async () => {
+        if (!newFieldKey || !newFieldLabel) return;
+        await handleSave({
+            fieldKey: newFieldKey,
+            label: newFieldLabel,
+            mappingType: 'COLUMN',
+            isSaved: false
+        });
+        setNewFieldKey("");
+        setNewFieldLabel("");
     };
 
     const handleSave = async (field: FieldConfig) => {
@@ -82,6 +97,41 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                         </div>
                     ) : (
                         <div className="space-y-4">
+                            {/* Manual Add Section */}
+                            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
+                                <p className="text-xs font-bold text-blue-800 uppercase mb-2">Aggiungi Campo Manualmente</p>
+                                <div className="flex gap-3 items-end">
+                                    <div className="flex-1">
+                                        <label className="text-xs text-blue-600 mb-1 block">Chiave (es. pa_fermata)</label>
+                                        <input
+                                            type="text"
+                                            value={newFieldKey}
+                                            onChange={(e) => setNewFieldKey(e.target.value)}
+                                            placeholder="chiave_campo"
+                                            className="w-full text-sm border-blue-200 rounded px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="text-xs text-blue-600 mb-1 block">Etichetta (es. Fermata)</label>
+                                        <input
+                                            type="text"
+                                            value={newFieldLabel}
+                                            onChange={(e) => setNewFieldLabel(e.target.value)}
+                                            placeholder="Nome visualizzato"
+                                            className="w-full text-sm border-blue-200 rounded px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+                                    <button
+                                        onClick={handleManualAdd}
+                                        disabled={!newFieldKey || !newFieldLabel}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                    >
+                                        <Plus className="h-4 w-4" />
+                                        Aggiungi
+                                    </button>
+                                </div>
+                            </div>
+
                             <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-gray-100 rounded text-xs font-bold text-gray-500 uppercase tracking-wider">
                                 <div className="col-span-5">Campi Trovati (WooCommerce)</div>
                                 <div className="col-span-5 text-center">Opzioni</div>
