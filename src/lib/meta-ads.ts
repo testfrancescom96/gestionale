@@ -1,6 +1,6 @@
 
-const META_ACCESS_TOKEN = "EAAL7Hc8zKP0BQMwWpZBHdZBzf0ZBfdAmKYlY9dFy857fcYz0iNchJtUqE4ZCuU4WiYDjr9TghgzUUZAQk1oy940yjR1ilvFkfh65ZArH5206CGsoGNOWVhWVztHtUhcWR3LzZCzpIYjGePvdPHZB48NfLg6AwjtxGoEV9kQUmSIaiwZBlFgOujHhw7DSN6y5ZB8ndkhgZDZD";
-const META_AD_ACCOUNT_ID = "act_367016127239121";
+const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN;
+const META_AD_ACCOUNT_ID = process.env.META_AD_ACCOUNT_ID;
 
 export interface MetaCampaign {
     id: string;
