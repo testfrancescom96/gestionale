@@ -377,3 +377,4 @@ export function WooDashboard() {
             </div>
         </div>
     );
+}
