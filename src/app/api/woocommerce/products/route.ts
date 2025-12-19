@@ -13,8 +13,16 @@ export async function GET(request: NextRequest) {
                 orderItems: {
                     include: {
                         order: {
-                            include: {
-                                lineItems: true // Include siblings if needed, or just for structure
+                            select: {
+                                id: true,
+                                status: true,
+                                dateCreated: true,
+                                billingFirstName: true,
+                                billingLastName: true,
+                                billingEmail: true,
+                                billingPhone: true,
+                                manuallyModified: true
+                                // transform to simple object, valid for frontend
                             }
                         }
                     }
