@@ -24,6 +24,7 @@ export function WooDashboard() {
     // Feature: Visual Feedback & Settings
     const [updatedOrderIds, setUpdatedOrderIds] = useState<number[]>([]);
     const [showSettings, setShowSettings] = useState(false);
+    const [customSyncDate, setCustomSyncDate] = useState<string>("");
 
     // Configuration
     const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
@@ -179,6 +180,22 @@ export function WooDashboard() {
         setupSSE(eventSource);
     };
 
+    // Custom date sync
+    const triggerSyncFromDate = async (dateString: string) => {
+        setLoading(true);
+        setProgressMsg("Sincronizzazione da data personalizzata...");
+        setUpdatedOrderIds([]);
+
+        const params = new URLSearchParams();
+        params.set("type", "all");
+        params.set("after", new Date(dateString).toISOString());
+        params.set("order_mode", "days");
+        params.set("mode", "incremental");
+
+        const eventSource = new EventSource(`/api/woocommerce/sync/stream?${params.toString()}`);
+        setupSSE(eventSource);
+    };
+
     const toggleYear = (year: number) => {
         setExpandedYears(prev => ({
             ...prev,
@@ -279,6 +296,30 @@ export function WooDashboard() {
                                     <span className="font-bold block text-blue-700">📅 Mese Corrente</span>
                                     <span className="text-xs text-gray-500">Ordini dal 1° del mese ad oggi.</span>
                                 </button>
+
+                                <div className="px-4 py-3 border-b bg-gray-50">
+                                    <p className="text-xs font-semibold text-gray-600 mb-2">📆 Da una data specifica:</p>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="date"
+                                            value={customSyncDate}
+                                            onChange={(e) => setCustomSyncDate(e.target.value)}
+                                            className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                if (customSyncDate) {
+                                                    triggerSyncFromDate(customSyncDate);
+                                                    setIsSyncMenuOpen(false);
+                                                }
+                                            }}
+                                            disabled={!customSyncDate}
+                                            className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                                        >
+                                            Sync
+                                        </button>
+                                    </div>
+                                </div>
 
                                 <button
                                     onClick={() => { triggerSync('full'); setIsSyncMenuOpen(false); }}
