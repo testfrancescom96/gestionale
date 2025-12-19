@@ -3,17 +3,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
 // GET: returns available fields (scanned) + current config
-export async function GET() {
+export async function GET(req: NextRequest) {
+    const { searchParams } = req.nextUrl;
+    const limitParam = parseInt(searchParams.get("limit") || "100");
+    const limit = Math.min(Math.max(limitParam, 50), 5000); // Clamp between 50 and 5000
+
     try {
         // 1. Get all saved configs
         const configs = await prisma.wooExportConfig.findMany();
         const configMap = new Map(configs.map(c => [c.fieldKey, c]));
 
         // 2. Scan distinct keys from WooOrderItem metaData
-        // Ideally this should be a distinct query, but with JSON string it's hard.
-        // We'll scan the last 200 items to find common keys.
         const recentItems = await prisma.wooOrderItem.findMany({
-            take: 200,
+            take: limit,
             where: { metaData: { not: null } },
             orderBy: { id: 'desc' },
             select: { metaData: true }
@@ -21,11 +23,9 @@ export async function GET() {
 
         const foundKeys = new Set<string>();
 
-
-
         // 3. Scan distinct keys from WooOrder metaData (Order Level Fields)
         const recentOrders = await prisma.wooOrder.findMany({
-            take: 100,
+            take: limit,
             where: { metaData: { not: null } },
             orderBy: { id: 'desc' },
             select: { metaData: true }

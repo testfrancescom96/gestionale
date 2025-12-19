@@ -1,6 +1,6 @@
 
-import { useState, useEffect } from "react";
-import { Loader2, X, Save, Check, Plus } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Loader2, X, Save, Check, Plus, Search, Filter, RefreshCw, Eye, EyeOff } from "lucide-react";
 
 interface FieldConfig {
     fieldKey: string;
@@ -17,7 +17,12 @@ interface Props {
 export function ExportSettingsModal({ isOpen, onClose }: Props) {
     const [fields, setFields] = useState<FieldConfig[]>([]);
     const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState<string | null>(null); // key causing save
+    const [scanLimit, setScanLimit] = useState(100);
+    const [saving, setSaving] = useState<string | null>(null);
+
+    // Filters
+    const [searchTerm, setSearchTerm] = useState("");
+    const [activeTab, setActiveTab] = useState<'ALL' | 'VISIBLE' | 'HIDDEN'>('ALL');
 
     const [newFieldKey, setNewFieldKey] = useState("");
     const [newFieldLabel, setNewFieldLabel] = useState("");
@@ -26,10 +31,10 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
         if (isOpen) fetchFields();
     }, [isOpen]);
 
-    const fetchFields = async () => {
+    const fetchFields = async (limit: number = 100) => {
         setLoading(true);
         try {
-            const res = await fetch("/api/woocommerce/config/fields");
+            const res = await fetch(`/api/woocommerce/config/fields?limit=${limit}`);
             const data = await res.json();
             setFields(data);
         } catch (error) {
@@ -37,6 +42,11 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleDeepScan = () => {
+        setScanLimit(1000);
+        fetchFields(1000);
     };
 
     const handleManualAdd = async () => {
@@ -60,8 +70,9 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                 body: JSON.stringify(field)
             });
             if (res.ok) {
-                // Refresh list to reflect updates (e.g. single Partenza check)
-                fetchFields();
+                // Optimistic Update
+                setFields(prev => prev.map(f => f.fieldKey === field.fieldKey ? { ...field, isSaved: true } : f));
+                // fetchFields(); // Refresh to be safe? Maybe not needed for every save
             }
         } catch (e) {
             console.error(e);
@@ -70,120 +81,224 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
         }
     };
 
+    // Derived State
+    const filteredFields = useMemo(() => {
+        return fields.filter(f => {
+            const matchesSearch = f.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                f.fieldKey.toLowerCase().includes(searchTerm.toLowerCase());
+
+            const isHidden = f.mappingType === 'HIDDEN';
+            const matchesTab =
+                activeTab === 'ALL' ? true :
+                    activeTab === 'VISIBLE' ? !isHidden :
+                        activeTab === 'HIDDEN' ? isHidden : true;
+
+            return matchesSearch && matchesTab;
+        });
+    }, [fields, searchTerm, activeTab]);
+
+    const visibleCount = fields.filter(f => f.mappingType !== 'HIDDEN').length;
+    const hiddenCount = fields.filter(f => f.mappingType === 'HIDDEN').length;
+
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
-                <div className="flex items-center justify-between border-b p-5">
+            <div className="w-full max-w-4xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+
+                {/* Header */}
+                <div className="flex items-center justify-between border-b p-5 bg-gray-50 rounded-t-xl">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900">Mappatura Campi Excel</h2>
-                        <p className="text-sm text-gray-500">Decidi quali dati di WooCommerce includere nella Lista Passeggeri.</p>
+                        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                            <Filter className="h-5 w-5 text-blue-600" />
+                            Gestione Campi e Colonne
+                        </h2>
+                        <p className="text-sm text-gray-500">Configura quali dati includere nel foglio Excel e nell'anteprima.</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                        <X className="h-5 w-5 text-gray-500" />
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={handleDeepScan}
+                            disabled={loading || scanLimit > 100}
+                            className="text-xs flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-300 rounded hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50"
+                            title="Scansiona gli ultimi 1000 ordini per trovare campi rari"
+                        >
+                            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+                            {scanLimit > 100 ? 'Deep Scan Attivo' : 'Cerca in tutti gli ordini'}
+                        </button>
+                        <div className="h-6 w-px bg-gray-300 mx-1"></div>
+                        <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+                            <X className="h-5 w-5 text-gray-500" />
+                        </button>
+                    </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-5">
-                    {loading ? (
-                        <div className="flex justify-center py-10">
-                            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                {/* Toolbar */}
+                <div className="p-4 border-b flex flex-col md:flex-row gap-4 justify-between bg-white items-center">
+                    {/* Tabs */}
+                    <div className="flex p-1 bg-gray-100 rounded-lg">
+                        <button
+                            onClick={() => setActiveTab('ALL')}
+                            className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'ALL' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Tutti ({fields.length})
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('VISIBLE')}
+                            className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'VISIBLE' ? 'bg-white shadow text-green-700' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Visibili ({visibleCount})
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('HIDDEN')}
+                            className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === 'HIDDEN' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Nascosti ({hiddenCount})
+                        </button>
+                    </div>
+
+                    {/* Search */}
+                    <div className="relative w-full md:w-64">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Cerca campo..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-9 pr-4 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto bg-gray-50 p-4">
+                    {loading && fields.length === 0 ? (
+                        <div className="flex justify-center py-20">
+                            <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
                         </div>
                     ) : fields.length === 0 ? (
-                        <div className="text-center py-10 bg-gray-50 rounded-lg border border-dashed">
-                            <p className="text-gray-500">Nessun campo aggiuntivo trovato negli ultimi ordini.</p>
-                            <p className="text-xs text-gray-400 mt-1">Esegui una sincronizzazione per popolare i dati.</p>
+                        <div className="text-center py-20 bg-white rounded-lg border border-dashed">
+                            <p className="text-gray-500">Nessun campo trovato.</p>
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                            {/* Manual Add Section */}
-                            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
-                                <p className="text-xs font-bold text-blue-800 uppercase mb-2">Aggiungi Campo Manualmente</p>
-                                <div className="flex gap-3 items-end">
-                                    <div className="flex-1">
-                                        <label className="text-xs text-blue-600 mb-1 block">Chiave (es. pa_fermata)</label>
-                                        <input
-                                            type="text"
-                                            value={newFieldKey}
-                                            onChange={(e) => setNewFieldKey(e.target.value)}
-                                            placeholder="chiave_campo"
-                                            className="w-full text-sm border-blue-200 rounded px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <label className="text-xs text-blue-600 mb-1 block">Etichetta (es. Fermata)</label>
-                                        <input
-                                            type="text"
-                                            value={newFieldLabel}
-                                            onChange={(e) => setNewFieldLabel(e.target.value)}
-                                            placeholder="Nome visualizzato"
-                                            className="w-full text-sm border-blue-200 rounded px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                    </div>
-                                    <button
-                                        onClick={handleManualAdd}
-                                        disabled={!newFieldKey || !newFieldLabel}
-                                        className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                                    >
-                                        <Plus className="h-4 w-4" />
-                                        Aggiungi
-                                    </button>
-                                </div>
+                        <div className="space-y-3">
+                            {/* Manual Add - Compact */}
+                            <div className="bg-blue-50/50 p-3 rounded-lg border border-blue-100 flex gap-2 items-center">
+                                <Plus className="h-4 w-4 text-blue-600" />
+                                <input
+                                    type="text"
+                                    value={newFieldKey}
+                                    onChange={(e) => setNewFieldKey(e.target.value)}
+                                    placeholder="Chiave (es. pa_fermata)"
+                                    className="flex-1 text-xs border-blue-200 rounded px-2 py-1.5"
+                                />
+                                <input
+                                    type="text"
+                                    value={newFieldLabel}
+                                    onChange={(e) => setNewFieldLabel(e.target.value)}
+                                    placeholder="Etichetta"
+                                    className="flex-1 text-xs border-blue-200 rounded px-2 py-1.5"
+                                />
+                                <button
+                                    onClick={handleManualAdd}
+                                    disabled={!newFieldKey || !newFieldLabel}
+                                    className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 disabled:opacity-50"
+                                >
+                                    Aggiungi
+                                </button>
                             </div>
 
-                            <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-gray-100 rounded text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                <div className="col-span-5">Campi Trovati (WooCommerce)</div>
-                                <div className="col-span-5 text-center">Opzioni</div>
-                                <div className="col-span-2 text-right">Stato</div>
-                            </div>
-
-                            {fields.map((field) => (
-                                <div key={field.fieldKey} className="grid grid-cols-12 gap-4 items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors bg-white">
-                                    <div className="col-span-5">
-                                        <div className="font-semibold text-gray-900">{field.label}</div>
-                                        <div className="text-xs text-mono text-gray-400">{field.fieldKey}</div>
-                                    </div>
-
-                                    <div className="col-span-5 flex items-center justify-center gap-4">
-                                        <select
-                                            value={field.mappingType}
-                                            onChange={(e) => handleSave({ ...field, mappingType: e.target.value })}
-                                            className={`
-                                                w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500
-                                                ${field.mappingType === 'PARTENZA' ? 'border-blue-500 bg-blue-50 text-blue-700 font-bold' : ''}
-                                                ${field.mappingType === 'HIDDEN' ? 'text-gray-400 bg-gray-50' : ''}
-                                                ${field.mappingType === 'CF' ? 'border-purple-500 bg-purple-50 text-purple-700 font-bold' : ''}
-                                            `}
-                                        >
-                                            <option value="COLUMN">📊 Colonna Extra</option>
-                                            <option value="PARTENZA">📍 Punto Partenza</option>
-                                            <option value="CF">🆔 Codice Fiscale</option>
-                                            <option value="ADDRESS">🏠 Indirizzo / Città</option>
-                                            <option value="CAP">📮 CAP</option>
-                                            <option value="NOTE">📝 Note</option>
-                                            <option value="HIDDEN">🚫 Nascondi (Ignora)</option>
-                                        </select>
-                                    </div>
-
-                                    <div className="col-span-2 text-right">
-                                        {saving === field.fieldKey ? (
-                                            <Loader2 className="h-4 w-4 animate-spin text-gray-400 ml-auto" />
-                                        ) : field.isSaved ? (
-                                            <span className="text-green-600 text-xs font-bold flex items-center justify-end gap-1">
-                                                <Check className="h-3 w-3" /> Salvato
-                                            </span>
-                                        ) : (
-                                            <span className="text-gray-300 text-xs">Nuovo</span>
-                                        )}
-                                    </div>
+                            {/* List */}
+                            <div className="bg-white border rounded-lg shadow-sm divide-y">
+                                <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 text-xs font-bold text-gray-500 uppercase">
+                                    <div className="col-span-4">Etichetta / Chiave</div>
+                                    <div className="col-span-4 text-center">Tipo Mappatura</div>
+                                    <div className="col-span-2 text-center">Visibilità</div>
+                                    <div className="col-span-2 text-right">Stato</div>
                                 </div>
-                            ))}
+
+                                {filteredFields.map((field) => (
+                                    <div key={field.fieldKey} className="grid grid-cols-12 gap-4 items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+
+                                        {/* Name & Key */}
+                                        <div className="col-span-4 overflow-hidden">
+                                            <input
+                                                type="text"
+                                                value={field.label}
+                                                onChange={(e) => {
+                                                    const newFields = fields.map(f => f.fieldKey === field.fieldKey ? { ...f, label: e.target.value } : f);
+                                                    setFields(newFields);
+                                                }}
+                                                onBlur={() => handleSave(field)}
+                                                className="block w-full text-sm font-medium text-gray-900 border-none bg-transparent p-0 focus:ring-0 placeholder-gray-400"
+                                            />
+                                            <div className="text-xs text-gray-400 font-mono truncate" title={field.fieldKey}>{field.fieldKey}</div>
+                                        </div>
+
+                                        {/* Mapping Type */}
+                                        <div className="col-span-4">
+                                            <select
+                                                value={field.mappingType}
+                                                onChange={(e) => handleSave({ ...field, mappingType: e.target.value })}
+                                                className={`
+                                                    w-full text-xs py-1.5 pl-2 pr-6 border-gray-200 rounded-md
+                                                    focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+                                                    ${field.mappingType === 'PARTENZA' ? 'bg-blue-50 text-blue-700 font-bold border-blue-200' : ''}
+                                                    ${field.mappingType === 'CF' ? 'bg-purple-50 text-purple-700 font-bold border-purple-200' : ''}
+                                                    ${field.mappingType === 'HIDDEN' ? 'bg-gray-100 text-gray-400' : ''}
+                                                `}
+                                            >
+                                                <option value="COLUMN">Colonna Standard</option>
+                                                <option value="PARTENZA">📍 Punto Partenza</option>
+                                                <option value="CF">🆔 Codice Fiscale</option>
+                                                <option value="ADDRESS">🏠 Indirizzo</option>
+                                                <option value="NOTE">📝 Note</option>
+                                                <option value="HIDDEN">🚫 Nascosto</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Visibility Toggle */}
+                                        <div className="col-span-2 flex justify-center">
+                                            <button
+                                                onClick={() => handleSave({
+                                                    ...field,
+                                                    mappingType: field.mappingType === 'HIDDEN' ? 'COLUMN' : 'HIDDEN'
+                                                })}
+                                                className={`p-1.5 rounded-md transition-colors ${field.mappingType === 'HIDDEN' ? 'text-gray-300 hover:bg-gray-100' : 'text-blue-600 bg-blue-50 hover:bg-blue-100'}`}
+                                            >
+                                                {field.mappingType === 'HIDDEN' ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                            </button>
+                                        </div>
+
+                                        {/* Status */}
+                                        <div className="col-span-2 text-right">
+                                            {saving === field.fieldKey ? (
+                                                <Loader2 className="h-4 w-4 animate-spin text-gray-400 ml-auto" />
+                                            ) : field.isSaved ? (
+                                                <span className="text-green-600 text-[10px] font-bold uppercase tracking-wider bg-green-50 px-2 py-0.5 rounded-full border border-green-100">
+                                                    Salvato
+                                                </span>
+                                            ) : (
+                                                <span className="text-gray-400 text-[10px]">Rilevato automatically</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {filteredFields.length === 0 && (
+                                    <div className="p-8 text-center text-gray-500 text-sm">
+                                        Nessun campo corrisponde ai criteri di ricerca.
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
 
-                <div className="border-t p-5 bg-gray-50 rounded-b-xl flex justify-end">
+                {/* Footer */}
+                <div className="border-t p-4 bg-white rounded-b-xl flex justify-between items-center text-xs text-gray-400">
+                    <div>
+                        Totale campi: {fields.length}
+                    </div>
                     <button
                         onClick={onClose}
                         className="px-6 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
