@@ -43,8 +43,8 @@ export async function GET(
                     const key = field.key || field.display_key;
                     const label = field.display_key || field.key || key;
 
-                    // Skip internal WooCommerce fields
-                    if (!key || key.startsWith('_')) continue;
+                    // Skip only truly internal WooCommerce fields, NOT _field_* or _service_*
+                    if (!key || key === '_product_type') continue;
 
                     if (!fieldMap.has(key)) {
                         fieldMap.set(key, { fieldKey: key, label: label, count: 0 });

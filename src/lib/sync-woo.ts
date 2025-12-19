@@ -409,8 +409,8 @@ export async function syncOrders(
                         const key = field.key || field.display_key;
                         const label = field.display_key || field.key || key;
 
-                        // Skip internal WooCommerce fields starting with _
-                        if (key && !key.startsWith('_') && !detectedFields.has(key)) {
+                        // Skip only truly internal fields like _product_type, allow _field_* and _service_*
+                        if (key && key !== '_product_type' && !detectedFields.has(key)) {
                             detectedFields.set(key, label);
                         }
                     }
