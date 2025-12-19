@@ -133,7 +133,7 @@ export function Sidebar({ user }: SidebarProps) {
             {/* Bottom Actions */}
             <div className="border-t border-blue-700 p-3 shrink-0 sticky bottom-0 bg-blue-800/90 backdrop-blur-sm space-y-1">
                 {/* Settings only for ADMIN */}
-                {user?.role === "ADMIN" && (
+                {user?.role?.toUpperCase() === "ADMIN" && (
                     <Link
                         href="/impostazioni"
                         className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition-all hover:bg-blue-700/50 hover:text-white"

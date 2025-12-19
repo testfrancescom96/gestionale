@@ -81,6 +81,23 @@ export async function GET(
             return '-';
         };
 
+        // Consolidate Dynamic Columns by Label (Normalization)
+        const consolidatedCols = new Map<string, string[]>(); // Label -> Keys[]
+
+        dynamicColumns.forEach(col => {
+            const keys = consolidatedCols.get(col.label) || [];
+            keys.push(col.fieldKey);
+            consolidatedCols.set(col.label, keys);
+        });
+
+        const getConsolidatedValue = (metaDataStr: string | null, keys: string[]): string => {
+            for (const key of keys) {
+                const val = getMetaValue(metaDataStr, key);
+                if (val) return val;
+            }
+            return '';
+        };
+
         // Prepare Data
         const dataRows: any[] = [];
         let rowNum = 1;
@@ -104,9 +121,11 @@ export async function GET(
                 if (cfConfig) row.cf = getMetaValue(item.metaData, cfConfig.fieldKey) || '';
                 if (addressConfig) row.address = getMetaValue(item.metaData, addressConfig.fieldKey) || '';
                 if (capConfig) row.cap = getMetaValue(item.metaData, capConfig.fieldKey) || '';
-                dynamicColumns.forEach(col => {
-                    row.dynamic[col.fieldKey] = getMetaValue(item.metaData, col.fieldKey) || '';
-                });
+
+                // Populate dynamic fields by Label (Consolidated)
+                for (const [label, keys] of consolidatedCols.entries()) {
+                    row.dynamic[label] = getConsolidatedValue(item.metaData, keys);
+                }
 
                 let noteContent = `Ordine #${order.id}`;
                 if (noteConfig) {
@@ -134,9 +153,9 @@ export async function GET(
             if (cfConfig) row.cf = '';
             if (addressConfig) row.address = '';
             if (capConfig) row.cap = '';
-            dynamicColumns.forEach(col => {
-                row.dynamic[col.fieldKey] = '';
-            });
+            for (const [label] of consolidatedCols.entries()) {
+                row.dynamic[label] = '';
+            }
             dataRows.push(row);
         }
 
@@ -152,7 +171,12 @@ export async function GET(
             if (cfConfig) columns.push({ header: 'C.F.', key: 'cf' });
             if (addressConfig) columns.push({ header: 'Indirizzo', key: 'address' });
             if (capConfig) columns.push({ header: 'CAP', key: 'cap' });
-            dynamicColumns.forEach(col => columns.push({ header: col.label, key: col.fieldKey, isDynamic: true }));
+
+            // Add Consolidated Columns
+            for (const [label] of consolidatedCols.entries()) {
+                columns.push({ header: label, key: label, isDynamic: true });
+            }
+
             columns.push({ header: 'Pax', key: 'pax' });
             columns.push({ header: 'Note', key: 'note' });
 
@@ -190,7 +214,11 @@ export async function GET(
         if (cfConfig) headerCols.push({ header: 'C.F.', key: 'cf', width: 18 });
         if (addressConfig) headerCols.push({ header: 'Indirizzo', key: 'address', width: 25 });
         if (capConfig) headerCols.push({ header: 'CAP', key: 'cap', width: 10 });
-        dynamicColumns.forEach(col => headerCols.push({ header: col.label, key: col.fieldKey, width: 20 }));
+
+        for (const [label] of consolidatedCols.entries()) {
+            headerCols.push({ header: label, key: label, width: 20 });
+        }
+
         headerCols.push({ header: 'Pax', key: 'pax', width: 6 });
         headerCols.push({ header: 'Note', key: 'note', width: 25 });
 
@@ -205,7 +233,9 @@ export async function GET(
             if (cfConfig) rowValues.push(d.cf);
             if (addressConfig) rowValues.push(d.address);
             if (capConfig) rowValues.push(d.cap);
-            dynamicColumns.forEach(col => rowValues.push(d.dynamic[col.fieldKey]));
+            for (const [label] of consolidatedCols.entries()) {
+                rowValues.push(d.dynamic[label] || '');
+            }
             rowValues.push(d.pax);
             rowValues.push(d.note);
 
