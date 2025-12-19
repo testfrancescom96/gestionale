@@ -48,20 +48,29 @@ export function ProductBookings({ product, updatedOrderIds = [], onRefresh }: Pr
     const [loadingManual, setLoadingManual] = useState(false);
     const [downloadingList, setDownloadingList] = useState(false);
 
-    // Filter orders that contain this product
-    // Refactored to use nested orderItems -> order relation to avoid global fetch
-    const relevantOrders = product.orderItems
+    // Backwards compatibility mapping for Prisma Order -> Component Order Interface
+    const relevantOrders = (product.orderItems
         ?.map((item: any) => {
             const order = item.order;
             if (!order) return null;
-            // Ensure compatibility with expected Order interface
+
             return {
-                ...order,
-                date_created: order.dateCreated, // Map for compatibility
-                line_items: order.lineItems || [] // Ensure array
+                id: order.id,
+                status: order.status,
+                total: String(order.total || 0),
+                currency_symbol: order.currency || '€',
+                date_created: order.dateCreated ? new Date(order.dateCreated).toISOString() : new Date().toISOString(),
+                dateCreated: order.dateCreated ? new Date(order.dateCreated).toISOString() : new Date().toISOString(),
+                billing: {
+                    first_name: order.billingFirstName || '',
+                    last_name: order.billingLastName || '',
+                    email: order.billingEmail || ''
+                },
+                line_items: order.lineItems || [],
+                manuallyModified: order.manuallyModified
             };
         })
-        .filter((o: any) => o !== null) || [];
+        .filter((o: any) => o !== null) || []) as Order[];
 
     // Load manual bookings
     const loadManualBookings = async () => {
