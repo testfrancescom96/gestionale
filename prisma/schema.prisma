@@ -721,6 +721,7 @@ model WooProduct {
   permalink   String?
   dateCreated DateTime?
   dateModified DateTime?
+  lastWooSync  DateTime? // Timestamp of last update from WooCommerce
   
   // Parsed Data
   eventDate   DateTime? // Parsed from SKU
@@ -775,6 +776,7 @@ model WooOrder {
   manuallyModified Boolean @default(false)
   adminNotes       String? // Note interne operatore
   metaData         String? // JSON string: Tutte le info extra dell'ordine (meta_data)
+  lastWooSync      DateTime? // Timestamp of last update from WooCommerce
   
   // Relations
   lineItems       WooOrderItem[]

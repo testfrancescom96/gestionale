@@ -83,7 +83,9 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental',
                 productType: productType,
                 permalink: p.permalink,
                 dateModified: new Date(p.date_modified),
-                eventDate: eventDate
+                dateModified: new Date(p.date_modified),
+                eventDate: eventDate,
+                lastWooSync: new Date()
             },
             create: {
                 id: p.id,
@@ -95,7 +97,8 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental',
                 permalink: p.permalink,
                 dateCreated: new Date(p.date_created),
                 dateModified: new Date(p.date_modified),
-                eventDate: eventDate
+                eventDate: eventDate,
+                lastWooSync: new Date()
             }
         });
 
@@ -127,7 +130,9 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental',
                         stockQuantity: v.stock_quantity,
                         stockStatus: v.stock_status,
                         attributes: JSON.stringify(v.attributes),
-                        eventDate: eventDate
+                        attributes: JSON.stringify(v.attributes),
+                        eventDate: eventDate,
+                        lastWooSync: new Date()
                     },
                     create: {
                         id: v.id,
@@ -138,7 +143,8 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental',
                         stockQuantity: v.stock_quantity,
                         stockStatus: v.stock_status,
                         attributes: JSON.stringify(v.attributes),
-                        eventDate: eventDate
+                        eventDate: eventDate,
+                        lastWooSync: new Date()
                     }
                 });
                 variationsCount++;
@@ -270,7 +276,9 @@ export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'sm
                 billingAddress: o.billing?.address_1,
                 billingCity: o.billing?.city,
                 metaData: JSON.stringify(o.meta_data || []), // Capture extra fields
-                updatedAt: new Date() // Updates local timestamp
+                metaData: JSON.stringify(o.meta_data || []), // Capture extra fields
+                updatedAt: new Date(), // Updates local timestamp
+                lastWooSync: new Date()
             },
             create: {
                 id: o.id,
@@ -285,6 +293,7 @@ export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'sm
                 billingAddress: o.billing?.address_1,
                 billingCity: o.billing?.city,
                 metaData: JSON.stringify(o.meta_data || []), // Capture extra fields
+                lastWooSync: new Date()
             }
         });
 

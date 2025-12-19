@@ -32,6 +32,7 @@ export function WooDashboard() {
 
     // Preview Modal State
     const [previewTargetId, setPreviewTargetId] = useState<number | null>(null);
+    const [isSyncMenuOpen, setIsSyncMenuOpen] = useState(false);
 
     const handleDownloadClick = (p: any) => {
         setPreviewTargetId(p.id);
@@ -182,15 +183,16 @@ export function WooDashboard() {
         <div className="space-y-6 relative">
             <ExportSettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
 
-            {/* ... (Settings Modal and Header code omitted for brevity in search/replace context if not needed, but here I am inside main return) ... */}
+            {/* Backdrop for closing Dropdown */}
+            {isSyncMenuOpen && (
+                <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsSyncMenuOpen(false)}
+                />
+            )}
 
-            {/* Same Header/Settings Block as before... assuming I don't need to replace it all. 
-                Wait, I am replacing the whole Main Content loop mostly.
-            */}
-
-            {/* Header / Stats - Keeping as is */}
+            {/* Header / Stats */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm border">
-                {/* ... (header content) ... */}
                 <div>
                     <h2 className="text-lg font-bold text-gray-900">Dashboard Eventi</h2>
                     <p className="text-sm text-gray-500">
@@ -209,7 +211,7 @@ export function WooDashboard() {
                         <Settings className="h-5 w-5" />
                     </button>
 
-                    <div className="relative group">
+                    <div className="relative z-50">
                         <div className="flex rounded-md shadow-sm">
                             <button
                                 onClick={() => triggerSync('rapid')}
@@ -217,73 +219,79 @@ export function WooDashboard() {
                                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-l-lg text-sm font-medium transition-colors border-r border-blue-700"
                             >
                                 <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                                {loading ? 'In corso...' : `Aggiorna (Ultimi ${syncLimit})`}
+                                {loading ? 'In corso...' : `Aggiorna Ordini/Prodotti (${syncLimit})`}
                             </button>
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2 rounded-r-lg disabled:opacity-50">
-                                <ChevronDown className="h-4 w-4" />
+                            <button
+                                onClick={() => setIsSyncMenuOpen(!isSyncMenuOpen)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2 rounded-r-lg disabled:opacity-50 transition-colors"
+                            >
+                                <ChevronDown className={`h-4 w-4 transition-transform ${isSyncMenuOpen ? 'rotate-180' : ''}`} />
                             </button>
                         </div>
+
                         {/* Dropdown Menu */}
-                        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-100 hidden group-hover:block z-50 overflow-hidden">
-                            <div className="p-3 bg-gray-50 border-b border-gray-100">
-                                <p className="text-xs text-gray-500 uppercase font-semibold">Opzioni Sincronizzazione</p>
-                            </div>
-
-                            {/* Quick Options */}
-                            <button
-                                onClick={() => { setSyncLimit(100); triggerSync('rapid'); }}
-                                className="w-full text-left px-4 py-3 hover:bg-blue-50 text-sm text-gray-700 border-b"
-                            >
-                                <span className="font-bold block text-blue-700">🔄 Ultimi 100 Ordini</span>
-                                <span className="text-xs text-gray-500">Controlla i 100 ordini più recenti.</span>
-                            </button>
-
-                            <button
-                                onClick={() => { setSyncLimit(200); triggerSync('rapid'); }}
-                                className="w-full text-left px-4 py-3 hover:bg-blue-50 text-sm text-gray-700 border-b"
-                            >
-                                <span className="font-bold block text-blue-700">🔄 Ultimi 200 Ordini</span>
-                                <span className="text-xs text-gray-500">Controlla i 200 ordini più recenti.</span>
-                            </button>
-
-                            {/* Custom Input */}
-                            <div className="px-4 py-3 border-b bg-gray-50">
-                                <p className="text-xs font-semibold text-gray-600 mb-2">📝 Personalizzato:</p>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="number"
-                                        value={syncLimit}
-                                        onChange={(e) => setSyncLimit(parseInt(e.target.value) || 100)}
-                                        className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                                        placeholder="N° ordini"
-                                        min={10}
-                                        max={5000}
-                                    />
-                                    <button
-                                        onClick={() => triggerSync('rapid')}
-                                        className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-blue-700"
-                                    >
-                                        Sync
-                                    </button>
+                        {isSyncMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                <div className="p-3 bg-gray-50 border-b border-gray-100">
+                                    <p className="text-xs text-gray-500 uppercase font-semibold">Opzioni Sincronizzazione</p>
                                 </div>
+
+                                {/* Quick Options */}
+                                <button
+                                    onClick={() => { setSyncLimit(100); triggerSync('rapid'); setIsSyncMenuOpen(false); }}
+                                    className="w-full text-left px-4 py-3 hover:bg-blue-50 text-sm text-gray-700 border-b transition-colors"
+                                >
+                                    <span className="font-bold block text-blue-700">🔄 Ultimi 100 Ordini</span>
+                                    <span className="text-xs text-gray-500">Controlla i 100 ordini più recenti.</span>
+                                </button>
+
+                                <button
+                                    onClick={() => { setSyncLimit(200); triggerSync('rapid'); setIsSyncMenuOpen(false); }}
+                                    className="w-full text-left px-4 py-3 hover:bg-blue-50 text-sm text-gray-700 border-b transition-colors"
+                                >
+                                    <span className="font-bold block text-blue-700">🔄 Ultimi 200 Ordini</span>
+                                    <span className="text-xs text-gray-500">Controlla i 200 ordini più recenti.</span>
+                                </button>
+
+                                {/* Custom Input */}
+                                <div className="px-4 py-3 border-b bg-gray-50">
+                                    <p className="text-xs font-semibold text-gray-600 mb-2">📝 Personalizzato:</p>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="number"
+                                            value={syncLimit}
+                                            onChange={(e) => setSyncLimit(parseInt(e.target.value) || 100)}
+                                            className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                            placeholder="N° ordini"
+                                            min={10}
+                                            max={5000}
+                                        />
+                                        <button
+                                            onClick={() => { triggerSync('rapid'); setIsSyncMenuOpen(false); }}
+                                            className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-blue-700"
+                                        >
+                                            Sync
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => { triggerSync('days30'); setIsSyncMenuOpen(false); }}
+                                    className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b transition-colors"
+                                >
+                                    <span className="font-bold block">📅 Ultimi 30 Giorni</span>
+                                    <span className="text-xs text-gray-500">Ricarica tutto il mese corrente.</span>
+                                </button>
+
+                                <button
+                                    onClick={() => { triggerSync('full'); setIsSyncMenuOpen(false); }}
+                                    className="w-full text-left px-4 py-3 hover:bg-red-50 text-sm text-gray-700 transition-colors"
+                                >
+                                    <span className="font-bold block text-red-600">⚠️ Completa (Tutto)</span>
+                                    <span className="text-xs text-gray-500">Lento. Scarica l'intero database.</span>
+                                </button>
                             </div>
-
-                            <button
-                                onClick={() => triggerSync('days30')}
-                                className="w-full text-left px-4 py-3 hover:bg-gray-50 text-sm text-gray-700 border-b"
-                            >
-                                <span className="font-bold block">📅 Ultimi 30 Giorni</span>
-                                <span className="text-xs text-gray-500">Ricarica tutto il mese corrente.</span>
-                            </button>
-
-                            <button
-                                onClick={() => triggerSync('full')}
-                                className="w-full text-left px-4 py-3 hover:bg-red-50 text-sm text-gray-700"
-                            >
-                                <span className="font-bold block text-red-600">⚠️ Completa (Tutto)</span>
-                                <span className="text-xs text-gray-500">Lento. Scarica l'intero database.</span>
-                            </button>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -345,7 +353,6 @@ export function WooDashboard() {
                     </div>
                 )}
 
-                {/* ... existing undated ... */}
                 {/* Undated Products */}
                 {groupedEvents.undated.length > 0 && (
                     <div className="mt-8 pt-8 border-t">
@@ -370,4 +377,3 @@ export function WooDashboard() {
             </div>
         </div>
     );
-}
