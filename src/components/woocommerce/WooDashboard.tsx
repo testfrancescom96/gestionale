@@ -15,7 +15,7 @@ export function WooDashboard() {
     const highlightId = searchParams.get("highlight") ? parseInt(searchParams.get("highlight")!) : null;
 
     const [products, setProducts] = useState<any[]>([]);
-    const [orders, setOrders] = useState<any[]>([]);
+    // Orders state removed for performance - using nested orderItems
     const [loading, setLoading] = useState(true);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [groupedEvents, setGroupedEvents] = useState<{ years: YearGroup[], undated: any[] }>({ years: [], undated: [] });
@@ -65,22 +65,13 @@ export function WooDashboard() {
         if (products.length === 0) setLoading(true);
 
         try {
-            const [prodRes, ordRes] = await Promise.all([
-                fetch("/api/woocommerce/products"),
-                fetch("/api/woocommerce/orders")
-            ]);
-
+            const prodRes = await fetch("/api/woocommerce/products");
             const prodData = await prodRes.json();
-            const ordData = await ordRes.json();
 
             if (prodData.products) {
                 setProducts(prodData.products);
                 const groups = groupProductsByDate(prodData.products);
                 setGroupedEvents(groups);
-            }
-
-            if (ordData.orders) {
-                setOrders(ordData.orders);
             }
 
             setLastUpdated(new Date());
@@ -335,7 +326,6 @@ export function WooDashboard() {
                                             <EventGroup
                                                 key={`${group.year}-${group.month}`}
                                                 data={group}
-                                                orders={orders}
                                                 updatedOrderIds={updatedOrderIds}
                                                 onRefresh={loadLocalData}
                                                 onDownload={handleDownloadClick}

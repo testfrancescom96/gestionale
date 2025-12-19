@@ -11,14 +11,13 @@ import { TripWorkflowModal } from "./TripWorkflowModal";
 
 interface EventGroupProps {
     data: GroupedEvent;
-    orders: any[];
     updatedOrderIds?: number[];
     highlightId?: number | null;
     onRefresh?: () => void;
     onDownload?: (product: any) => void;
 }
 
-export function EventGroup({ data, orders, updatedOrderIds, highlightId, onRefresh, onDownload }: EventGroupProps) {
+export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDownload }: EventGroupProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [expandedProducts, setExpandedProducts] = useState<Record<number, boolean>>({});
     const [editingProduct, setEditingProduct] = useState<any | null>(null);
@@ -234,7 +233,6 @@ export function EventGroup({ data, orders, updatedOrderIds, highlightId, onRefre
                                         <div className="mt-4 pt-4 border-t border-gray-100">
                                             <ProductBookings
                                                 product={product}
-                                                orders={orders}
                                                 updatedOrderIds={updatedOrderIds}
                                                 onRefresh={onRefresh}
                                             />

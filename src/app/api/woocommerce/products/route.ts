@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
                 orderItems: {
                     include: {
                         order: {
-                            select: {
-                                manuallyModified: true
+                            include: {
+                                lineItems: true // Include siblings if needed, or just for structure
                             }
                         }
                     }

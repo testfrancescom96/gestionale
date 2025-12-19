@@ -36,12 +36,11 @@ interface ManualBooking {
 
 interface ProductBookingsProps {
     product: any;
-    orders: Order[];
     updatedOrderIds?: number[];
     onRefresh?: () => void;
 }
 
-export function ProductBookings({ product, orders, updatedOrderIds = [], onRefresh }: ProductBookingsProps) {
+export function ProductBookings({ product, updatedOrderIds = [], onRefresh }: ProductBookingsProps) {
     const [syncingId, setSyncingId] = useState<number | null>(null);
     const [editingOrder, setEditingOrder] = useState<Order | null>(null);
     const [showManualModal, setShowManualModal] = useState(false);
@@ -50,9 +49,19 @@ export function ProductBookings({ product, orders, updatedOrderIds = [], onRefre
     const [downloadingList, setDownloadingList] = useState(false);
 
     // Filter orders that contain this product
-    const relevantOrders = orders.filter(o =>
-        o.line_items.some((item: any) => item.product_id === product.id)
-    );
+    // Refactored to use nested orderItems -> order relation to avoid global fetch
+    const relevantOrders = product.orderItems
+        ?.map((item: any) => {
+            const order = item.order;
+            if (!order) return null;
+            // Ensure compatibility with expected Order interface
+            return {
+                ...order,
+                date_created: order.dateCreated, // Map for compatibility
+                line_items: order.lineItems || [] // Ensure array
+            };
+        })
+        .filter((o: any) => o !== null) || [];
 
     // Load manual bookings
     const loadManualBookings = async () => {
