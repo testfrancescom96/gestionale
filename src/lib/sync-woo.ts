@@ -129,8 +129,7 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental',
                         stockQuantity: v.stock_quantity,
                         stockStatus: v.stock_status,
                         attributes: JSON.stringify(v.attributes),
-                        eventDate: eventDate,
-                        lastWooSync: new Date()
+                        eventDate: eventDate
                     },
                     create: {
                         id: v.id,
@@ -141,8 +140,7 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental',
                         stockQuantity: v.stock_quantity,
                         stockStatus: v.stock_status,
                         attributes: JSON.stringify(v.attributes),
-                        eventDate: eventDate,
-                        lastWooSync: new Date()
+                        eventDate: eventDate
                     }
                 });
                 variationsCount++;
