@@ -167,20 +167,10 @@ export function WooDashboard() {
             params.set("order_mode", "rapid"); // Or 'days' if we implemented it, but passing 'date' overrides
             params.set("mode", "incremental");
             params.set("limit", "1000"); // Safe high limit for month
-        } else if (type === 'custom_limit') {
-            // Legacy Limit Mode
-            params.set("limit", syncLimit.toString());
-            params.set("order_mode", "rapid");
-            params.set("mode", "incremental");
         } else if (type === 'full') {
             params.set("limit", "10000");
             params.set("order_mode", "full");
             params.set("mode", "full");
-        } else if (type === 'days30') {
-            // Fallback to exactly 30 days
-            params.set("days", "30");
-            params.set("order_mode", "days");
-            params.set("mode", "incremental");
         }
 
 
