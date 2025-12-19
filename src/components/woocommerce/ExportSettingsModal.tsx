@@ -125,6 +125,15 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
                             {scanLimit > 100 ? 'Deep Scan Attivo' : 'Cerca in tutti gli ordini'}
                         </button>
+                        <a
+                            href="/api/woocommerce/config/analyze"
+                            target="_blank"
+                            download
+                            className="text-xs flex items-center gap-1 px-3 py-1.5 bg-green-50 border border-green-200 rounded hover:bg-green-100 text-green-700 transition-colors"
+                            title="Scarica un CSV con l'elenco di TUTTI i campi trovati nel database"
+                        >
+                            <span className="font-bold">CSV</span> Scarica Report Campi
+                        </a>
                         <div className="h-6 w-px bg-gray-300 mx-1"></div>
                         <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
                             <X className="h-5 w-5 text-gray-500" />
@@ -210,8 +219,8 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                             {/* List */}
                             <div className="bg-white border rounded-lg shadow-sm divide-y">
                                 <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 text-xs font-bold text-gray-500 uppercase">
-                                    <div className="col-span-4">Etichetta / Chiave</div>
-                                    <div className="col-span-4 text-center">Tipo Mappatura</div>
+                                    <div className="col-span-4">Nome Colonna (Modificabile) / Chiave Woo</div>
+                                    <div className="col-span-4 text-center">Tipo Dato</div>
                                     <div className="col-span-2 text-center">Visibilità</div>
                                     <div className="col-span-2 text-right">Stato</div>
                                 </div>
@@ -229,9 +238,12 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                                                     setFields(newFields);
                                                 }}
                                                 onBlur={() => handleSave(field)}
-                                                className="block w-full text-sm font-medium text-gray-900 border-none bg-transparent p-0 focus:ring-0 placeholder-gray-400"
+                                                className="block w-full text-sm font-bold text-gray-900 border border-gray-200 rounded px-2 py-1 bg-white hover:border-blue-300 focus:ring-1 focus:ring-blue-500 mb-1"
+                                                placeholder="Nome colonna export"
                                             />
-                                            <div className="text-xs text-gray-400 font-mono truncate" title={field.fieldKey}>{field.fieldKey}</div>
+                                            <div className="text-[10px] text-gray-400 font-mono truncate px-1 flex items-center gap-1">
+                                                <span className="font-semibold text-gray-300">KEY:</span> {field.fieldKey}
+                                            </div>
                                         </div>
 
                                         {/* Mapping Type */}
@@ -247,12 +259,12 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                                                     ${field.mappingType === 'HIDDEN' ? 'bg-gray-100 text-gray-400' : ''}
                                                 `}
                                             >
-                                                <option value="COLUMN">Colonna Standard</option>
-                                                <option value="PARTENZA">📍 Punto Partenza</option>
-                                                <option value="CF">🆔 Codice Fiscale</option>
-                                                <option value="ADDRESS">🏠 Indirizzo</option>
-                                                <option value="NOTE">📝 Note</option>
-                                                <option value="HIDDEN">🚫 Nascosto</option>
+                                                <option value="COLUMN">Standard (Testo Semplice)</option>
+                                                <option value="PARTENZA">📍 Punto Partenza (Estratto)</option>
+                                                <option value="CF">🆔 Codice Fiscale (Smart)</option>
+                                                <option value="ADDRESS">🏠 Indirizzo (Smart)</option>
+                                                <option value="NOTE">📝 Note (Smart)</option>
+                                                <option value="HIDDEN">🚫 Nascosto (Ignora)</option>
                                             </select>
                                         </div>
 
