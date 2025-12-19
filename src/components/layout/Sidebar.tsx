@@ -42,7 +42,7 @@ const navSections = [
         items: [
             { name: "Clienti", href: "/clienti", icon: Users },
             { name: "Fornitori", href: "/fornitori", icon: Building2 },
-            { name: "Vettori / Bus", href: "/vettori", icon: Bus },
+            { name: "Noleggi Bus", href: "/vettori", icon: Bus },
         ]
     },
     {
