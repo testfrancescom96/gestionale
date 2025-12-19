@@ -83,7 +83,6 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental',
                 productType: productType,
                 permalink: p.permalink,
                 dateModified: new Date(p.date_modified),
-                dateModified: new Date(p.date_modified),
                 eventDate: eventDate,
                 lastWooSync: new Date()
             },
@@ -129,7 +128,6 @@ export async function syncProducts(mode: 'full' | 'incremental' = 'incremental',
                         price: parseFloat(v.price || "0"),
                         stockQuantity: v.stock_quantity,
                         stockStatus: v.stock_status,
-                        attributes: JSON.stringify(v.attributes),
                         attributes: JSON.stringify(v.attributes),
                         eventDate: eventDate,
                         lastWooSync: new Date()
@@ -275,7 +273,6 @@ export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'sm
                 billingPhone: o.billing?.phone,
                 billingAddress: o.billing?.address_1,
                 billingCity: o.billing?.city,
-                metaData: JSON.stringify(o.meta_data || []), // Capture extra fields
                 metaData: JSON.stringify(o.meta_data || []), // Capture extra fields
                 updatedAt: new Date(), // Updates local timestamp
                 lastWooSync: new Date()
