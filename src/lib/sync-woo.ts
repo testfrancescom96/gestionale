@@ -397,5 +397,46 @@ export async function syncOrders(
         }
     }
 
+    // Auto-detect and save new fields from order metaData
+    if (orders.length > 0) {
+        try {
+            const detectedFields = new Map<string, string>(); // key -> displayLabel
+
+            for (const o of orders) {
+                for (const item of o.line_items || []) {
+                    const metaData = item.meta_data || [];
+                    for (const field of metaData) {
+                        const key = field.key || field.display_key;
+                        const label = field.display_key || field.key || key;
+
+                        // Skip internal WooCommerce fields starting with _
+                        if (key && !key.startsWith('_') && !detectedFields.has(key)) {
+                            detectedFields.set(key, label);
+                        }
+                    }
+                }
+            }
+
+            // Upsert detected fields into WooExportConfig
+            for (const [fieldKey, label] of detectedFields) {
+                await prisma.wooExportConfig.upsert({
+                    where: { fieldKey: fieldKey },
+                    update: {}, // Don't overwrite existing config
+                    create: {
+                        fieldKey: fieldKey,
+                        label: label,
+                        mappingType: "COLUMN" // Default visible
+                    }
+                });
+            }
+
+            if (detectedFields.size > 0) {
+                console.log(`Auto-detected ${detectedFields.size} fields from orders`);
+            }
+        } catch (e) {
+            console.error("Failed to auto-detect fields", e);
+        }
+    }
+
     return res;
 }

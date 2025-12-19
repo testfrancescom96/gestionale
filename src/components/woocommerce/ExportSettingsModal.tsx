@@ -17,7 +17,6 @@ interface Props {
 export function ExportSettingsModal({ isOpen, onClose }: Props) {
     const [fields, setFields] = useState<FieldConfig[]>([]);
     const [loading, setLoading] = useState(true);
-    const [scanLimit, setScanLimit] = useState(100);
     const [saving, setSaving] = useState<string | null>(null);
 
     // Filters
@@ -31,10 +30,10 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
         if (isOpen) fetchFields();
     }, [isOpen]);
 
-    const fetchFields = async (limit: number = 100) => {
+    const fetchFields = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/woocommerce/config/fields?limit=${limit}`);
+            const res = await fetch(`/api/woocommerce/config/fields`);
             const data = await res.json();
             setFields(data);
         } catch (error) {
@@ -42,11 +41,6 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleDeepScan = () => {
-        setScanLimit(1000);
-        fetchFields(1000);
     };
 
     const handleManualAdd = async () => {
@@ -114,17 +108,12 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                             Gestione Campi e Colonne
                         </h2>
                         <p className="text-sm text-gray-500">Configura quali dati includere nel foglio Excel e nell'anteprima.</p>
+                        <p className="text-xs text-blue-600 mt-1 flex items-center gap-1">
+                            <RefreshCw className="h-3 w-3" />
+                            I campi si aggiornano automaticamente durante la sincronizzazione prodotti/ordini
+                        </p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button
-                            onClick={handleDeepScan}
-                            disabled={loading || scanLimit > 100}
-                            className="text-xs flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-300 rounded hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-50"
-                            title="Scansiona gli ultimi 1000 ordini per trovare campi rari"
-                        >
-                            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
-                            {scanLimit > 100 ? 'Deep Scan Attivo' : 'Cerca in tutti gli ordini'}
-                        </button>
                         <a
                             href="/api/woocommerce/config/analyze"
                             target="_blank"
@@ -132,7 +121,7 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                             className="text-xs flex items-center gap-1 px-3 py-1.5 bg-green-50 border border-green-200 rounded hover:bg-green-100 text-green-700 transition-colors"
                             title="Scarica un CSV con l'elenco di TUTTI i campi trovati nel database"
                         >
-                            <span className="font-bold">CSV</span> Scarica Report Campi
+                            <span className="font-bold">CSV</span> Report Campi
                         </a>
                         <div className="h-6 w-px bg-gray-300 mx-1"></div>
                         <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
