@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Building2 } from "lucide-react";
+import { Users, Building2, Bus } from "lucide-react";
 
 export function AnagraficheTabs() {
     const pathname = usePathname();
@@ -10,6 +10,7 @@ export function AnagraficheTabs() {
     const tabs = [
         { name: "Clienti", href: "/clienti", icon: Users },
         { name: "Fornitori", href: "/fornitori", icon: Building2 },
+        { name: "Vettori", href: "/anagrafiche/vettori", icon: Bus },
     ];
 
     return (
