@@ -42,19 +42,43 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
     const fetchInitialData = async () => {
         setLoading(true);
         try {
-            // 1. Fetch Config Fields
+            // 1. Fetch global config for visibility settings
             const configRes = await fetch("/api/woocommerce/config/fields");
-            const fieldsConfig = await configRes.json();
+            const globalConfig = await configRes.json();
 
-            // Filter fields
-            const relevantFields = fieldsConfig.filter((f: any) => f.mappingType !== 'HIDDEN');
+            // Create a map of hidden keys
+            const hiddenKeys = new Set(
+                globalConfig
+                    .filter((f: any) => f.mappingType === 'HIDDEN')
+                    .map((f: any) => f.fieldKey)
+            );
+
+            // Create a map of key -> label from global config
+            const keyLabelMap = new Map<string, string>();
+            globalConfig.forEach((f: any) => {
+                keyLabelMap.set(f.fieldKey, f.label);
+            });
+
+            // 2. Fetch fields actually present in THIS product's orders
+            const productFieldsRes = await fetch(`/api/woocommerce/products/${productId}/fields`);
+            const productFields = await productFieldsRes.json();
+
+            // 3. Filter: only show fields that exist in this product AND are not hidden
+            const relevantFields = productFields
+                .filter((f: any) => !hiddenKeys.has(f.fieldKey))
+                .map((f: any) => ({
+                    ...f,
+                    // Use global label if exists, otherwise use discovered label
+                    label: keyLabelMap.get(f.fieldKey) || f.label || f.fieldKey
+                }));
+
             setAvailableFields(relevantFields);
 
             // Default: Select all relevant fields
             const initialSelection = new Set<string>(relevantFields.map((f: any) => String(f.fieldKey)));
             setSelectedFields(initialSelection);
 
-            // 2. Fetch Preview with all fields
+            // 4. Fetch Preview with all fields
             await fetchPreview(initialSelection);
 
         } catch (error) {
