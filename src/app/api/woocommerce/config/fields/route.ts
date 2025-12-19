@@ -21,18 +21,25 @@ export async function GET() {
 
         const foundKeys = new Set<string>();
 
-        recentItems.forEach(item => {
-            if (!item.metaData) return;
+
+
+        // 3. Scan distinct keys from WooOrder metaData (Order Level Fields)
+        const recentOrders = await prisma.wooOrder.findMany({
+            take: 100,
+            where: { metaData: { not: null } },
+            orderBy: { id: 'desc' },
+            select: { metaData: true }
+        });
+
+        const processMeta = (metaStr: string | null) => {
+            if (!metaStr) return;
             try {
-                const meta = JSON.parse(item.metaData);
+                const meta = JSON.parse(metaStr);
                 if (Array.isArray(meta)) {
                     meta.forEach((m: any) => {
                         const key = m.key || m.display_key;
-                        const label = m.display_key || m.key; // Use display key as label hint
+                        const label = m.display_key || m.key;
                         if (key) {
-                            // Logic to determine relevance. 
-                            // Standard Woo usage: public keys don't start with _.
-                            // But Fiscal fields often do (e.g. _billing_cf).
                             const isInternal = key.startsWith('_');
                             const isRelevantInternal = isInternal && (
                                 key.startsWith('_billing_') ||
@@ -49,7 +56,10 @@ export async function GET() {
                     });
                 }
             } catch (e) { }
-        });
+        };
+
+        recentItems.forEach(item => processMeta(item.metaData));
+        recentOrders.forEach(order => processMeta(order.metaData));
 
 
 

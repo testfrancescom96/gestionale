@@ -269,6 +269,7 @@ export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'sm
                 billingPhone: o.billing?.phone,
                 billingAddress: o.billing?.address_1,
                 billingCity: o.billing?.city,
+                metaData: JSON.stringify(o.meta_data || []), // Capture extra fields
                 updatedAt: new Date() // Updates local timestamp
             },
             create: {
@@ -283,6 +284,7 @@ export async function syncOrders(mode: 'rapid' | 'full' | 'smart' | 'days' = 'sm
                 billingPhone: o.billing?.phone,
                 billingAddress: o.billing?.address_1,
                 billingCity: o.billing?.city,
+                metaData: JSON.stringify(o.meta_data || []), // Capture extra fields
             }
         });
 

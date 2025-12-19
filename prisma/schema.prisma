@@ -774,6 +774,7 @@ model WooOrder {
   
   manuallyModified Boolean @default(false)
   adminNotes       String? // Note interne operatore
+  metaData         String? // JSON string: Tutte le info extra dell'ordine (meta_data)
   
   // Relations
   lineItems       WooOrderItem[]
