@@ -208,17 +208,17 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                             {/* List */}
                             <div className="bg-white border rounded-lg shadow-sm divide-y">
                                 <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 text-xs font-bold text-gray-500 uppercase">
-                                    <div className="col-span-4">Nome Colonna (Modificabile) / Chiave Woo</div>
-                                    <div className="col-span-4 text-center">Tipo Dato</div>
+                                    <div className="col-span-5">Nome Colonna / Chiave Woo</div>
+                                    <div className="col-span-4">Alias (Unisci con altra chiave)</div>
                                     <div className="col-span-2 text-center">Visibilità</div>
-                                    <div className="col-span-2 text-right">Stato</div>
+                                    <div className="col-span-1 text-right">Stato</div>
                                 </div>
 
                                 {filteredFields.map((field) => (
                                     <div key={field.fieldKey} className="grid grid-cols-12 gap-4 items-center px-4 py-3 hover:bg-gray-50 transition-colors">
 
                                         {/* Name & Key */}
-                                        <div className="col-span-4 overflow-hidden">
+                                        <div className="col-span-5 overflow-hidden">
                                             <input
                                                 type="text"
                                                 value={field.label}
@@ -235,26 +235,20 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                                             </div>
                                         </div>
 
-                                        {/* Mapping Type */}
+                                        {/* Alias Field - for merging duplicate keys */}
                                         <div className="col-span-4">
-                                            <select
-                                                value={field.mappingType}
-                                                onChange={(e) => handleSave({ ...field, mappingType: e.target.value })}
-                                                className={`
-                                                    w-full text-xs py-1.5 pl-2 pr-6 border-gray-200 rounded-md
-                                                    focus:border-blue-500 focus:ring-1 focus:ring-blue-500
-                                                    ${field.mappingType === 'PARTENZA' ? 'bg-blue-50 text-blue-700 font-bold border-blue-200' : ''}
-                                                    ${field.mappingType === 'CF' ? 'bg-purple-50 text-purple-700 font-bold border-purple-200' : ''}
-                                                    ${field.mappingType === 'HIDDEN' ? 'bg-gray-100 text-gray-400' : ''}
-                                                `}
-                                            >
-                                                <option value="COLUMN">Standard (Testo Semplice)</option>
-                                                <option value="PARTENZA">📍 Punto Partenza (Estratto)</option>
-                                                <option value="CF">🆔 Codice Fiscale (Smart)</option>
-                                                <option value="ADDRESS">🏠 Indirizzo (Smart)</option>
-                                                <option value="NOTE">📝 Note (Smart)</option>
-                                                <option value="HIDDEN">🚫 Nascosto (Ignora)</option>
-                                            </select>
+                                            <input
+                                                type="text"
+                                                value={(field as any).aliasOf || ""}
+                                                onChange={(e) => {
+                                                    const newFields = fields.map(f => f.fieldKey === field.fieldKey ? { ...f, aliasOf: e.target.value } : f);
+                                                    setFields(newFields as any);
+                                                }}
+                                                onBlur={() => handleSave({ ...field, aliasOf: (field as any).aliasOf } as any)}
+                                                className="block w-full text-xs text-gray-600 border border-gray-200 rounded px-2 py-1.5 bg-gray-50 hover:border-blue-300 focus:ring-1 focus:ring-blue-500"
+                                                placeholder="Es: pa_fermata (se duplicato)"
+                                                title="Se questo campo è uguale a un altro, scrivi qui la chiave principale"
+                                            />
                                         </div>
 
                                         {/* Visibility Toggle */}
@@ -271,15 +265,13 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                                         </div>
 
                                         {/* Status */}
-                                        <div className="col-span-2 text-right">
+                                        <div className="col-span-1 text-right">
                                             {saving === field.fieldKey ? (
                                                 <Loader2 className="h-4 w-4 animate-spin text-gray-400 ml-auto" />
                                             ) : field.isSaved ? (
-                                                <span className="text-green-600 text-[10px] font-bold uppercase tracking-wider bg-green-50 px-2 py-0.5 rounded-full border border-green-100">
-                                                    Salvato
-                                                </span>
+                                                <span className="text-green-600 text-[10px] font-bold">✓</span>
                                             ) : (
-                                                <span className="text-gray-400 text-[10px]">Rilevato automatically</span>
+                                                <span className="text-gray-300 text-[10px]">•</span>
                                             )}
                                         </div>
                                     </div>
