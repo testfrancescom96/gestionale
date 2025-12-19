@@ -74,11 +74,33 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
 
             setAvailableFields(relevantFields);
 
-            // Default: Select all relevant fields
-            const initialSelection = new Set<string>(relevantFields.map((f: any) => String(f.fieldKey)));
+            // Default: Select only PRIMARY fields (not all)
+            const primaryKeyPatterns = [
+                'nome', 'cognome', 'name', 'surname',
+                'telefono', 'phone', 'tel',
+                'partenza', 'fermata', 'ritiro', 'service_partenza',
+                '_order_id', '_billing_name', '_billing_phone', '_quantity'
+            ];
+
+            const isPrimaryField = (key: string) => {
+                const lowerKey = key.toLowerCase();
+                return primaryKeyPatterns.some(pattern => lowerKey.includes(pattern));
+            };
+
+            const initialSelection = new Set<string>(
+                relevantFields
+                    .filter((f: any) => isPrimaryField(f.fieldKey))
+                    .map((f: any) => String(f.fieldKey))
+            );
+
+            // If no primary fields found, select first 5 fields
+            if (initialSelection.size === 0 && relevantFields.length > 0) {
+                relevantFields.slice(0, 5).forEach((f: any) => initialSelection.add(String(f.fieldKey)));
+            }
+
             setSelectedFields(initialSelection);
 
-            // 4. Fetch Preview with all fields
+            // 4. Fetch Preview with selected fields only
             await fetchPreview(initialSelection);
 
         } catch (error) {
