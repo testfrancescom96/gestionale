@@ -199,21 +199,33 @@ export async function syncOrders(
         }
         orders = await fetchAllWooOrders(params, onProgress);
     } else if (options.mode === 'smart') {
-        // Smart Sync: Fetch only what changed since last update
-        const lastOrder = await prisma.wooOrder.findFirst({
-            orderBy: { updatedAt: 'desc' }
-        });
-        // Rapid (by limit)
-        const value = options.limit || 10; // Assuming 'limit' is the value for rapid mode
+        // Smart Sync: Fetch only orders modified since last successful sync
+        const settings = await prisma.systemSettings.findFirst({ where: { id: 1 } });
+        const lastSync = settings?.lastOrderSyncAt;
+
+        if (lastSync) {
+            // Use WooCommerce 'modified_after' parameter for true incremental sync
+            params.set('modified_after', lastSync.toISOString());
+            if (onProgress) onProgress(`Sync intelligente: modifiche dal ${lastSync.toLocaleString()}...`);
+        } else {
+            // First time: sync last 7 days
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            params.set('after', weekAgo.toISOString());
+            if (onProgress) onProgress("Prima sync: ultimi 7 giorni...");
+        }
+
+        orders = await fetchAllWooOrders(params, onProgress);
+    } else {
+        // Rapid (by limit) - DEPRECATED but kept for compatibility
+        const value = options.limit || 100;
         if (onProgress) onProgress(`Recupero ultimi ${value} ordini...`);
 
-        // Fix: WooCommerce max per_page is 100. If we want more, we must paginate.
         if (value <= 100) {
             params.set("per_page", value.toString());
             const res = await fetchWooOrders(params);
             orders = res.orders;
         } else {
-            // value > 100, we need to loop
             let remaining = value;
             let page = 1;
 
@@ -232,10 +244,7 @@ export async function syncOrders(
                     remaining -= res.orders.length;
                     page++;
 
-                    // If we got fewer than asked, we reached end of list
                     if (res.orders.length < batchSize) break;
-
-                    // Small delay to be gentle
                     await new Promise(r => setTimeout(r, 200));
 
                 } catch (e) {
@@ -372,6 +381,19 @@ export async function syncOrders(
             });
         } catch (e) {
             console.error("Failed to update lastBookingAt", e);
+        }
+    }
+
+    // Update lastOrderSyncAt for smart sync mode
+    if (options.mode === 'smart' && count > 0) {
+        try {
+            await prisma.systemSettings.upsert({
+                where: { id: 1 },
+                update: { lastOrderSyncAt: new Date() },
+                create: { id: 1, lastOrderSyncAt: new Date() }
+            });
+        } catch (e) {
+            console.error("Failed to update lastOrderSyncAt", e);
         }
     }
 

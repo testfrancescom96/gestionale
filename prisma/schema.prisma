@@ -861,6 +861,7 @@ model SystemSettings {
   
   // Sync Settings
   wooSyncIntervalMinutes Int      @default(60)
+  lastOrderSyncAt        DateTime? // Timestamp of last successful order sync
   
   updatedAt             DateTime  @updatedAt
 }
