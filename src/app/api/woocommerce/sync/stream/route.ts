@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const mode = searchParams.get("mode") || "incremental"; // for products
     const limit = parseInt(searchParams.get("limit") || "50");
     const days = searchParams.get("days") ? parseInt(searchParams.get("days")!) : null;
+    const date = searchParams.get("date");
 
     const encoder = new TextEncoder();
 
@@ -29,7 +30,10 @@ export async function GET(request: NextRequest) {
                 if (type === 'products' || type === 'all') {
                     sendEvent({ status: 'info', message: "Inizio sincronizzazione Prodotti..." });
                     // @ts-ignore
-                    const res = await syncProducts(mode as any, onProgress);
+                    const res = await syncProducts({
+                        mode: mode as any,
+                        after: date ? new Date(date) : undefined
+                    }, onProgress);
                     result.products = res.count;
                 }
 
@@ -58,7 +62,12 @@ export async function GET(request: NextRequest) {
                     }
 
                     // @ts-ignore
-                    const res = await syncOrders(orderMode, value, onProgress);
+                    const res = await syncOrders({
+                        mode: orderMode as any,
+                        limit: value,
+                        days: value,
+                        after: date ? new Date(date) : undefined
+                    }, onProgress);
                     result.orders = res.count;
                     result.updatedIds = res.updatedIds;
                 }

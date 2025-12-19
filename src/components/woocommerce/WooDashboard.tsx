@@ -94,13 +94,7 @@ export function WooDashboard() {
 
     const [progressMsg, setProgressMsg] = useState("");
 
-    const triggerSync = async (type: 'smart' | 'rapid' | 'full' | 'days30' | 'days90') => {
-        // ... same sync logic ...
-        setLoading(true);
-        // ... rest of sync implementation
-        // Simplified for brevity in replace block - ensuring existing code remains valid
-
-        // RE-INSERTING ORIGINAL SYNC LOGIC TO AVOID BREAKING
+    const triggerSync = async (type: 'smart' | 'rapid' | 'full' | 'days30' | 'custom_limit') => {
         setLoading(true);
         setProgressMsg("Avvio connessione...");
         setUpdatedOrderIds([]);
@@ -112,6 +106,15 @@ export function WooDashboard() {
             params.set("order_mode", "smart");
             params.set("mode", "incremental");
         } else if (type === 'rapid') {
+            // Default "Recent" sync: Start of current month
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            params.set("date", startOfMonth.toISOString());
+            params.set("order_mode", "rapid"); // Or 'days' if we implemented it, but passing 'date' overrides
+            params.set("mode", "incremental");
+            params.set("limit", "1000"); // Safe high limit for month
+        } else if (type === 'custom_limit') {
+            // Legacy Limit Mode
             params.set("limit", syncLimit.toString());
             params.set("order_mode", "rapid");
             params.set("mode", "incremental");
@@ -120,6 +123,7 @@ export function WooDashboard() {
             params.set("order_mode", "full");
             params.set("mode", "full");
         } else if (type === 'days30') {
+            // Fallback to exactly 30 days
             params.set("days", "30");
             params.set("order_mode", "days");
             params.set("mode", "incremental");
@@ -141,7 +145,7 @@ export function WooDashboard() {
                         setUpdatedOrderIds(data.result.updatedIds);
                         const count = data.result.updatedIds.length;
                         if (count > 0) alert(`Sincronizzazione completata! ${count} ordini aggiornati.`);
-                        else alert(`Sincronizzazione completata! Nessuna modifica rilevata negli ultimi ${syncLimit} ordini.`);
+                        else alert(`Sincronizzazione completata! Nessuna modifica rilevata.`);
                     } else {
                         alert("Sincronizzazione completata!");
                     }
@@ -210,7 +214,7 @@ export function WooDashboard() {
                                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-l-lg text-sm font-medium transition-colors border-r border-blue-700"
                             >
                                 <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                                {loading ? 'In corso...' : `Aggiorna Ordini/Prodotti (${syncLimit})`}
+                                {loading ? 'In corso...' : `Aggiorna Recenti (Mese Corrente)`}
                             </button>
                             <button
                                 onClick={() => setIsSyncMenuOpen(!isSyncMenuOpen)}
@@ -244,9 +248,16 @@ export function WooDashboard() {
                                     <span className="text-xs text-gray-500">Controlla i 200 ordini più recenti.</span>
                                 </button>
 
-                                {/* Custom Input */}
+                                <button
+                                    onClick={() => { triggerSync('rapid'); setIsSyncMenuOpen(false); }}
+                                    className="w-full text-left px-4 py-3 hover:bg-green-50 text-sm text-gray-700 border-b transition-colors bg-green-50/50"
+                                >
+                                    <span className="font-bold block text-green-700">📅 Mese Corrente (Smart)</span>
+                                    <span className="text-xs text-gray-500">Scarica modifiche dal 1° del mese.</span>
+                                </button>
+
                                 <div className="px-4 py-3 border-b bg-gray-50">
-                                    <p className="text-xs font-semibold text-gray-600 mb-2">📝 Personalizzato:</p>
+                                    <p className="text-xs font-semibold text-gray-600 mb-2">📝 Personalizzato (Ultimi N):</p>
                                     <div className="flex gap-2">
                                         <input
                                             type="number"
@@ -258,7 +269,10 @@ export function WooDashboard() {
                                             max={5000}
                                         />
                                         <button
-                                            onClick={() => { triggerSync('rapid'); setIsSyncMenuOpen(false); }}
+                                            onClick={() => {
+                                                triggerSync('custom_limit');
+                                                setIsSyncMenuOpen(false);
+                                            }}
                                             className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-blue-700"
                                         >
                                             Sync
@@ -287,13 +301,15 @@ export function WooDashboard() {
                 </div>
             </div>
 
-            {previewTargetId && (
-                <PassengerListModal
-                    isOpen={true}
-                    onClose={() => setPreviewTargetId(null)}
-                    productId={previewTargetId}
-                />
-            )}
+            {
+                previewTargetId && (
+                    <PassengerListModal
+                        isOpen={true}
+                        onClose={() => setPreviewTargetId(null)}
+                        productId={previewTargetId}
+                    />
+                )
+            }
 
             {/* Main Content: Calendar View */}
             <div className="space-y-4">
@@ -365,6 +381,6 @@ export function WooDashboard() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
