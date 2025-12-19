@@ -195,24 +195,43 @@ export async function GET(
 
         // JSON Response
         if (isJson) {
-            const columns: { header: string; key: string; isDynamic?: boolean }[] = [
-                { header: 'N°', key: 'num' },
-                { header: 'Cognome', key: 'cognome' },
-                { header: 'Nome', key: 'nome' },
-                { header: 'Telefono', key: 'telefono' },
-                { header: 'Punto Partenza', key: 'puntoPartenza' },
-            ];
-            if (cfConfig) columns.push({ header: 'C.F.', key: 'cf' });
-            if (addressConfig) columns.push({ header: 'Indirizzo', key: 'address' });
-            if (capConfig) columns.push({ header: 'CAP', key: 'cap' });
+            // Build columns respecting the selected keys
+            const columns: { header: string; key: string; isDynamic?: boolean }[] = [];
 
-            // Add Consolidated Columns
-            for (const [label] of consolidatedCols.entries()) {
-                columns.push({ header: label, key: label, isDynamic: true });
+            // Helper to check if column is selected
+            const colSelected = (key: string) => !selectedKeys || selectedKeys.includes(key);
+
+            // Always include row number
+            columns.push({ header: 'N°', key: 'num' });
+
+            // Base columns - only if selected
+            if (colSelected('cognome') || colSelected('_billing_name'))
+                columns.push({ header: 'Cognome', key: 'cognome' });
+            if (colSelected('nome') || colSelected('_billing_name'))
+                columns.push({ header: 'Nome', key: 'nome' });
+            if (colSelected('telefono') || colSelected('_billing_phone'))
+                columns.push({ header: 'Telefono', key: 'telefono' });
+            if (colSelected('puntoPartenza') || colSelected('_service_Partenza') || colSelected('partenza'))
+                columns.push({ header: 'Punto Partenza', key: 'puntoPartenza' });
+
+            if (cfConfig && colSelected(cfConfig.fieldKey))
+                columns.push({ header: 'C.F.', key: 'cf' });
+            if (addressConfig && colSelected(addressConfig.fieldKey))
+                columns.push({ header: 'Indirizzo', key: 'address' });
+            if (capConfig && colSelected(capConfig.fieldKey))
+                columns.push({ header: 'CAP', key: 'cap' });
+
+            // Add Consolidated Columns - only if any of their keys is selected
+            for (const [label, keys] of consolidatedCols.entries()) {
+                if (keys.some(k => colSelected(k))) {
+                    columns.push({ header: label, key: label, isDynamic: true });
+                }
             }
 
-            columns.push({ header: 'Pax', key: 'pax' });
-            columns.push({ header: 'Note', key: 'note' });
+            if (colSelected('pax') || colSelected('_quantity'))
+                columns.push({ header: 'Pax', key: 'pax' });
+            if (colSelected('note'))
+                columns.push({ header: 'Note', key: 'note' });
 
             return NextResponse.json({
                 productName: product.name,
