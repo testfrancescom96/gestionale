@@ -98,16 +98,15 @@ export async function GET(
             return '';
         };
 
-        // Prepare Data
-        const dataRows: any[] = [];
-        let rowNum = 1;
+        // Consolidate Order Items and Manual Bookings for Sorting
+        let rawRows: any[] = [];
 
         // Orders
         for (const item of product.orderItems) {
             const order = item.order;
             if (order) {
                 const row: any = {
-                    num: rowNum++,
+                    // num assigned later
                     cognome: order.billingLastName || '',
                     nome: order.billingFirstName || '',
                     telefono: order.billingPhone || '',
@@ -133,14 +132,14 @@ export async function GET(
                     if (extraNote) noteContent = `${extraNote} | ${noteContent}`;
                 }
                 row.note = noteContent;
-                dataRows.push(row);
+                rawRows.push(row);
             }
         }
 
         // Manual Bookings
         for (const booking of product.manualBookings) {
             const row: any = {
-                num: rowNum++,
+                // num assigned later
                 cognome: booking.cognome,
                 nome: booking.nome,
                 telefono: booking.telefono || '',
@@ -156,8 +155,43 @@ export async function GET(
             for (const [label] of consolidatedCols.entries()) {
                 row.dynamic[label] = '';
             }
-            dataRows.push(row);
+            rawRows.push(row);
         }
+
+        // ---------------------------------------------------------
+        // LOGICA ORDINAMENTO (Phase 3)
+        // 1. Punto di Ritrovo (Alphabetical)
+        // 2. Order ID (Group Unity)
+        // 3. Cognome (Alphabetical)
+        // ---------------------------------------------------------
+        rawRows.sort((a, b) => {
+            // 1. Punto Partenza
+            const pA = (a.puntoPartenza || '').toLowerCase();
+            const pB = (b.puntoPartenza || '').toLowerCase();
+            if (pA < pB) return -1;
+            if (pA > pB) return 1;
+
+            // 2. Order ID (if both exist)
+            // Manual bookings have undefined orderId -> treat as 0 or separate
+            const oA = a.orderId || 0;
+            const oB = b.orderId || 0;
+            if (oA !== oB) {
+                // Determine if we want to group manual bookings together or strict numerical
+                // Keep same order IDs together.
+                return oA - oB;
+            }
+
+            // 3. Cognome
+            const nA = (a.cognome || '').toLowerCase();
+            const nB = (b.cognome || '').toLowerCase();
+            if (nA < nB) return -1;
+            if (nA > nB) return 1;
+
+            return 0;
+        });
+
+        // Assign Row Numbers after sorting
+        const dataRows = rawRows.map((r, idx) => ({ ...r, num: idx + 1 }));
 
         // JSON Response
         if (isJson) {

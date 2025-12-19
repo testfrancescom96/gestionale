@@ -722,6 +722,8 @@ model WooProduct {
   dateCreated DateTime?
   dateModified DateTime?
   lastWooSync  DateTime? // Timestamp of last update from WooCommerce
+  lastBookingAt DateTime? // Most recent order date for this product (Fase 1 Sync Mirato)
+  isPinned      Boolean   @default(false) // Phase 2: Manual "Pin" to top
   
   // Parsed Data
   eventDate   DateTime? // Parsed from SKU

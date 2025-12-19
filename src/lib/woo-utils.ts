@@ -49,14 +49,25 @@ export interface YearGroup {
 
 /**
  * Groups products by Year and Month based on their SKU date.
- * Products with invalid/missing SKU dates are grouped under "Undated".
- * Structure: Year -> Month -> Products
+ * Products with invalid / missing SKU dates are grouped under "Undated".
+ * Phase 2: "Pinned" products are extracted to a separate top - level array.
+ * Structure: { Pinned, Years -> Month -> Products, Undated }
  */
-export function groupProductsByDate(products: any[]): { years: YearGroup[], undated: any[] } {
+export function groupProductsByDate(products: any[]): { pinned: any[], years: YearGroup[], undated: any[] } {
     const datedMap = new Map<string, any[]>();
     const undated: any[] = [];
+    const pinned: any[] = [];
 
     products.forEach(p => {
+        if (p.isPinned) {
+            pinned.push(p);
+            // If pinned, do we ALSO show it in the calendar? Usually better to NOT duplicate.
+            // Let's decide: Pinned items are REMOVED from the calendar to avoid clutter 
+            // OR kept and just highlighted? User asked for "Fix ordering", usually means move to top.
+            // I will EXCLUDE them from the normal flow.
+            return;
+        }
+
         const date = parseSkuDate(p.sku);
         if (date) {
             const key = `${date.getFullYear()}-${date.getMonth()}`;
@@ -105,7 +116,7 @@ export function groupProductsByDate(products: any[]): { years: YearGroup[], unda
             months: yearsMap.get(year) || []
         }));
 
-    return { years, undated };
+    return { pinned, years, undated };
 }
 
 /**

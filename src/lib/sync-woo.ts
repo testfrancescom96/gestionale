@@ -167,7 +167,7 @@ export async function syncProducts(options: { mode: 'full' | 'incremental', afte
  * Sync Orders
  */
 export async function syncOrders(
-    options: { mode: 'rapid' | 'full' | 'smart' | 'days', limit?: number, days?: number, after?: Date },
+    options: { mode: 'rapid' | 'full' | 'smart' | 'days' | 'product', limit?: number, days?: number, after?: Date, productId?: number },
     onProgress?: (msg: string) => void
 ) {
     let orders: any[] = [];
@@ -181,6 +181,12 @@ export async function syncOrders(
 
     if (options.mode === 'full') {
         if (onProgress) onProgress("Sync Completo: Potrebbe richiedere tempo...");
+        orders = await fetchAllWooOrders(params, onProgress);
+    } else if (options.mode === 'product' && options.productId) {
+        if (onProgress) onProgress(`Sync mirato Evento #${options.productId}...`);
+        // Fetch ALL orders for this product
+        params.set('product', options.productId.toString());
+        // We usually want ALL orders for the event, so use fetchAll
         orders = await fetchAllWooOrders(params, onProgress);
     } else if (options.mode === 'days') {
         const days = options.days || 30;
@@ -349,5 +355,25 @@ export async function syncOrders(
     }
 
     const res = { count, updatedIds: ids }; // Return 'ids' as 'updatedIds'
+
+    // Phase 1: Update lastBookingAt for the target product if in product mode
+    if (options.mode === 'product' && options.productId && orders.length > 0) {
+        // Find most recent order date
+        const dates = orders.map(o => new Date(o.date_created).getTime());
+        const maxDate = new Date(Math.max(...dates));
+
+        try {
+            await prisma.wooProduct.update({
+                where: { id: options.productId },
+                data: {
+                    // @ts-ignore
+                    lastBookingAt: maxDate
+                }
+            });
+        } catch (e) {
+            console.error("Failed to update lastBookingAt", e);
+        }
+    }
+
     return res;
 }

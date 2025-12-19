@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { ChevronDown, ChevronRight, Package, Pencil, ClipboardList, CheckCircle2, AlertTriangle, XCircle, Download } from "lucide-react";
+import { ChevronDown, ChevronRight, Package, Pencil, ClipboardList, CheckCircle2, AlertTriangle, XCircle, Download, RefreshCw, UserPlus } from "lucide-react";
 import { GroupedEvent } from "@/lib/woo-utils";
 import { ProductBookings } from "./ProductBookings";
 import { ProductEditModal } from "./ProductEditModal";
+import { ManualOrderModal } from "./ManualOrderModal";
 import { TripWorkflowModal } from "./TripWorkflowModal";
 
 interface EventGroupProps {
@@ -15,13 +16,16 @@ interface EventGroupProps {
     highlightId?: number | null;
     onRefresh?: () => void;
     onDownload?: (product: any) => void;
+    onSyncProduct?: (productId: number) => void;
+    onTogglePin?: (productId: number, isPinned: boolean) => void;
 }
 
-export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDownload }: EventGroupProps) {
+export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDownload, onSyncProduct, onTogglePin }: EventGroupProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [expandedProducts, setExpandedProducts] = useState<Record<number, boolean>>({});
     const [editingProduct, setEditingProduct] = useState<any | null>(null);
     const [workflowProduct, setWorkflowProduct] = useState<any | null>(null);
+    const [manualOrderProduct, setManualOrderProduct] = useState<any | null>(null);
 
     // Auto-expand if highlightId is present in this group
     useEffect(() => {
@@ -197,6 +201,64 @@ export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDo
                                             </button>
                                         )}
 
+                                        {onSyncProduct && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onSyncProduct(product.id);
+                                                }}
+                                                className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-colors relative group"
+                                                title={`Aggiorna Partecipanti Evento${product.lastBookingAt ? `\nUltimo booking: ${format(new Date(product.lastBookingAt), 'dd/MM HH:mm')}` : ''}`}
+                                            >
+                                                <RefreshCw className="h-4 w-4" />
+                                                {/* Optional: Add Indicator if sync needed? For now just manual trigger */}
+                                            </button>
+                                        )}
+
+
+
+                                        {onTogglePin && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onTogglePin(product.id, !!product.isPinned);
+                                                }}
+                                                className={`p-2 rounded-full transition-colors ${product.isPinned
+                                                    ? "text-blue-600 bg-blue-50 ring-1 ring-blue-200"
+                                                    : "text-gray-300 hover:text-blue-400 hover:bg-gray-50"
+                                                    }`}
+                                                title={product.isPinned ? "Rimuovi da In Evidenza" : "Fissa in Alto (Pin)"}
+                                            >
+                                                {/* Pin Icon */}
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <line x1="12" y1="17" x2="12" y2="22"></line>
+                                                    <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path>
+                                                </svg>
+                                            </button>
+                                        )}
+
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setManualOrderProduct(product);
+                                            }}
+                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                                            title="Nuova Prenotazione Manuale"
+                                        >
+                                            <UserPlus className="h-4 w-4" />
+                                        </button>
+
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setManualOrderProduct(product);
+                                            }}
+                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                                            title="Nuova Prenotazione Manuale"
+                                        >
+                                            <UserPlus className="h-4 w-4" />
+                                        </button>
+
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -274,6 +336,19 @@ export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDo
                     />
                 )
             }
+            {/* Manual Order Modal */}
+            {manualOrderProduct && (
+                <ManualOrderModal
+                    isOpen={!!manualOrderProduct}
+                    onClose={() => setManualOrderProduct(null)}
+                    product={manualOrderProduct}
+                    onSuccess={() => {
+                        if (onSyncProduct) onSyncProduct(manualOrderProduct.id);
+                        if (onRefresh) onRefresh();
+                    }}
+                />
+            )}
+
         </div >
     );
 }

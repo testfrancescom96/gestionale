@@ -189,25 +189,67 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {data.rows.map((row: any, idx: number) => {
-                                        const isManual = row.source === 'manual';
-                                        return (
-                                            <tr key={idx} className={`hover:bg-gray-50 ${isManual ? 'bg-purple-50/50' : ''}`}>
-                                                {data.columns.map((col: any) => {
-                                                    let val = row[col.key];
-                                                    // Handle dynamic props
-                                                    if (col.isDynamic) {
-                                                        val = row.dynamic?.[col.key];
-                                                    }
-                                                    return (
-                                                        <td key={col.key} className="px-4 py-3 text-gray-700">
-                                                            {val || '-'}
-                                                        </td>
-                                                    );
-                                                })}
-                                            </tr>
-                                        );
-                                    })}
+                                    {(() => {
+                                        let currentGroupIndex = 0;
+                                        let lastOrderId: number | null = null;
+                                        let lastSource: string | null = null;
+
+                                        return data.rows.map((row: any, idx: number) => {
+                                            const isManual = row.source === 'manual';
+                                            const isOrder = row.source === 'order';
+
+                                            // Determine if new group
+                                            let isNewGroup = true;
+                                            if (idx > 0) {
+                                                if (isOrder && lastSource === 'order' && row.orderId === lastOrderId) {
+                                                    isNewGroup = false;
+                                                }
+                                                // Groups split by logic are already sorted together.
+                                                // BUT if sorted by Pickup, a single order might be split.
+                                                // In that case, we treat them as separate visual blocks? 
+                                                // Logic: If orderId changes, new group. If orderId same but row is next, same group.
+                                            }
+
+                                            if (isNewGroup) {
+                                                currentGroupIndex++;
+                                                lastOrderId = row.orderId;
+                                                lastSource = row.source;
+                                            }
+
+                                            // Styling
+                                            // Manual: Purple tint
+                                            // Orders: Alternating Gray/White blocks by GROUP
+                                            const bgClass = isManual
+                                                ? 'bg-purple-50/50'
+                                                : (currentGroupIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50');
+
+                                            // Border: Thicker top border for new groups
+                                            const borderClass = isNewGroup && idx > 0 ? '!border-t-2 !border-gray-300' : '';
+
+                                            return (
+                                                <tr key={idx} className={`hover:bg-blue-50/30 transition-colors ${bgClass} ${borderClass}`}>
+                                                    {data.columns.map((col: any) => {
+                                                        let val = row[col.key];
+                                                        // Handle dynamic props
+                                                        if (col.isDynamic) {
+                                                            val = row.dynamic?.[col.key];
+                                                        }
+
+                                                        // Visual cue for grouping: Hide repeated Order ID or Name? 
+                                                        // Maybe just use the color block. 
+                                                        // Let's keep it simple: Color block + Border.
+
+                                                        return (
+                                                            <td key={col.key} className="px-4 py-3 text-gray-700">
+                                                                {/* Optional: Add connection line for same group in first col? */}
+                                                                {val || '-'}
+                                                            </td>
+                                                        );
+                                                    })}
+                                                </tr>
+                                            );
+                                        });
+                                    })()}
                                     {data.rows.length === 0 && (
                                         <tr>
                                             <td colSpan={data.columns.length} className="px-4 py-8 text-center text-gray-500 italic">

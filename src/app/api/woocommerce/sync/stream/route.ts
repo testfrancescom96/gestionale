@@ -66,7 +66,8 @@ export async function GET(request: NextRequest) {
                         mode: orderMode as any,
                         limit: value,
                         days: value,
-                        after: date ? new Date(date) : undefined
+                        after: date ? new Date(date) : undefined,
+                        productId: searchParams.get("product_id") ? parseInt(searchParams.get("product_id")!) : undefined
                     }, onProgress);
                     result.orders = res.count;
                     result.updatedIds = res.updatedIds;

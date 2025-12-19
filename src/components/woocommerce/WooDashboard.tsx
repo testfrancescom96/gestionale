@@ -18,7 +18,8 @@ export function WooDashboard() {
     // Orders state removed for performance - using nested orderItems
     const [loading, setLoading] = useState(true);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-    const [groupedEvents, setGroupedEvents] = useState<{ years: YearGroup[], undated: any[] }>({ years: [], undated: [] });
+
+    const [groupedEvents, setGroupedEvents] = useState<{ pinned: any[], years: YearGroup[], undated: any[] }>({ pinned: [], years: [], undated: [] });
 
     // Feature: Visual Feedback & Settings
     const [updatedOrderIds, setUpdatedOrderIds] = useState<number[]>([]);
@@ -94,6 +95,55 @@ export function WooDashboard() {
 
     const [progressMsg, setProgressMsg] = useState("");
 
+    // NEW: Targeted Product Sync
+    const triggerProductSync = async (productId: number) => {
+        setLoading(true);
+        setProgressMsg(`Sync mirato Evento #${productId}...`);
+
+        const params = new URLSearchParams();
+        params.set("type", "orders");
+        params.set("order_mode", "product");
+        params.set("product_id", productId.toString());
+        params.set("mode", "incremental"); // Products mode, ignored for order type but safe
+
+        const eventSource = new EventSource(`/api/woocommerce/sync/stream?${params.toString()}`);
+
+        setupSSE(eventSource);
+    };
+
+    const setupSSE = (eventSource: EventSource) => {
+        eventSource.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.status === 'progress' || data.status === 'info') {
+                    setProgressMsg(data.message);
+                } else if (data.status === 'done') {
+                    eventSource.close();
+                    loadLocalData();
+                    setLoading(false);
+                    setProgressMsg("");
+                    // Optional alert or toast
+                    if (data.result.updatedIds?.length > 0) {
+                        alert(`Sync completato: ${data.result.updatedIds.length} ordini aggiornati/verificati.`);
+                    }
+                } else if (data.status === 'error') {
+                    eventSource.close();
+                    setLoading(false);
+                    alert("Errore: " + data.message);
+                }
+            } catch (e) {
+                console.error("SSE Parse Error", e);
+            }
+        };
+
+        eventSource.onerror = (e) => {
+            console.error("SSE Error", e);
+            eventSource.close();
+            setLoading(false);
+            loadLocalData();
+        };
+    };
+
     const triggerSync = async (type: 'smart' | 'rapid' | 'full' | 'days30' | 'custom_limit') => {
         setLoading(true);
         setProgressMsg("Avvio connessione...");
@@ -101,6 +151,11 @@ export function WooDashboard() {
 
         const params = new URLSearchParams();
         params.set("type", "all");
+
+        // ... params setup ...
+        // I need to paste the param logic here or reuse? 
+        // I will implement the params setup block below in the 'setupSSE' usage
+
 
         if (type === 'smart') {
             params.set("order_mode", "smart");
@@ -129,42 +184,10 @@ export function WooDashboard() {
             params.set("mode", "incremental");
         }
 
+
+
         const eventSource = new EventSource(`/api/woocommerce/sync/stream?${params.toString()}`);
-
-        eventSource.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                if (data.status === 'progress' || data.status === 'info') {
-                    setProgressMsg(data.message);
-                } else if (data.status === 'done') {
-                    eventSource.close();
-                    loadLocalData();
-                    setLoading(false);
-                    setProgressMsg("");
-                    if (data.result.updatedIds && Array.isArray(data.result.updatedIds)) {
-                        setUpdatedOrderIds(data.result.updatedIds);
-                        const count = data.result.updatedIds.length;
-                        if (count > 0) alert(`Sincronizzazione completata! ${count} ordini aggiornati.`);
-                        else alert(`Sincronizzazione completata! Nessuna modifica rilevata.`);
-                    } else {
-                        alert("Sincronizzazione completata!");
-                    }
-                } else if (data.status === 'error') {
-                    eventSource.close();
-                    setLoading(false);
-                    alert("Errore: " + data.message);
-                }
-            } catch (e) {
-                console.error("SSE Parse Error", e);
-            }
-        };
-
-        eventSource.onerror = (e) => {
-            console.error("SSE Error", e);
-            eventSource.close();
-            setLoading(false);
-            loadLocalData();
-        };
+        setupSSE(eventSource);
     };
 
     const toggleYear = (year: number) => {
@@ -172,6 +195,34 @@ export function WooDashboard() {
             ...prev,
             [year]: !prev[year]
         }));
+    };
+
+    // NEW: Toggle Pin Feature
+    const togglePin = async (productId: number, isPinned: boolean) => {
+        // Optimistic UI Update
+        const newStatus = !isPinned;
+
+        // Temporarily update local state for snappy feel? Or just wait loadLocalData?
+        // Let's rely on fast reload since we are modifying local cache usually... 
+        // But here we need to call API PATCH
+
+        try {
+            const res = await fetch(`/api/woocommerce/products/${productId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isPinned: newStatus })
+            });
+
+            if (res.ok) {
+                // Reload data to reflect sorting changes
+                loadLocalData();
+            } else {
+                alert("Errore nell'aggiornamento del Pin");
+            }
+        } catch (e) {
+            console.error("Failed to toggle pin", e);
+            alert("Errore di connessione");
+        }
     };
 
     return (
@@ -344,7 +395,9 @@ export function WooDashboard() {
                                                 data={group}
                                                 updatedOrderIds={updatedOrderIds}
                                                 onRefresh={loadLocalData}
+                                                onSyncProduct={triggerProductSync}
                                                 onDownload={handleDownloadClick}
+                                                onTogglePin={togglePin}
                                             />
                                         ))}
                                     </div>
@@ -359,25 +412,27 @@ export function WooDashboard() {
                     </div>
                 )}
 
-                {/* Undated Products */}
+                {/* Undated Products - Reusing EventGroup logic for interactivity */}
                 {groupedEvents.undated.length > 0 && (
                     <div className="mt-8 pt-8 border-t">
                         <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
                             Prodotti senza data (SKU standard)
-                            <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{groupedEvents.undated.length}</span>
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 opacity-75">
-                            {groupedEvents.undated.slice(0, 6).map((p: any) => (
-                                <div key={p.id} className="p-3 bg-white border rounded text-sm text-gray-600">
-                                    {p.name} <span className="text-xs text-gray-400">({p.sku})</span>
-                                </div>
-                            ))}
-                            {groupedEvents.undated.length > 6 && (
-                                <div className="p-3 bg-gray-50 border rounded text-sm text-gray-500 flex items-center justify-center">
-                                    + altri {groupedEvents.undated.length - 6}...
-                                </div>
-                            )}
-                        </div>
+
+                        {/* Render as a special EventGroup */}
+                        <EventGroup
+                            data={{
+                                year: 0,
+                                month: 0,
+                                monthName: "Prodotti Non Datati",
+                                products: groupedEvents.undated
+                            }}
+                            updatedOrderIds={updatedOrderIds}
+                            onRefresh={loadLocalData}
+                            onSyncProduct={triggerProductSync}
+                            onDownload={handleDownloadClick}
+                            onTogglePin={togglePin}
+                        />
                     </div>
                 )}
             </div>
