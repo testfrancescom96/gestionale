@@ -23,7 +23,10 @@ export async function middleware(request: NextRequest) {
                 return NextResponse.redirect(new URL("/", request.url));
             }
         }
-        return NextResponse.next();
+        // Add pathname header for layout
+        const response = NextResponse.next();
+        response.headers.set("x-pathname", request.nextUrl.pathname);
+        return response;
     }
 
     // 2. Update/Verify Session
