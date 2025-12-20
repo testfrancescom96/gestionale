@@ -36,8 +36,11 @@ export async function GET(
         // 1. Get Config
         const fieldConfig = await prisma.wooExportConfig.findMany();
         const columnsParam = request.nextUrl.searchParams.get('columns');
-        const selectedKeys = columnsParam ? columnsParam.split(',') : null;
-        const isSelected = (key: string) => !selectedKeys || selectedKeys.includes(key);
+        // If columns param exists (even if empty string), use it; otherwise allow all
+        const selectedKeys = columnsParam !== null
+            ? columnsParam.split(',').filter(k => k.trim() !== '')
+            : null;
+        const isSelected = (key: string) => selectedKeys === null || selectedKeys.includes(key);
 
         const partenzaConfig = fieldConfig.find(c => c.mappingType === 'PARTENZA');
         const cfConfig = fieldConfig.find(c => c.mappingType === 'CF' && isSelected(c.fieldKey));
@@ -199,7 +202,7 @@ export async function GET(
             const columns: { header: string; key: string; isDynamic?: boolean }[] = [];
 
             // Helper to check if column is selected
-            const colSelected = (key: string) => !selectedKeys || selectedKeys.includes(key);
+            const colSelected = (key: string) => selectedKeys === null || selectedKeys.includes(key);
 
             // Always include row number
             columns.push({ header: 'N°', key: 'num' });
