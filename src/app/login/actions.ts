@@ -46,6 +46,9 @@ export async function login(prevState: any, formData: FormData) {
     const session = await encrypt({ user: { id: user.id, nome: user.nome, role: user.role }, expires });
 
     (await cookies()).set("session", session, { expires, httpOnly: true });
+
+    // Redirect after successful login
+    redirect("/");
 }
 
 export async function logout() {

@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
             camera,
             note,
             importo,
+            acconto,
             customData
         } = body;
 
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest) {
                 camera: camera || null,
                 note: note || null,
                 importo: importo ? parseFloat(importo) : null,
+                acconto: acconto ? parseFloat(acconto) : 0,
                 customData: customData ? JSON.stringify(customData) : null
             }
         });

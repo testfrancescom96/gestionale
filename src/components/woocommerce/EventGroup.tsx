@@ -123,6 +123,29 @@ export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDo
                                                 <span>{bookingCount} <span className="text-gray-400">Partecipanti</span></span>
                                             </div>
 
+                                            {/* Checklist Progress */}
+                                            {(() => {
+                                                const checklistItems = [
+                                                    op?.messaggioRiepilogoInviato,
+                                                    op?.listaPasseggeriInviata,
+                                                    op?.comunicazioneAutistaInviata
+                                                ];
+                                                const completed = checklistItems.filter(Boolean).length;
+                                                const total = checklistItems.length;
+                                                const bgColor = completed === 0
+                                                    ? 'bg-gray-100 text-gray-500'
+                                                    : completed === total
+                                                        ? 'bg-green-100 text-green-700'
+                                                        : 'bg-orange-100 text-orange-700';
+                                                return (
+                                                    <div className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium ${bgColor}`}>
+                                                        <CheckCircle2 className="h-3 w-3" />
+                                                        <span>{completed}/{total}</span>
+                                                        <span className="text-xs opacity-75">Check</span>
+                                                    </div>
+                                                );
+                                            })()}
+
                                             {op?.luogo && (
                                                 <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded text-xs font-medium">
                                                     <span>📍</span>
@@ -249,17 +272,6 @@ export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDo
                                             <UserPlus className="h-4 w-4" />
                                         </button>
 
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setManualOrderProduct(product);
-                                            }}
-                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-                                            title="Nuova Prenotazione Manuale"
-                                        >
-                                            <UserPlus className="h-4 w-4" />
-                                        </button>
-
                                         {onEditParams && (
                                             <button
                                                 onClick={(e) => {
@@ -269,7 +281,7 @@ export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDo
                                                 className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
                                                 title="Modifica Parametri Prodotto"
                                             >
-                                                <Settings className="h-4 w-4" />
+                                                <Pencil className="h-4 w-4" />
                                             </button>
                                         )}
 

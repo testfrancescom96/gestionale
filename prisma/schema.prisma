@@ -742,6 +742,8 @@ model WooProduct {
   manualBookings    ManualBooking[]
   variations        WooProductVariation[]
   modificationLogs  ProductModificationLog[]
+  pricingOptions    ProductPricing[] // Tariffe (Adulto, Bambino, etc.)
+  sharedLists       SharedPassengerList[] // Link condivisione capogruppo
   
   updatedAt   DateTime @updatedAt
 }
@@ -869,9 +871,10 @@ model ManualBooking {
   note            String?
   customData      String?   // JSON per campi extra configurabili
   
-  // Importo (opzionale)
-  importo         Float?
-  pagato          Boolean   @default(false)
+  // Importo e Pagamento
+  importo         Float?    // Prezzo totale
+  acconto         Float?    @default(0) // Acconto versato
+  pagato          Boolean   @default(false) // Saldato completamente
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -899,3 +902,49 @@ model SystemSettings {
   updatedAt             DateTime  @updatedAt
 }
 
+// ==================== PRODUCT PRICING/TARIFFS ====================
+model ProductPricing {
+  id              Int       @id @default(autoincrement())
+  
+  wooProductId    Int
+  product         WooProduct @relation(fields: [wooProductId], references: [id], onDelete: Cascade)
+  
+  nome            String    // Es: "Adulto", "Bambino 3-12", "Under 12", "Posto Singolo"
+  prezzo          Float     // Prezzo di questa tariffa
+  ordine          Int       @default(0) // Per ordinare le tariffe
+  attivo          Boolean   @default(true)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([wooProductId])
+}
+
+// ==================== SHARED PASSENGER LISTS ====================
+model SharedPassengerList {
+  id              String    @id @default(uuid())
+  
+  wooProductId    Int
+  product         WooProduct @relation(fields: [wooProductId], references: [id], onDelete: Cascade)
+  
+  token           String    @unique // Random token for public URL
+  nome            String?   // Optional name for the share (e.g., "Per Autista")
+  
+  // Selected columns to display (JSON array of column keys)
+  selectedColumns String    // JSON array: ["cognome", "nome", "saldo"]
+  
+  // Options
+  showSaldo       Boolean   @default(true)
+  showAcconto     Boolean   @default(false)
+  
+  // Expiration (optional)
+  expiresAt       DateTime?
+  
+  createdBy       String?   // Operatore che ha creato il link
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([wooProductId])
+  @@index([token])
+}

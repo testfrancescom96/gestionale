@@ -257,21 +257,21 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                                                 lastSource = row.source;
                                             }
 
-                                            // Styling
+                                            // Styling - More EVIDENT group coloring
                                             // Manual: Purple tint
-                                            // Orders: Alternating Gray/White blocks by GROUP
-                                            // Non-confirmed: Red tint
+                                            // Orders: Alternating Blue/Yellow blocks by GROUP for high visibility
+                                            // Non-confirmed: Red tint with line-through
                                             const isNotConfirmed = row.isConfirmed === false;
                                             let bgClass = isManual
-                                                ? 'bg-purple-50/50'
-                                                : (currentGroupIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50');
+                                                ? 'bg-purple-100'
+                                                : (currentGroupIndex % 2 === 0 ? 'bg-blue-50' : 'bg-amber-50');
 
                                             if (isNotConfirmed) {
-                                                bgClass = 'bg-red-50 opacity-60';
+                                                bgClass = 'bg-red-100 opacity-60';
                                             }
 
-                                            // Border: Thicker top border for new groups
-                                            const borderClass = isNewGroup && idx > 0 ? '!border-t-2 !border-gray-300' : '';
+                                            // Border: Thicker top border for new groups - more visible
+                                            const borderClass = isNewGroup && idx > 0 ? 'border-t-4 border-gray-400' : '';
                                             const textClass = isNotConfirmed ? 'text-red-600 line-through' : '';
 
                                             return (

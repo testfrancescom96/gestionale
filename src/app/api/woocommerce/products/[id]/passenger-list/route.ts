@@ -134,10 +134,17 @@ export async function GET(
         // Confirmed statuses (count in total, show first)
         const confirmedStatuses = ['processing', 'completed', 'on-hold'];
 
-        // Orders
+        // Orders - skip cancelled and refunded
+        const excludedStatuses = ['cancelled', 'refunded', 'failed', 'trash'];
+
         for (const item of product.orderItems) {
             const order = item.order;
             if (order) {
+                // Skip cancelled/refunded orders
+                if (excludedStatuses.includes(order.status)) {
+                    continue;
+                }
+
                 const isConfirmed = confirmedStatuses.includes(order.status);
 
                 // Use metaData fields (_field_*) if available, otherwise billing info
@@ -150,7 +157,9 @@ export async function GET(
                     cognome: fieldCognome || order.billingLastName || '',
                     nome: fieldNome || order.billingFirstName || '',
                     telefono: fieldTelefono || order.billingPhone || '',
+                    email: order.billingEmail || '',
                     puntoPartenza: findPartenza(item.metaData),
+                    importo: item.total || 0, // Payment amount from order
                     source: 'order',
                     orderId: order.id,
                     orderStatus: order.status,
@@ -189,6 +198,7 @@ export async function GET(
                 nome: booking.nome,
                 telefono: booking.telefono || '',
                 puntoPartenza: booking.puntoPartenza || '',
+                importo: booking.importo || 0,
                 source: 'manual',
                 pax: booking.numPartecipanti,
                 note: booking.note || 'Manuale',
@@ -259,6 +269,8 @@ export async function GET(
                 columns.push({ header: 'Nome', key: 'nome' });
             if (colSelected('telefono') || colSelected('_billing_phone'))
                 columns.push({ header: 'Telefono', key: 'telefono' });
+            if (colSelected('email') || colSelected('Email') || colSelected('_billing_email'))
+                columns.push({ header: 'Email', key: 'email' });
             if (colSelected('puntoPartenza') || colSelected('_service_Partenza') || colSelected('partenza'))
                 columns.push({ header: 'Punto Partenza', key: 'puntoPartenza' });
 
@@ -278,6 +290,8 @@ export async function GET(
 
             if (colSelected('pax') || colSelected('_quantity'))
                 columns.push({ header: 'Pax', key: 'pax' });
+            if (colSelected('importo') || colSelected('Importo') || colSelected('totale') || colSelected('pagato'))
+                columns.push({ header: 'Pagato €', key: 'importo' });
             if (colSelected('note'))
                 columns.push({ header: 'Note', key: 'note' });
 
