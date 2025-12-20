@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { ChevronDown, ChevronRight, Package, Pencil, ClipboardList, CheckCircle2, AlertTriangle, XCircle, Download, RefreshCw, UserPlus } from "lucide-react";
+import { ChevronDown, ChevronRight, Package, Pencil, ClipboardList, CheckCircle2, AlertTriangle, XCircle, Download, RefreshCw, UserPlus, Settings } from "lucide-react";
 import { GroupedEvent } from "@/lib/woo-utils";
 import { ProductBookings } from "./ProductBookings";
 import { ProductEditModal } from "./ProductEditModal";
@@ -18,9 +18,10 @@ interface EventGroupProps {
     onDownload?: (product: any) => void;
     onSyncProduct?: (productId: number) => void;
     onTogglePin?: (productId: number, isPinned: boolean) => void;
+    onEditParams?: (productId: number, productName: string) => void;
 }
 
-export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDownload, onSyncProduct, onTogglePin }: EventGroupProps) {
+export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDownload, onSyncProduct, onTogglePin, onEditParams }: EventGroupProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [expandedProducts, setExpandedProducts] = useState<Record<number, boolean>>({});
     const [editingProduct, setEditingProduct] = useState<any | null>(null);
@@ -258,6 +259,19 @@ export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDo
                                         >
                                             <UserPlus className="h-4 w-4" />
                                         </button>
+
+                                        {onEditParams && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onEditParams(product.id, product.name);
+                                                }}
+                                                className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+                                                title="Modifica Parametri Prodotto"
+                                            >
+                                                <Settings className="h-4 w-4" />
+                                            </button>
+                                        )}
 
                                         <button
                                             onClick={(e) => {

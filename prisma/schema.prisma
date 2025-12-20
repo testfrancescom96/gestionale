@@ -725,16 +725,47 @@ model WooProduct {
   lastBookingAt DateTime? // Most recent order date for this product (Fase 1 Sync Mirato)
   isPinned      Boolean   @default(false) // Phase 2: Manual "Pin" to top
   
+  // Product metadata (JSON string from WooCommerce meta_data)
+  metaData      String?   // JSON: custom fields, _field_*, _service_*, etc.
+  description   String?   // Short description
+  regularPrice  Float?    // Regular price
+  salePrice     Float?    // Sale price
+  stockQuantity Int?      // Stock quantity
+  manageStock   Boolean   @default(false)
+  
   // Parsed Data
   eventDate   DateTime? // Parsed from SKU
   
   // Relations
-  orderItems      WooOrderItem[]
-  operational     ViaggioOperativo?
-  manualBookings  ManualBooking[]
-  variations      WooProductVariation[]
+  orderItems        WooOrderItem[]
+  operational       ViaggioOperativo?
+  manualBookings    ManualBooking[]
+  variations        WooProductVariation[]
+  modificationLogs  ProductModificationLog[]
   
   updatedAt   DateTime @updatedAt
+}
+
+// Log delle modifiche prodotto (storico)
+model ProductModificationLog {
+  id            Int      @id @default(autoincrement())
+  productId     Int
+  product       WooProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  fieldName     String   // Nome del campo modificato (es. "name", "price", "metaData.partenza")
+  oldValue      String?  // Valore precedente (JSON se complesso)
+  newValue      String?  // Nuovo valore (JSON se complesso)
+  
+  modifiedBy    String?  // Username/email dell'operatore
+  modifiedAt    DateTime @default(now())
+  
+  // Sync status
+  syncedToWoo   Boolean  @default(false)
+  syncedAt      DateTime?
+  syncError     String?  // Eventuale errore sync
+  
+  @@index([productId])
+  @@index([modifiedAt])
 }
 
 model WooProductVariation {

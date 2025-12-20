@@ -7,6 +7,7 @@ import { groupProductsByDate, GroupedEvent, YearGroup } from "@/lib/woo-utils";
 import { EventGroup } from "./EventGroup";
 import { ExportSettingsModal } from "./ExportSettingsModal";
 import { PassengerListModal } from "./PassengerListModal";
+import ProductParamsEditor from "./ProductParamsEditor";
 
 import { useSearchParams } from "next/navigation";
 
@@ -34,6 +35,13 @@ export function WooDashboard() {
     // Preview Modal State
     const [previewTargetId, setPreviewTargetId] = useState<number | null>(null);
     const [isSyncMenuOpen, setIsSyncMenuOpen] = useState(false);
+
+    // Product Params Editor State
+    const [editingParamsProduct, setEditingParamsProduct] = useState<{ id: number; name: string } | null>(null);
+
+    const handleEditParams = (productId: number, productName: string) => {
+        setEditingParamsProduct({ id: productId, name: productName });
+    };
 
     const handleDownloadClick = (p: any) => {
         setPreviewTargetId(p.id);
@@ -380,6 +388,7 @@ export function WooDashboard() {
                                                 onSyncProduct={triggerProductSync}
                                                 onDownload={handleDownloadClick}
                                                 onTogglePin={togglePin}
+                                                onEditParams={handleEditParams}
                                             />
                                         ))}
                                     </div>
@@ -414,10 +423,21 @@ export function WooDashboard() {
                             onSyncProduct={triggerProductSync}
                             onDownload={handleDownloadClick}
                             onTogglePin={togglePin}
+                            onEditParams={handleEditParams}
                         />
                     </div>
                 )}
             </div>
+
+            {/* Product Params Editor Modal */}
+            {editingParamsProduct && (
+                <ProductParamsEditor
+                    productId={editingParamsProduct.id}
+                    productName={editingParamsProduct.name}
+                    isOpen={true}
+                    onClose={() => setEditingParamsProduct(null)}
+                />
+            )}
         </div >
     );
 }

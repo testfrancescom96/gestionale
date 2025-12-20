@@ -115,6 +115,34 @@ export async function updateWooOrder(id: number, data: any): Promise<any> {
     return await response.json();
 }
 
+export async function updateWooProduct(id: number, data: any): Promise<any> {
+    const queryParams = new URLSearchParams();
+    queryParams.set("consumer_key", WOO_CK);
+    queryParams.set("consumer_secret", WOO_CS);
+
+    const response = await fetch(`${WOO_URL}/wp-json/wc/v3/products/${id}?${queryParams.toString()}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+        cache: "no-store",
+    });
+
+    if (!response.ok) {
+        let details = "";
+        try {
+            const json = await response.json();
+            details = json.message || JSON.stringify(json);
+        } catch (e) {
+            details = await response.text();
+        }
+        throw new Error(`WooCommerce API Error (${response.status}): ${details || response.statusText}`);
+    }
+
+    return await response.json();
+}
+
 export async function fetchAllWooProducts(params: URLSearchParams, onProgress?: (msg: string) => void): Promise<any[]> {
     let allProducts: any[] = [];
     let page = 1;
