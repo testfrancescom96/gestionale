@@ -805,13 +805,14 @@ model WooOrderItem {
 
 // ==================== WOOCOMMERCE EXPORT CONFIG ====================
 model WooExportConfig {
-  id          String   @id @default(uuid())
-  fieldKey    String   @unique // Chiave nel JSON metaData (es. "pa_fermata" o "Luogo di ritrovo")
-  label       String   // Etichetta leggibile (es. "Fermata Bus")
-  mappingType String   @default("COLUMN") // "PARTENZA", "CF", "ADDRESS", "CAP", "COLUMN", "HIDDEN"
-  aliasOf     String?  // Se questo campo è un alias di un altro, specifica la chiave principale
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String   @id @default(uuid())
+  fieldKey          String   @unique // Chiave nel JSON metaData (es. "pa_fermata" o "Luogo di ritrovo")
+  label             String   // Etichetta leggibile (es. "Fermata Bus")
+  mappingType       String   @default("COLUMN") // "PARTENZA", "CF", "ADDRESS", "CAP", "COLUMN", "HIDDEN"
+  aliasOf           String?  // Se questo campo è un alias di un altro, specifica la chiave principale
+  isDefaultSelected Boolean  @default(false) // Se true, questo campo sarà pre-selezionato nella lista passeggeri
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 model ManualBooking {
   id              Int      @id @default(autoincrement())

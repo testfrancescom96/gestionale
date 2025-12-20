@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo } from "react";
-import { Loader2, X, Save, Check, Plus, Search, Filter, RefreshCw, Eye, EyeOff } from "lucide-react";
+import { Loader2, X, Save, Check, Plus, Search, Filter, RefreshCw, Eye, EyeOff, CheckSquare, Square } from "lucide-react";
 
 interface FieldConfig {
     fieldKey: string;
@@ -208,17 +208,18 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                             {/* List */}
                             <div className="bg-white border rounded-lg shadow-sm divide-y">
                                 <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 text-xs font-bold text-gray-500 uppercase">
-                                    <div className="col-span-5">Nome Colonna / Chiave Woo</div>
+                                    <div className="col-span-4">Nome Colonna / Chiave Woo</div>
                                     <div className="col-span-4">Alias (Unisci con altra chiave)</div>
-                                    <div className="col-span-2 text-center">Visibilità</div>
-                                    <div className="col-span-1 text-right">Stato</div>
+                                    <div className="col-span-1 text-center">Visibile</div>
+                                    <div className="col-span-1 text-center" title="Pre-selezionato di default nella lista passeggeri">Pre-sel</div>
+                                    <div className="col-span-2 text-right">Stato</div>
                                 </div>
 
                                 {filteredFields.map((field) => (
                                     <div key={field.fieldKey} className="grid grid-cols-12 gap-4 items-center px-4 py-3 hover:bg-gray-50 transition-colors">
 
                                         {/* Name & Key */}
-                                        <div className="col-span-5 overflow-hidden">
+                                        <div className="col-span-4 overflow-hidden">
                                             <input
                                                 type="text"
                                                 value={field.label}
@@ -252,15 +253,30 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                                         </div>
 
                                         {/* Visibility Toggle */}
-                                        <div className="col-span-2 flex justify-center">
+                                        <div className="col-span-1 flex justify-center">
                                             <button
                                                 onClick={() => handleSave({
                                                     ...field,
                                                     mappingType: field.mappingType === 'HIDDEN' ? 'COLUMN' : 'HIDDEN'
                                                 })}
                                                 className={`p-1.5 rounded-md transition-colors ${field.mappingType === 'HIDDEN' ? 'text-gray-300 hover:bg-gray-100' : 'text-blue-600 bg-blue-50 hover:bg-blue-100'}`}
+                                                title={field.mappingType === 'HIDDEN' ? 'Campo nascosto' : 'Campo visibile'}
                                             >
                                                 {field.mappingType === 'HIDDEN' ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                            </button>
+                                        </div>
+
+                                        {/* Default Selected Toggle */}
+                                        <div className="col-span-1 flex justify-center">
+                                            <button
+                                                onClick={() => handleSave({
+                                                    ...field,
+                                                    isDefaultSelected: !(field as any).isDefaultSelected
+                                                } as any)}
+                                                className={`p-1.5 rounded-md transition-colors ${(field as any).isDefaultSelected ? 'text-green-600 bg-green-50 hover:bg-green-100' : 'text-gray-300 hover:bg-gray-100'}`}
+                                                title={(field as any).isDefaultSelected ? 'Pre-selezionato di default' : 'Non pre-selezionato'}
+                                            >
+                                                {(field as any).isDefaultSelected ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
                                             </button>
                                         </div>
 

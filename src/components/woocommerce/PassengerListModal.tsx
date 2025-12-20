@@ -74,26 +74,21 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
 
             setAvailableFields(relevantFields);
 
-            // Default: Select only PRIMARY fields (not all)
-            const primaryKeyPatterns = [
-                'nome', 'cognome', 'name', 'surname',
-                'telefono', 'phone', 'tel',
-                'partenza', 'fermata', 'ritiro', 'service_partenza',
-                '_order_id', '_billing_name', '_billing_phone', '_quantity'
-            ];
+            // Default: Select fields marked as isDefaultSelected in global config
+            const defaultSelectedKeys = new Set<string>(
+                globalConfig
+                    .filter((f: any) => f.isDefaultSelected === true)
+                    .map((f: any) => f.fieldKey)
+            );
 
-            const isPrimaryField = (key: string) => {
-                const lowerKey = key.toLowerCase();
-                return primaryKeyPatterns.some(pattern => lowerKey.includes(pattern));
-            };
-
+            // Apply: Only select fields that exist in this product AND are marked as default
             const initialSelection = new Set<string>(
                 relevantFields
-                    .filter((f: any) => isPrimaryField(f.fieldKey))
+                    .filter((f: any) => defaultSelectedKeys.has(f.fieldKey))
                     .map((f: any) => String(f.fieldKey))
             );
 
-            // If no primary fields found, select first 5 fields
+            // If no default fields configured, fall back to first 5 fields
             if (initialSelection.size === 0 && relevantFields.length > 0) {
                 relevantFields.slice(0, 5).forEach((f: any) => initialSelection.add(String(f.fieldKey)));
             }
