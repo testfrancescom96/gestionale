@@ -13,6 +13,7 @@ export async function middleware(request: NextRequest) {
         // External API calls (webhooks) need exception.
         // Let's protect /api for now, except specific webhooks if any.
         request.nextUrl.pathname.startsWith("/static") ||
+        request.nextUrl.pathname.startsWith("/share") || // Public share links
         request.nextUrl.pathname === "/login" ||
         request.nextUrl.pathname === "/favicon.ico"
     ) {
