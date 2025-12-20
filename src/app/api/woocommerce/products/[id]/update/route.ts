@@ -9,6 +9,7 @@ interface UpdatePayload {
     sale_price?: string;
     stock_quantity?: number;
     manage_stock?: boolean;
+    menu_order?: number;
     meta_data?: { key: string; value: string }[];
 }
 
@@ -135,6 +136,23 @@ export async function PUT(
                 newValue: updates.manageStock.toString(),
                 modifiedBy
             });
+        }
+
+        // Handle menuOrder (posizione menu per ordinamento)
+        if (updates.menuOrder !== undefined) {
+            const newOrder = parseInt(updates.menuOrder) || 0;
+            const oldOrder = cp.menuOrder ?? 0;
+            if (newOrder !== oldOrder) {
+                localUpdates.menuOrder = newOrder;
+                wooUpdates.menu_order = newOrder;
+                logEntries.push({
+                    productId,
+                    fieldName: 'menuOrder',
+                    oldValue: oldOrder.toString(),
+                    newValue: newOrder.toString(),
+                    modifiedBy
+                });
+            }
         }
 
         // Handle meta_data updates (custom fields)

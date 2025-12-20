@@ -16,16 +16,13 @@ interface Props {
 interface ProductData {
     id: number;
     name: string;
-    description?: string;
-    regularPrice?: number;
-    salePrice?: number;
     price?: number;
     stockQuantity?: number;
     manageStock?: boolean;
+    menuOrder?: number;
     sku?: string;
     status?: string;
     permalink?: string;
-    metaData?: string;
 }
 
 interface ModificationLog {
@@ -82,34 +79,29 @@ export default function ProductParamsEditor({ productId, productName, isOpen, on
 
     const hasChanges = () => {
         if (!product || !editedProduct) return false;
+        const p = product as any;
+        const e = editedProduct as any;
         return (
-            product.name !== editedProduct.name ||
-            product.description !== editedProduct.description ||
-            product.regularPrice !== editedProduct.regularPrice ||
-            product.salePrice !== editedProduct.salePrice ||
-            product.stockQuantity !== editedProduct.stockQuantity ||
-            product.manageStock !== editedProduct.manageStock
+            p.stockQuantity !== e.stockQuantity ||
+            p.manageStock !== e.manageStock ||
+            (p.menuOrder || 0) !== (e.menuOrder || 0)
         );
     };
 
     const getChanges = () => {
         if (!product || !editedProduct) return [];
         const changes: { field: string; from: any; to: any }[] = [];
+        const p = product as any;
+        const e = editedProduct as any;
 
-        if (product.name !== editedProduct.name) {
-            changes.push({ field: 'Nome', from: product.name, to: editedProduct.name });
+        if (p.stockQuantity !== e.stockQuantity) {
+            changes.push({ field: 'Quantità Stock', from: p.stockQuantity || 0, to: e.stockQuantity || 0 });
         }
-        if (product.description !== editedProduct.description) {
-            changes.push({ field: 'Descrizione', from: product.description || '(vuoto)', to: editedProduct.description || '(vuoto)' });
+        if (p.manageStock !== e.manageStock) {
+            changes.push({ field: 'Gestione Stock', from: p.manageStock ? 'Sì' : 'No', to: e.manageStock ? 'Sì' : 'No' });
         }
-        if (product.regularPrice !== editedProduct.regularPrice) {
-            changes.push({ field: 'Prezzo', from: `€${product.regularPrice || 0}`, to: `€${editedProduct.regularPrice || 0}` });
-        }
-        if (product.salePrice !== editedProduct.salePrice) {
-            changes.push({ field: 'Prezzo Scontato', from: `€${product.salePrice || 0}`, to: `€${editedProduct.salePrice || 0}` });
-        }
-        if (product.stockQuantity !== editedProduct.stockQuantity) {
-            changes.push({ field: 'Stock', from: product.stockQuantity, to: editedProduct.stockQuantity });
+        if ((p.menuOrder || 0) !== (e.menuOrder || 0)) {
+            changes.push({ field: 'Posizione Menu', from: p.menuOrder || 0, to: e.menuOrder || 0 });
         }
 
         return changes;
@@ -122,19 +114,17 @@ export default function ProductParamsEditor({ productId, productName, isOpen, on
         setSaveResult(null);
 
         try {
+            const e = editedProduct as any;
             const res = await fetch(`/api/woocommerce/products/${productId}/update`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     updates: {
-                        name: editedProduct.name,
-                        description: editedProduct.description,
-                        regularPrice: editedProduct.regularPrice,
-                        salePrice: editedProduct.salePrice,
-                        stockQuantity: editedProduct.stockQuantity,
-                        manageStock: editedProduct.manageStock,
+                        stockQuantity: e.stockQuantity,
+                        manageStock: e.manageStock,
+                        menuOrder: e.menuOrder,
                     },
-                    modifiedBy: 'Operatore' // TODO: Get from session
+                    modifiedBy: 'Operatore'
                 })
             });
 
@@ -264,91 +254,66 @@ export default function ProductParamsEditor({ productId, productName, isOpen, on
                     ) : (
                         /* Edit Form */
                         <div className="space-y-6">
-                            {/* Name */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Nome Prodotto
-                                </label>
-                                <input
-                                    type="text"
-                                    value={editedProduct?.name || ''}
-                                    onChange={(e) => setEditedProduct(prev => prev ? { ...prev, name: e.target.value } : null)}
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-
-                            {/* Description */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Descrizione Breve
-                                </label>
-                                <textarea
-                                    value={editedProduct?.description || ''}
-                                    onChange={(e) => setEditedProduct(prev => prev ? { ...prev, description: e.target.value } : null)}
-                                    rows={3}
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-
-                            {/* Prices */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Prezzo Regolare (€)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        value={editedProduct?.regularPrice || ''}
-                                        onChange={(e) => setEditedProduct(prev => prev ? { ...prev, regularPrice: parseFloat(e.target.value) || 0 } : null)}
-                                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Prezzo Scontato (€)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        value={editedProduct?.salePrice || ''}
-                                        onChange={(e) => setEditedProduct(prev => prev ? { ...prev, salePrice: parseFloat(e.target.value) || undefined } : null)}
-                                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        placeholder="Lascia vuoto se non in sconto"
-                                    />
-                                </div>
-                            </div>
-
                             {/* Stock */}
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                                <h3 className="text-sm font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                                    📦 Inventario
+                                </h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Quantità Disponibile
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={editedProduct?.stockQuantity || ''}
+                                            onChange={(e) => setEditedProduct(prev => prev ? { ...prev, stockQuantity: parseInt(e.target.value) || 0 } : null)}
+                                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg font-bold"
+                                        />
+                                    </div>
+                                    <div className="flex items-end">
+                                        <label className="flex items-center gap-2 cursor-pointer bg-white px-3 py-2 rounded-lg border w-full">
+                                            <input
+                                                type="checkbox"
+                                                checked={editedProduct?.manageStock || false}
+                                                onChange={(e) => setEditedProduct(prev => prev ? { ...prev, manageStock: e.target.checked } : null)}
+                                                className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                                            />
+                                            <span className="text-sm text-gray-700">Gestisci Stock</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Menu Order / Priorità */}
+                            <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
+                                <h3 className="text-sm font-semibold text-purple-800 mb-3 flex items-center gap-2">
+                                    ⭐ Ordinamento / Priorità
+                                </h3>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Quantità Stock
+                                        Posizione Menu (0 = default, numeri bassi = prima)
                                     </label>
                                     <input
                                         type="number"
-                                        value={editedProduct?.stockQuantity || ''}
-                                        onChange={(e) => setEditedProduct(prev => prev ? { ...prev, stockQuantity: parseInt(e.target.value) || 0 } : null)}
-                                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        value={(editedProduct as any)?.menuOrder || 0}
+                                        onChange={(e) => setEditedProduct(prev => prev ? { ...prev, menuOrder: parseInt(e.target.value) || 0 } as any : null)}
+                                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        placeholder="0"
                                     />
-                                </div>
-                                <div className="flex items-end">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={editedProduct?.manageStock || false}
-                                            onChange={(e) => setEditedProduct(prev => prev ? { ...prev, manageStock: e.target.checked } : null)}
-                                            className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-                                        />
-                                        <span className="text-sm text-gray-700">Gestisci Stock</span>
-                                    </label>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Imposta un numero basso (es. -10, -5) per mettere in evidenza in cima al sito.
+                                        Lascia 0 per ordinamento per data.
+                                    </p>
                                 </div>
                             </div>
 
                             {/* Info */}
                             <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
+                                <p><strong>Prodotto:</strong> {product?.name}</p>
                                 <p><strong>SKU:</strong> {product?.sku || 'N/A'}</p>
                                 <p><strong>Stato:</strong> {product?.status}</p>
+                                <p><strong>Prezzo:</strong> €{product?.price || 0}</p>
                             </div>
 
                             {/* Save Result */}
@@ -384,8 +349,8 @@ export default function ProductParamsEditor({ productId, productName, isOpen, on
                                 onClick={() => setShowConfirm(true)}
                                 disabled={!hasChanges() || saving}
                                 className={`flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-colors ${hasChanges()
-                                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                     }`}
                             >
                                 {saving ? (
