@@ -16,7 +16,6 @@ async function analyzeProductPlugins() {
             name: true,
             productType: true,
             sku: true,
-            metaData: true,
         }
     });
 
