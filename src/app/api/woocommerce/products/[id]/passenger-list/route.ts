@@ -104,18 +104,30 @@ export async function GET(
         // Consolidate Order Items and Manual Bookings for Sorting
         let rawRows: any[] = [];
 
+        // Confirmed statuses (count in total, show first)
+        const confirmedStatuses = ['processing', 'completed', 'on-hold'];
+
         // Orders
         for (const item of product.orderItems) {
             const order = item.order;
             if (order) {
+                const isConfirmed = confirmedStatuses.includes(order.status);
+
+                // Use metaData fields (_field_*) if available, otherwise billing info
+                const fieldNome = getMetaValue(item.metaData, '_field_Nome');
+                const fieldCognome = getMetaValue(item.metaData, '_field_Cognome');
+                const fieldTelefono = getMetaValue(item.metaData, '_field_Telefono');
+
                 const row: any = {
                     // num assigned later
-                    cognome: order.billingLastName || '',
-                    nome: order.billingFirstName || '',
-                    telefono: order.billingPhone || '',
+                    cognome: fieldCognome || order.billingLastName || '',
+                    nome: fieldNome || order.billingFirstName || '',
+                    telefono: fieldTelefono || order.billingPhone || '',
                     puntoPartenza: findPartenza(item.metaData),
                     source: 'order',
                     orderId: order.id,
+                    orderStatus: order.status,
+                    isConfirmed: isConfirmed,
                     pax: item.quantity,
                     note: '',
                     dynamic: {}
@@ -130,6 +142,9 @@ export async function GET(
                 }
 
                 let noteContent = `Ordine #${order.id}`;
+                if (!isConfirmed) {
+                    noteContent = `⚠️ ${order.status.toUpperCase()} | ${noteContent}`;
+                }
                 if (noteConfig) {
                     const extraNote = getMetaValue(item.metaData, noteConfig.fieldKey);
                     if (extraNote) noteContent = `${extraNote} | ${noteContent}`;
@@ -162,12 +177,18 @@ export async function GET(
         }
 
         // ---------------------------------------------------------
-        // LOGICA ORDINAMENTO (Phase 3)
+        // LOGICA ORDINAMENTO
+        // 0. Confirmed first, non-confirmed at end
         // 1. Punto di Ritrovo (Alphabetical)
         // 2. Order ID (Group Unity)
         // 3. Cognome (Alphabetical)
         // ---------------------------------------------------------
         rawRows.sort((a, b) => {
+            // 0. Confirmed status (confirmed first)
+            if (a.isConfirmed !== b.isConfirmed) {
+                return a.isConfirmed ? -1 : 1;
+            }
+
             // 1. Punto Partenza
             const pA = (a.puntoPartenza || '').toLowerCase();
             const pB = (b.puntoPartenza || '').toLowerCase();
@@ -175,12 +196,9 @@ export async function GET(
             if (pA > pB) return 1;
 
             // 2. Order ID (if both exist)
-            // Manual bookings have undefined orderId -> treat as 0 or separate
             const oA = a.orderId || 0;
             const oB = b.orderId || 0;
             if (oA !== oB) {
-                // Determine if we want to group manual bookings together or strict numerical
-                // Keep same order IDs together.
                 return oA - oB;
             }
 
@@ -236,9 +254,15 @@ export async function GET(
             if (colSelected('note'))
                 columns.push({ header: 'Note', key: 'note' });
 
+            // Calculate counts
+            const confirmedCount = dataRows.filter(r => r.isConfirmed !== false).reduce((sum, r) => sum + (r.pax || 1), 0);
+            const totalCount = dataRows.reduce((sum, r) => sum + (r.pax || 1), 0);
+
             return NextResponse.json({
                 productName: product.name,
                 eventDate: product.eventDate ? format(new Date(product.eventDate), "dd MMMM yyyy", { locale: it }) : "Data N/D",
+                confirmedCount,
+                totalCount,
                 columns,
                 rows: dataRows
             });
