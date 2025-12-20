@@ -42,6 +42,15 @@ export async function GET(
             : null;
         const isSelected = (key: string) => selectedKeys === null || selectedKeys.includes(key);
 
+        // Build alias map: aliasKey -> primaryKey
+        // If a field has aliasOf set, it means: use primaryKey's value if this field is empty
+        const aliasMap = new Map<string, string>();
+        fieldConfig.forEach(f => {
+            if ((f as any).aliasOf) {
+                aliasMap.set(f.fieldKey, (f as any).aliasOf);
+            }
+        });
+
         const partenzaConfig = fieldConfig.find(c => c.mappingType === 'PARTENZA');
         const cfConfig = fieldConfig.find(c => c.mappingType === 'CF' && isSelected(c.fieldKey));
         const addressConfig = fieldConfig.find(c => c.mappingType === 'ADDRESS' && isSelected(c.fieldKey));
@@ -53,13 +62,31 @@ export async function GET(
             dynamicColumns = dynamicColumns.filter(c => selectedKeys.includes(c.fieldKey));
         }
 
+        // Get value from metaData, with alias support
         const getMetaValue = (metaDataStr: string | null, key: string | undefined): string | null => {
             if (!metaDataStr || !key) return null;
             try {
                 const meta = JSON.parse(metaDataStr);
                 if (Array.isArray(meta)) {
-                    const match = meta.find((m: any) => (m.key === key) || (m.display_key === key));
+                    // First try the direct key
+                    let match = meta.find((m: any) => (m.key === key) || (m.display_key === key));
                     if (match) return match.value || match.display_value;
+
+                    // If not found and this key has an alias (is secondary), try the primary key
+                    const primaryKey = aliasMap.get(key);
+                    if (primaryKey) {
+                        match = meta.find((m: any) => (m.key === primaryKey) || (m.display_key === primaryKey));
+                        if (match) return match.value || match.display_value;
+                    }
+
+                    // Also check if any field aliases TO this key (this key is primary)
+                    // Look for secondary keys that alias to this one
+                    for (const [secondaryKey, targetKey] of aliasMap.entries()) {
+                        if (targetKey === key) {
+                            match = meta.find((m: any) => (m.key === secondaryKey) || (m.display_key === secondaryKey));
+                            if (match) return match.value || match.display_value;
+                        }
+                    }
                 }
             } catch (e) { return null; }
             return null;
