@@ -169,6 +169,8 @@ export async function GET(
                     m.key === '_field_Nome' || m.display_key === '_field_Nome'
                 );
 
+                console.log(`[extractMultiplePassengers] productName: ${productName}, nomeEntries: ${nomeEntries.length}`);
+
                 if (nomeEntries.length <= 1) return []; // Single passenger, use normal flow
 
                 // Detect room capacity from product variation name
