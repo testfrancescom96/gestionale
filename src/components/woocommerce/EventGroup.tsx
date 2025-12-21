@@ -6,7 +6,6 @@ import { it } from "date-fns/locale";
 import { ChevronDown, ChevronRight, Package, Pencil, ClipboardList, CheckCircle2, AlertTriangle, XCircle, Download, RefreshCw, UserPlus, Settings } from "lucide-react";
 import { GroupedEvent } from "@/lib/woo-utils";
 import { ProductBookings } from "./ProductBookings";
-import { ProductEditModal } from "./ProductEditModal";
 import { ManualOrderModal } from "./ManualOrderModal";
 import { TripWorkflowModal } from "./TripWorkflowModal";
 
@@ -24,7 +23,6 @@ interface EventGroupProps {
 export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDownload, onSyncProduct, onTogglePin, onEditParams }: EventGroupProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [expandedProducts, setExpandedProducts] = useState<Record<number, boolean>>({});
-    const [editingProduct, setEditingProduct] = useState<any | null>(null);
     const [workflowProduct, setWorkflowProduct] = useState<any | null>(null);
     const [manualOrderProduct, setManualOrderProduct] = useState<any | null>(null);
 
@@ -298,16 +296,6 @@ export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDo
                                         </button>
 
                                         <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setEditingProduct(product);
-                                            }}
-                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
-                                            title="Modifica Prodotto"
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                        </button>
-                                        <button
                                             onClick={() => toggleProduct(product.id)}
                                             className="text-gray-400 hover:text-gray-600 p-2"
                                         >
@@ -332,21 +320,6 @@ export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDo
                     })}
                 </div>
             )}
-
-            {/* Edit Modal */}
-            {
-                editingProduct && (
-                    <ProductEditModal
-                        isOpen={!!editingProduct}
-                        product={editingProduct}
-                        onClose={() => setEditingProduct(null)}
-                        onSave={() => {
-                            setEditingProduct(null);
-                            if (onRefresh) onRefresh();
-                        }}
-                    />
-                )
-            }
 
             {/* Workflow Modal */}
             {
