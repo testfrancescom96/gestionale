@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
 
 
 
-        const result = [];
+        const result: any[] = [];
         // We need to deduplicate by KEY, because JSON.stringify might have different labels.
         const processedKeys = new Set<string>();
 
@@ -76,6 +76,7 @@ export async function GET(req: NextRequest) {
                 mappingType: config.mappingType,
                 isDefaultSelected: config.isDefaultSelected,
                 aliasOf: config.aliasOf,
+                displayOrder: config.displayOrder,
                 isSaved: true
             });
         }
@@ -90,10 +91,14 @@ export async function GET(req: NextRequest) {
                     mappingType: "COLUMN",
                     isDefaultSelected: false,
                     aliasOf: null,
+                    displayOrder: 100,
                     isSaved: false
                 });
             }
         }
+
+        // Sort by displayOrder, then by label
+        result.sort((a, b) => (a.displayOrder - b.displayOrder) || a.label.localeCompare(b.label));
 
         return NextResponse.json(result);
     } catch (error: any) {
@@ -105,7 +110,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { fieldKey, label, mappingType, isDefaultSelected, aliasOf } = body;
+        const { fieldKey, label, mappingType, isDefaultSelected, aliasOf, displayOrder } = body;
 
         // If mappingType is "PARTENZA", unset others? Not strictly needed if we filter by type in export.
         // But for UI cleanliness, maybe we want only one Partenza? 
@@ -119,14 +124,16 @@ export async function POST(req: NextRequest) {
                 label,
                 mappingType,
                 isDefaultSelected: isDefaultSelected ?? false,
-                aliasOf: aliasOf || null
+                aliasOf: aliasOf || null,
+                displayOrder: displayOrder ?? 100
             },
             create: {
                 fieldKey,
                 label,
                 mappingType,
                 isDefaultSelected: isDefaultSelected ?? false,
-                aliasOf: aliasOf || null
+                aliasOf: aliasOf || null,
+                displayOrder: displayOrder ?? 100
             }
         });
 
