@@ -38,20 +38,34 @@ async function debugRoomMeta() {
                 const meta = JSON.parse(item.metaData);
                 console.log(`\nMetaData (${meta.length} entries):`);
 
-                // Mostra tutte le chiavi
+                // Mostra tutte le chiavi con tipo
                 for (const m of meta) {
                     const key = m.display_key || m.key || '(no key)';
-                    const value = m.display_value || m.value || '(no value)';
+                    const rawValue = m.display_value !== undefined ? m.display_value : m.value;
+
+                    // Handle different value types
+                    let displayValue;
+                    if (rawValue === null || rawValue === undefined) {
+                        displayValue = '(null)';
+                    } else if (typeof rawValue === 'object') {
+                        displayValue = `[OBJECT] ${JSON.stringify(rawValue).substring(0, 100)}`;
+                    } else if (typeof rawValue === 'string') {
+                        displayValue = `"${rawValue.substring(0, 60)}${rawValue.length > 60 ? '...' : ''}"`;
+                    } else {
+                        displayValue = String(rawValue);
+                    }
 
                     // Evidenzia i campi Nome/Cognome
-                    if (key.toLowerCase().includes('nome') || key.toLowerCase().includes('cognome')) {
-                        console.log(`  ⭐ ${key}: "${value}"`);
+                    const keyLower = key.toLowerCase();
+                    if (keyLower.includes('nome') || keyLower.includes('cognome')) {
+                        console.log(`  ⭐ ${key}: ${displayValue}`);
                     } else {
-                        console.log(`     ${key}: "${value.substring(0, 50)}${value.length > 50 ? '...' : ''}"`);
+                        console.log(`     ${key}: ${displayValue}`);
                     }
                 }
             } catch (e) {
                 console.log('   Errore parsing metaData:', e.message);
+                console.log('   Raw metaData (first 500 chars):', item.metaData.substring(0, 500));
             }
         } else {
             console.log('   (nessun metaData)');
