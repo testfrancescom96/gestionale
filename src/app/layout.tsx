@@ -21,12 +21,12 @@ export default async function RootLayout({
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || "";
 
-  // Login page has its own full-screen layout
+  // Login and share pages have their own layouts
   const isLoginPage = pathname.includes("/login");
+  const isSharePage = pathname.startsWith("/share");
 
-  // If no session and not explicitly on login, we still show sidebar 
-  // but the middleware will redirect to login
-  const showSidebar = session?.user && !isLoginPage;
+  // Show sidebar only for authenticated users on non-special pages
+  const showSidebar = session?.user && !isLoginPage && !isSharePage;
 
   return (
     <html lang="it">
