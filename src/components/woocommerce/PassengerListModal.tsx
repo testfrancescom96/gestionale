@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo } from "react";
-import { Loader2, X, Download, CheckSquare, Square, RefreshCw } from "lucide-react";
+import { Loader2, X, Download, CheckSquare, Square, RefreshCw, LayoutGrid, LayoutList } from "lucide-react";
 
 interface Props {
     isOpen: boolean;
@@ -15,6 +15,8 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
     const [selectedFields, setSelectedFields] = useState<Set<string>>(new Set());
     const [previewKey, setPreviewKey] = useState(0); // Force re-fetch
     const [downloading, setDownloading] = useState(false);
+    // Display mode: 'headers' = header row per room (B), 'compact' = first row only (A)
+    const [roomDisplayMode, setRoomDisplayMode] = useState<'headers' | 'compact'>('headers');
 
     // Initial Fetch (Config + Minimal Data)
     useEffect(() => {
@@ -231,6 +233,28 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                             </button>
                         );
                     })}
+
+                    {/* Display Mode Toggle - only show if there are room groups */}
+                    {data?.rows?.some((r: any) => r.roomIndex !== undefined) && (
+                        <div className="flex items-center gap-1 ml-4 border-l pl-4">
+                            <span className="text-xs text-gray-400 mr-1">Vista:</span>
+                            <button
+                                onClick={() => setRoomDisplayMode('headers')}
+                                className={`p-1.5 rounded transition-colors ${roomDisplayMode === 'headers' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400 hover:bg-gray-100'}`}
+                                title="Vista con intestazioni camere"
+                            >
+                                <LayoutGrid className="h-4 w-4" />
+                            </button>
+                            <button
+                                onClick={() => setRoomDisplayMode('compact')}
+                                className={`p-1.5 rounded transition-colors ${roomDisplayMode === 'compact' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400 hover:bg-gray-100'}`}
+                                title="Vista compatta"
+                            >
+                                <LayoutList className="h-4 w-4" />
+                            </button>
+                        </div>
+                    )}
+
                     <div className="ml-auto text-xs text-gray-400 italic">
                         * Aggiungi campi in Impostazioni ⚙️
                     </div>
@@ -299,10 +323,47 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                                             }
 
                                             // Border: Thicker top border for new groups - more visible
-                                            const borderClass = isNewGroup && idx > 0 ? 'border-t-4 border-gray-400' : '';
+                                            const borderClass = isNewGroup && idx > 0 && roomDisplayMode !== 'headers' ? 'border-t-4 border-gray-400' : '';
                                             const textClass = isNotConfirmed ? 'text-red-600 line-through' : '';
 
-                                            return (
+                                            // Build rows array (may include header row)
+                                            const rows = [];
+
+                                            // Add header row for room groups in 'headers' mode
+                                            if (roomDisplayMode === 'headers' && hasRoomIndex && isNewGroup) {
+                                                // Extract room type from note (e.g., "Ordine #41474 - Camera 1")
+                                                const roomTypeMatch = row.note?.match(/Camera (\d+)/);
+                                                const roomNumber = roomTypeMatch ? roomTypeMatch[1] : (row.roomIndex + 1);
+
+                                                // Try to get room type from product name or dynamic fields
+                                                let roomType = row.dynamic?.['Tipologia camera'] || '';
+                                                if (!roomType) {
+                                                    // Guess from context - check if product name has camera type
+                                                    const types = ['Singola', 'Doppia', 'Tripla', 'Quadrupla', 'Quintupla'];
+                                                    for (const t of types) {
+                                                        if (row.note?.toLowerCase().includes(t.toLowerCase())) {
+                                                            roomType = t;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+
+                                                rows.push(
+                                                    <tr key={`header-${idx}`} className="bg-gray-200 border-t-2 border-gray-400">
+                                                        <td colSpan={sortedColumns.length} className="px-4 py-2">
+                                                            <div className="flex items-center gap-2 text-sm font-bold text-gray-700">
+                                                                <span className="text-lg">🏨</span>
+                                                                <span>Camera {roomNumber}</span>
+                                                                {roomType && <span className="text-indigo-600">- {roomType}</span>}
+                                                                <span className="text-gray-400 font-normal ml-2">(Ordine #{row.orderId})</span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            }
+
+                                            // Add data row
+                                            rows.push(
                                                 <tr key={idx} className={`hover:bg-blue-50/30 transition-colors ${bgClass} ${borderClass} ${textClass}`}>
                                                     {sortedColumns.map((col: any) => {
                                                         let val = row[col.key];
@@ -311,20 +372,23 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                                                             val = row.dynamic?.[col.key];
                                                         }
 
-                                                        // Visual cue for grouping: Hide repeated Order ID or Name? 
-                                                        // Maybe just use the color block. 
-                                                        // Let's keep it simple: Color block + Border.
+                                                        // In headers mode, skip showing room type in data cells (it's in header)
+                                                        if (roomDisplayMode === 'headers' && hasRoomIndex &&
+                                                            (col.key === 'Tipologia camera' || col.header === 'Tipologia camera')) {
+                                                            val = '';
+                                                        }
 
                                                         return (
                                                             <td key={col.key} className="px-4 py-3 text-gray-700">
-                                                                {/* Optional: Add connection line for same group in first col? */}
                                                                 {val || '-'}
                                                             </td>
                                                         );
                                                     })}
                                                 </tr>
                                             );
-                                        });
+
+                                            return rows;
+                                        }).flat();
                                     })()}
                                     {data.rows.length === 0 && (
                                         <tr>
