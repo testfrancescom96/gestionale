@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Loader2, X, Download, CheckSquare, Square, RefreshCw } from "lucide-react";
 
 interface Props {
@@ -158,6 +158,24 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
         }
     };
 
+    // Sort columns based on availableFields displayOrder
+    const sortedColumns = useMemo(() => {
+        if (!data?.columns) return [];
+
+        // Create order map from availableFields
+        const orderMap = new Map<string, number>();
+        availableFields.forEach((f, idx) => {
+            orderMap.set(f.fieldKey, f.displayOrder ?? 100);
+        });
+
+        // Sort columns by displayOrder, then by header alphabetically
+        return [...data.columns].sort((a: any, b: any) => {
+            const orderA = orderMap.get(a.key) ?? 100;
+            const orderB = orderMap.get(b.key) ?? 100;
+            return (orderA - orderB) || a.header.localeCompare(b.header);
+        });
+    }, [data, availableFields]);
+
     if (!isOpen) return null;
 
     return (
@@ -229,7 +247,7 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                             <table className="w-full text-sm text-left">
                                 <thead className="bg-gray-100 text-gray-600 uppercase text-xs font-semibold">
                                     <tr>
-                                        {data.columns.map((col: any) => (
+                                        {sortedColumns.map((col: any) => (
                                             <th key={col.key} className="px-4 py-3 border-b">{col.header}</th>
                                         ))}
                                     </tr>
@@ -281,7 +299,7 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
 
                                             return (
                                                 <tr key={idx} className={`hover:bg-blue-50/30 transition-colors ${bgClass} ${borderClass} ${textClass}`}>
-                                                    {data.columns.map((col: any) => {
+                                                    {sortedColumns.map((col: any) => {
                                                         let val = row[col.key];
                                                         // Handle dynamic props
                                                         if (col.isDynamic) {
@@ -305,7 +323,7 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                                     })()}
                                     {data.rows.length === 0 && (
                                         <tr>
-                                            <td colSpan={data.columns.length} className="px-4 py-8 text-center text-gray-500 italic">
+                                            <td colSpan={sortedColumns.length} className="px-4 py-8 text-center text-gray-500 italic">
                                                 Nessun passeggero trovato.
                                             </td>
                                         </tr>
