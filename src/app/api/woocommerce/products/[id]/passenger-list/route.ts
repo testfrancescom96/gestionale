@@ -128,6 +128,101 @@ export async function GET(
             return '';
         };
 
+        // Extract multiple passengers from metadata (for room products)
+        // Returns array of passenger objects, each with their own data
+        const extractMultiplePassengers = (metaDataStr: string | null, productName: string): any[] => {
+            if (!metaDataStr) return [];
+
+            try {
+                const meta = JSON.parse(metaDataStr);
+                if (!Array.isArray(meta)) return [];
+
+                // Count how many "Nome" entries exist (one per person)
+                const nomeEntries = meta.filter((m: any) =>
+                    m.key === 'Nome' || m.display_key === 'Nome' ||
+                    m.key === '_field_Nome' || m.display_key === '_field_Nome'
+                );
+
+                if (nomeEntries.length <= 1) return []; // Single passenger, use normal flow
+
+                // Detect room capacity from product variation name
+                let roomCapacity = 2; // Default to double
+                const lowerName = productName.toLowerCase();
+                if (lowerName.includes('singola')) roomCapacity = 1;
+                else if (lowerName.includes('doppia')) roomCapacity = 2;
+                else if (lowerName.includes('tripla')) roomCapacity = 3;
+                else if (lowerName.includes('quadrupla')) roomCapacity = 4;
+                else if (lowerName.includes('quintupla')) roomCapacity = 5;
+
+                // Keys to extract per person (in order of appearance)
+                const personKeys = ['Nome', 'Cognome', 'Data di nascita', 'Luogo di nascita',
+                    'Recapito telefonico', 'Codice Fiscale', 'Email',
+                    'Allergie o intolleranze', '_field_Nome', '_field_Cognome',
+                    '_field_Telefono', '_field_Codice Fiscale', '_field_Data di nascita'];
+
+                // Build array of passengers
+                const passengers: any[] = [];
+                const keyCounters: Map<string, number> = new Map();
+
+                // Initialize counters
+                personKeys.forEach(k => keyCounters.set(k.toLowerCase(), 0));
+
+                // Group by person - track which instance of each key we're on
+                let currentPerson: any = { dynamic: {} };
+                let personIndex = 0;
+
+                for (const entry of meta) {
+                    const key = entry.display_key || entry.key || '';
+                    const value = entry.display_value || entry.value || '';
+                    const keyLower = key.toLowerCase();
+
+                    // Skip internal/system keys
+                    if (key.startsWith('_') && !key.startsWith('_field_') && !key.startsWith('_billing_')) continue;
+
+                    // Check if this is a "Nome" key - indicates new person
+                    if (key === 'Nome' || key === '_field_Nome') {
+                        if (currentPerson.nome) {
+                            // Save previous person and start new one
+                            currentPerson.personIndex = personIndex;
+                            currentPerson.roomIndex = Math.floor(personIndex / roomCapacity);
+                            passengers.push(currentPerson);
+                            personIndex++;
+                            currentPerson = { dynamic: {} };
+                        }
+                        currentPerson.nome = value;
+                    } else if (key === 'Cognome' || key === '_field_Cognome') {
+                        currentPerson.cognome = value;
+                    } else if (key === 'Recapito telefonico' || key === 'Recapito Telefonico' || key === '_field_Telefono' || key === 'Telefono') {
+                        currentPerson.telefono = value;
+                    } else if (key === 'Email' || key === '_field_Email') {
+                        currentPerson.email = value;
+                    } else if (key === 'Codice Fiscale' || key === '_field_Codice Fiscale' || key === '_field_Codice fiscale') {
+                        currentPerson.cf = value;
+                    } else if (key === 'Data di nascita' || key === '_field_Data di nascita') {
+                        currentPerson.dataNascita = value;
+                    } else if (key === 'Luogo di nascita') {
+                        currentPerson.luogoNascita = value;
+                    } else if (key === 'Allergie o intolleranze') {
+                        currentPerson.allergie = value;
+                    } else if (!key.startsWith('_') && value) {
+                        // Dynamic field for current person
+                        currentPerson.dynamic[key] = value;
+                    }
+                }
+
+                // Don't forget the last person
+                if (currentPerson.nome) {
+                    currentPerson.personIndex = personIndex;
+                    currentPerson.roomIndex = Math.floor(personIndex / roomCapacity);
+                    passengers.push(currentPerson);
+                }
+
+                return passengers;
+            } catch (e) {
+                return [];
+            }
+        };
+
         // Consolidate Order Items and Manual Bookings for Sorting
         let rawRows: any[] = [];
 
@@ -147,46 +242,85 @@ export async function GET(
 
                 const isConfirmed = confirmedStatuses.includes(order.status);
 
-                // Use metaData fields (_field_*) if available, otherwise billing info
-                const fieldNome = getMetaValue(item.metaData, '_field_Nome');
-                const fieldCognome = getMetaValue(item.metaData, '_field_Cognome');
-                const fieldTelefono = getMetaValue(item.metaData, '_field_Telefono');
+                // Check for multi-passenger room product
+                const multiPassengers = extractMultiplePassengers(item.metaData, item.productName || '');
 
-                const row: any = {
-                    // num assigned later
-                    cognome: fieldCognome || order.billingLastName || '',
-                    nome: fieldNome || order.billingFirstName || '',
-                    telefono: fieldTelefono || order.billingPhone || '',
-                    email: order.billingEmail || '',
-                    puntoPartenza: findPartenza(item.metaData),
-                    importo: item.total || 0, // Payment amount from order
-                    source: 'order',
-                    orderId: order.id,
-                    orderStatus: order.status,
-                    isConfirmed: isConfirmed,
-                    pax: item.quantity,
-                    note: '',
-                    dynamic: {}
-                };
-                if (cfConfig) row.cf = getMetaValue(item.metaData, cfConfig.fieldKey) || '';
-                if (addressConfig) row.address = getMetaValue(item.metaData, addressConfig.fieldKey) || '';
-                if (capConfig) row.cap = getMetaValue(item.metaData, capConfig.fieldKey) || '';
+                if (multiPassengers.length > 0) {
+                    // Multi-passenger mode: one row per person
+                    const importoPerPerson = (item.total || 0) / multiPassengers.length;
 
-                // Populate dynamic fields by Label (Consolidated)
-                for (const [label, keys] of consolidatedCols.entries()) {
-                    row.dynamic[label] = getConsolidatedValue(item.metaData, keys);
-                }
+                    for (const passenger of multiPassengers) {
+                        const row: any = {
+                            cognome: passenger.cognome || '',
+                            nome: passenger.nome || '',
+                            telefono: passenger.telefono || '',
+                            email: passenger.email || order.billingEmail || '',
+                            puntoPartenza: findPartenza(item.metaData),
+                            importo: importoPerPerson,
+                            source: 'order',
+                            orderId: order.id,
+                            orderStatus: order.status,
+                            isConfirmed: isConfirmed,
+                            pax: 1, // Each person is 1 pax
+                            roomIndex: passenger.roomIndex, // For color grouping
+                            personIndex: passenger.personIndex,
+                            note: '',
+                            dynamic: { ...passenger.dynamic }
+                        };
 
-                let noteContent = `Ordine #${order.id}`;
-                if (!isConfirmed) {
-                    noteContent = `⚠️ ${order.status.toUpperCase()} | ${noteContent}`;
+                        if (cfConfig) row.cf = passenger.cf || '';
+                        if (passenger.dataNascita) row.dynamic['Data di nascita'] = passenger.dataNascita;
+                        if (passenger.luogoNascita) row.dynamic['Luogo di nascita'] = passenger.luogoNascita;
+                        if (passenger.allergie) row.dynamic['Allergie o intolleranze'] = passenger.allergie;
+
+                        let noteContent = `Ordine #${order.id} - Camera ${passenger.roomIndex + 1}`;
+                        if (!isConfirmed) {
+                            noteContent = `⚠️ ${order.status.toUpperCase()} | ${noteContent}`;
+                        }
+                        row.note = noteContent;
+                        rawRows.push(row);
+                    }
+                } else {
+                    // Single passenger mode (original logic)
+                    const fieldNome = getMetaValue(item.metaData, '_field_Nome');
+                    const fieldCognome = getMetaValue(item.metaData, '_field_Cognome');
+                    const fieldTelefono = getMetaValue(item.metaData, '_field_Telefono');
+
+                    const row: any = {
+                        cognome: fieldCognome || order.billingLastName || '',
+                        nome: fieldNome || order.billingFirstName || '',
+                        telefono: fieldTelefono || order.billingPhone || '',
+                        email: order.billingEmail || '',
+                        puntoPartenza: findPartenza(item.metaData),
+                        importo: item.total || 0,
+                        source: 'order',
+                        orderId: order.id,
+                        orderStatus: order.status,
+                        isConfirmed: isConfirmed,
+                        pax: item.quantity,
+                        note: '',
+                        dynamic: {}
+                    };
+                    if (cfConfig) row.cf = getMetaValue(item.metaData, cfConfig.fieldKey) || '';
+                    if (addressConfig) row.address = getMetaValue(item.metaData, addressConfig.fieldKey) || '';
+                    if (capConfig) row.cap = getMetaValue(item.metaData, capConfig.fieldKey) || '';
+
+                    // Populate dynamic fields by Label (Consolidated)
+                    for (const [label, keys] of consolidatedCols.entries()) {
+                        row.dynamic[label] = getConsolidatedValue(item.metaData, keys);
+                    }
+
+                    let noteContent = `Ordine #${order.id}`;
+                    if (!isConfirmed) {
+                        noteContent = `⚠️ ${order.status.toUpperCase()} | ${noteContent}`;
+                    }
+                    if (noteConfig) {
+                        const extraNote = getMetaValue(item.metaData, noteConfig.fieldKey);
+                        if (extraNote) noteContent = `${extraNote} | ${noteContent}`;
+                    }
+                    row.note = noteContent;
+                    rawRows.push(row);
                 }
-                if (noteConfig) {
-                    const extraNote = getMetaValue(item.metaData, noteConfig.fieldKey);
-                    if (extraNote) noteContent = `${extraNote} | ${noteContent}`;
-                }
-                row.note = noteContent;
-                rawRows.push(row);
             }
         }
 

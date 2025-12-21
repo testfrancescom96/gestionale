@@ -257,27 +257,32 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                                         let currentGroupIndex = 0;
                                         let lastOrderId: number | null = null;
                                         let lastSource: string | null = null;
+                                        let lastRoomIndex: number | null = null;
 
                                         return data.rows.map((row: any, idx: number) => {
                                             const isManual = row.source === 'manual';
                                             const isOrder = row.source === 'order';
+                                            const hasRoomIndex = row.roomIndex !== undefined;
 
                                             // Determine if new group
+                                            // For room products: new room = new group
+                                            // For regular products: new order = new group
                                             let isNewGroup = true;
                                             if (idx > 0) {
-                                                if (isOrder && lastSource === 'order' && row.orderId === lastOrderId) {
+                                                if (hasRoomIndex && lastOrderId === row.orderId && lastRoomIndex === row.roomIndex) {
+                                                    // Same room in same order
+                                                    isNewGroup = false;
+                                                } else if (!hasRoomIndex && isOrder && lastSource === 'order' && row.orderId === lastOrderId) {
+                                                    // Same order (regular product)
                                                     isNewGroup = false;
                                                 }
-                                                // Groups split by logic are already sorted together.
-                                                // BUT if sorted by Pickup, a single order might be split.
-                                                // In that case, we treat them as separate visual blocks? 
-                                                // Logic: If orderId changes, new group. If orderId same but row is next, same group.
                                             }
 
                                             if (isNewGroup) {
                                                 currentGroupIndex++;
                                                 lastOrderId = row.orderId;
                                                 lastSource = row.source;
+                                                lastRoomIndex = row.roomIndex ?? null;
                                             }
 
                                             // Styling - More EVIDENT group coloring
