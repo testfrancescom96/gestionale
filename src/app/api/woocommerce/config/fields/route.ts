@@ -74,6 +74,8 @@ export async function GET(req: NextRequest) {
                 fieldKey: key,
                 label: config.label,
                 mappingType: config.mappingType,
+                isDefaultSelected: config.isDefaultSelected,
+                aliasOf: config.aliasOf,
                 isSaved: true
             });
         }
@@ -86,6 +88,8 @@ export async function GET(req: NextRequest) {
                     fieldKey: key,
                     label: hintLabel || key,
                     mappingType: "COLUMN",
+                    isDefaultSelected: false,
+                    aliasOf: null,
                     isSaved: false
                 });
             }
@@ -101,7 +105,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { fieldKey, label, mappingType } = body;
+        const { fieldKey, label, mappingType, isDefaultSelected, aliasOf } = body;
 
         // If mappingType is "PARTENZA", unset others? Not strictly needed if we filter by type in export.
         // But for UI cleanliness, maybe we want only one Partenza? 
@@ -111,8 +115,19 @@ export async function POST(req: NextRequest) {
 
         const config = await prisma.wooExportConfig.upsert({
             where: { fieldKey },
-            update: { label, mappingType },
-            create: { fieldKey, label, mappingType }
+            update: {
+                label,
+                mappingType,
+                isDefaultSelected: isDefaultSelected ?? false,
+                aliasOf: aliasOf || null
+            },
+            create: {
+                fieldKey,
+                label,
+                mappingType,
+                isDefaultSelected: isDefaultSelected ?? false,
+                aliasOf: aliasOf || null
+            }
         });
 
         return NextResponse.json(config);
