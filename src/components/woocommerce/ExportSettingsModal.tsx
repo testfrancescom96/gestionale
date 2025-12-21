@@ -207,19 +207,20 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
 
                             {/* List */}
                             <div className="bg-white border rounded-lg shadow-sm divide-y">
-                                <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 text-xs font-bold text-gray-500 uppercase">
-                                    <div className="col-span-4">Nome Colonna / Chiave Woo</div>
-                                    <div className="col-span-4">Alias (Unisci con altra chiave)</div>
-                                    <div className="col-span-1 text-center">Visibile</div>
-                                    <div className="col-span-1 text-center" title="Pre-selezionato di default nella lista passeggeri">Pre-sel</div>
-                                    <div className="col-span-2 text-right">Stato</div>
+                                <div className="grid gap-3 px-4 py-3 bg-gray-100 text-xs font-bold text-gray-500 uppercase" style={{ gridTemplateColumns: '4fr 3fr 1fr 1fr 1fr 1fr' }}>
+                                    <div>Nome Colonna / Chiave Woo</div>
+                                    <div>Alias (Unisci con altra chiave)</div>
+                                    <div className="text-center">Visibile</div>
+                                    <div className="text-center" title="Pre-selezionato di default nella lista passeggeri">Pre-sel</div>
+                                    <div className="text-center" title="Ordine di visualizzazione (numeri bassi = prima)">Ordine</div>
+                                    <div className="text-right">Stato</div>
                                 </div>
 
                                 {filteredFields.map((field) => (
-                                    <div key={field.fieldKey} className="grid grid-cols-12 gap-4 items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+                                    <div key={field.fieldKey} className="grid gap-3 items-center px-4 py-3 hover:bg-gray-50 transition-colors" style={{ gridTemplateColumns: '4fr 3fr 1fr 1fr 1fr 1fr' }}>
 
                                         {/* Name & Key */}
-                                        <div className="col-span-4 overflow-hidden">
+                                        <div className="overflow-hidden">
                                             <input
                                                 type="text"
                                                 value={field.label}
@@ -237,7 +238,7 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                                         </div>
 
                                         {/* Alias Field - for merging duplicate keys */}
-                                        <div className="col-span-4">
+                                        <div>
                                             <input
                                                 type="text"
                                                 value={(field as any).aliasOf || ""}
@@ -253,7 +254,7 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                                         </div>
 
                                         {/* Visibility Toggle */}
-                                        <div className="col-span-1 flex justify-center">
+                                        <div className="flex justify-center">
                                             <button
                                                 onClick={() => handleSave({
                                                     ...field,
@@ -267,7 +268,7 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                                         </div>
 
                                         {/* Default Selected Toggle */}
-                                        <div className="col-span-1 flex justify-center">
+                                        <div className="flex justify-center">
                                             <button
                                                 onClick={() => handleSave({
                                                     ...field,
@@ -280,8 +281,25 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                                             </button>
                                         </div>
 
+                                        {/* Display Order */}
+                                        <div className="flex justify-center">
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max="999"
+                                                value={(field as any).displayOrder || 100}
+                                                onChange={(e) => {
+                                                    const newFields = fields.map(f => f.fieldKey === field.fieldKey ? { ...f, displayOrder: parseInt(e.target.value) || 100 } : f);
+                                                    setFields(newFields as any);
+                                                }}
+                                                onBlur={() => handleSave({ ...field, displayOrder: (field as any).displayOrder || 100 } as any)}
+                                                className="w-16 text-center text-xs border border-gray-200 rounded px-2 py-1 bg-white hover:border-blue-300 focus:ring-1 focus:ring-blue-500"
+                                                title="Ordine di visualizzazione (numeri bassi = prima)"
+                                            />
+                                        </div>
+
                                         {/* Status */}
-                                        <div className="col-span-1 text-right">
+                                        <div className="text-right">
                                             {saving === field.fieldKey ? (
                                                 <Loader2 className="h-4 w-4 animate-spin text-gray-400 ml-auto" />
                                             ) : field.isSaved ? (
