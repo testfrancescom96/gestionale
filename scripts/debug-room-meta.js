@@ -1,74 +1,70 @@
-// Script per analizzare i metadati di un prodotto camera
+// Script per analizzare ordini specifici
 // Eseguire con: node scripts/debug-room-meta.js
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function debugRoomMeta() {
-    // Prodotto con camere - ID 38453
-    const productId = 38453;
-
-    const product = await prisma.wooProduct.findUnique({
-        where: { id: productId },
-        include: {
-            orderItems: {
-                include: { order: true },
-                take: 3 // Solo primi 3 ordini
-            }
-        }
-    });
-
-    if (!product) {
-        console.log('Prodotto non trovato');
-        return;
-    }
+    // Ordini dalla screenshot che mostrano "-"
+    const orderIds = [38781, 38797, 38933, 39596, 39674];
 
     console.log('========================================');
-    console.log(`Prodotto: ${product.name} (ID: ${product.id})`);
-    console.log(`Order Items: ${product.orderItems.length}`);
+    console.log('Analisi ordini specifici dalla screenshot');
     console.log('========================================\n');
 
-    for (const item of product.orderItems) {
+    // Cerca gli orderItems per questi ordini
+    const items = await prisma.wooOrderItem.findMany({
+        where: { wooOrderId: { in: orderIds } },
+        include: { order: true }
+    });
+
+    console.log(`Trovati ${items.length} order items per ordini ${orderIds.join(', ')}\n`);
+
+    if (items.length === 0) {
+        console.log('Nessun order item trovato! Verifico ordini...');
+        const orders = await prisma.wooOrder.findMany({
+            where: { id: { in: orderIds } }
+        });
+        console.log(`Ordini esistenti: ${orders.map(o => o.id).join(', ') || 'nessuno'}`);
+
+        // Cerca tutti gli order items del prodotto 38453
+        console.log('\nCerco tutti gli items del prodotto 38453...');
+        const allItems = await prisma.wooOrderItem.findMany({
+            where: { productId: 38453 },
+            include: { order: true },
+            take: 5
+        });
+        console.log(`Order items totali per prodotto 38453: ${allItems.length}`);
+        for (const item of allItems) {
+            console.log(`  - Ordine #${item.wooOrderId}, Prodotto: ${item.productName}`);
+        }
+    }
+
+    for (const item of items) {
         console.log(`\n--- Order Item - Ordine #${item.wooOrderId} ---`);
-        console.log(`Product Name in Item: ${item.productName}`);
+        console.log(`Product Name: ${item.productName}`);
         console.log(`Quantity: ${item.quantity}`);
 
         if (item.metaData) {
             try {
                 const meta = JSON.parse(item.metaData);
-                console.log(`\nMetaData (${meta.length} entries):`);
+                console.log(`MetaData entries: ${meta.length}`);
 
-                // Mostra tutte le chiavi con tipo
+                // Cerca solo Nome/Cognome
                 for (const m of meta) {
-                    const key = m.display_key || m.key || '(no key)';
-                    const rawValue = m.display_value !== undefined ? m.display_value : m.value;
-
-                    // Handle different value types
-                    let displayValue;
-                    if (rawValue === null || rawValue === undefined) {
-                        displayValue = '(null)';
-                    } else if (typeof rawValue === 'object') {
-                        displayValue = `[OBJECT] ${JSON.stringify(rawValue).substring(0, 100)}`;
-                    } else if (typeof rawValue === 'string') {
-                        displayValue = `"${rawValue.substring(0, 60)}${rawValue.length > 60 ? '...' : ''}"`;
-                    } else {
-                        displayValue = String(rawValue);
-                    }
-
-                    // Evidenzia i campi Nome/Cognome
+                    const key = m.display_key || m.key || '';
                     const keyLower = key.toLowerCase();
                     if (keyLower.includes('nome') || keyLower.includes('cognome')) {
-                        console.log(`  ⭐ ${key}: ${displayValue}`);
-                    } else {
-                        console.log(`     ${key}: ${displayValue}`);
+                        const value = m.display_value || m.value;
+                        const displayValue = typeof value === 'string' ? value : JSON.stringify(value);
+                        console.log(`  ** ${key}: "${displayValue}"`);
                     }
                 }
             } catch (e) {
-                console.log('   Errore parsing metaData:', e.message);
-                console.log('   Raw metaData (first 500 chars):', item.metaData.substring(0, 500));
+                console.log(`  Errore parsing: ${e.message}`);
             }
         } else {
-            console.log('   (nessun metaData)');
+            console.log('  (nessun metaData)');
         }
     }
 
