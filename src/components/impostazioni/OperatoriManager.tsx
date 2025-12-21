@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, User, Loader2, Save, X, Mail } from "lucide-react";
+import { Plus, Trash2, User, Loader2, Save, X, Mail, Key, Copy, Check } from "lucide-react";
 
 interface Operatore {
     id: string;
@@ -18,6 +18,10 @@ export function OperatoriManager() {
     const [isSaving, setIsSaving] = useState(false);
     const [newNome, setNewNome] = useState("");
     const [newEmail, setNewEmail] = useState("");
+    // Password display after creation
+    const [createdPassword, setCreatedPassword] = useState<string | null>(null);
+    const [createdNome, setCreatedNome] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         loadOperatori();
@@ -53,10 +57,16 @@ export function OperatoriManager() {
             });
 
             if (res.ok) {
+                const data = await res.json();
                 setNewNome("");
                 setNewEmail("");
                 setIsAdding(false);
                 loadOperatori();
+                // Show generated password
+                if (data.generatedPassword) {
+                    setCreatedNome(data.nome);
+                    setCreatedPassword(data.generatedPassword);
+                }
             } else {
                 alert("Errore durante la creazione");
             }

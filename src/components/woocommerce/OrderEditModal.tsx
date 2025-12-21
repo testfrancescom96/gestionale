@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Save, User, FileText, Loader2 } from "lucide-react";
+import { X, Save, User, FileText, Loader2, Database } from "lucide-react";
 
 interface OrderEditModalProps {
     isOpen: boolean;
@@ -11,8 +11,10 @@ interface OrderEditModalProps {
 }
 
 export function OrderEditModal({ isOpen, order, onClose, onSave }: OrderEditModalProps) {
-    const [activeTab, setActiveTab] = useState<'info' | 'billing'>('info');
+    const [activeTab, setActiveTab] = useState<'info' | 'billing' | 'details'>('info');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [orderMeta, setOrderMeta] = useState<any[]>([]);
+    const [loadingMeta, setLoadingMeta] = useState(false);
 
     const [formData, setFormData] = useState({
         status: "",
@@ -63,6 +65,56 @@ export function OrderEditModal({ isOpen, order, onClose, onSave }: OrderEditModa
             }
         }
     }, [order, isOpen]);
+
+    // Fetch metadata when details tab is opened
+    const fetchOrderMeta = async () => {
+        if (orderMeta.length > 0) return; // Already loaded
+        setLoadingMeta(true);
+        try {
+            let allMeta: any[] = [];
+
+            // Priority 1: itemMetaData (form fields from checkout)
+            if (order?.itemMetaData) {
+                const itemMeta = typeof order.itemMetaData === 'string'
+                    ? JSON.parse(order.itemMetaData)
+                    : order.itemMetaData;
+                if (Array.isArray(itemMeta)) allMeta = [...itemMeta];
+            }
+
+            // Priority 2: order.metaData (order-level metadata)
+            if (order?.metaData) {
+                const orderMetaData = typeof order.metaData === 'string'
+                    ? JSON.parse(order.metaData)
+                    : order.metaData;
+                if (Array.isArray(orderMetaData)) {
+                    // Merge, but prefer itemMeta for duplicates
+                    const existingKeys = new Set(allMeta.map(m => m.key || m.display_key));
+                    for (const m of orderMetaData) {
+                        const key = m.key || m.display_key;
+                        if (!existingKeys.has(key)) {
+                            allMeta.push(m);
+                        }
+                    }
+                }
+            }
+
+            // Add customer note if present
+            if (order?.customerNote) {
+                allMeta.unshift({
+                    key: 'Note Cliente',
+                    display_key: 'Note Cliente',
+                    value: order.customerNote,
+                    display_value: order.customerNote
+                });
+            }
+
+            setOrderMeta(allMeta);
+        } catch (error) {
+            console.error('Error loading meta:', error);
+        } finally {
+            setLoadingMeta(false);
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -133,6 +185,13 @@ export function OrderEditModal({ isOpen, order, onClose, onSave }: OrderEditModa
                             }`}
                     >
                         <User className="h-4 w-4 inline mr-2" /> Dati Cliente
+                    </button>
+                    <button
+                        onClick={() => { setActiveTab('details'); fetchOrderMeta(); }}
+                        className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'details' ? 'border-blue-600 text-blue-600 bg-blue-50/50' : 'border-transparent text-gray-500 hover:text-gray-700'
+                            }`}
+                    >
+                        <Database className="h-4 w-4 inline mr-2" /> Tutti i Dati
                     </button>
                 </div>
 
@@ -254,6 +313,55 @@ export function OrderEditModal({ isOpen, order, onClose, onSave }: OrderEditModa
                                         />
                                     </div>
                                 </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'details' && (
+                            <div className="space-y-4">
+                                <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                                    📋 Tutti i dati compilati dal cliente durante l'ordine
+                                </p>
+
+                                {loadingMeta ? (
+                                    <div className="flex items-center justify-center py-8">
+                                        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                                    </div>
+                                ) : orderMeta.length === 0 ? (
+                                    <p className="text-center text-gray-400 py-8 italic">
+                                        Nessun metadata disponibile
+                                    </p>
+                                ) : (
+                                    <div className="border rounded-lg overflow-hidden">
+                                        <table className="w-full text-sm">
+                                            <thead className="bg-gray-100">
+                                                <tr>
+                                                    <th className="text-left px-4 py-2 font-medium text-gray-700">Campo</th>
+                                                    <th className="text-left px-4 py-2 font-medium text-gray-700">Valore</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {orderMeta
+                                                    .filter((m: any) => {
+                                                        const key = m.key || m.display_key || '';
+                                                        // Filter out system/internal keys
+                                                        if (key.startsWith('_') && !key.startsWith('_field_') && !key.startsWith('_billing_')) return false;
+                                                        if (!m.value && !m.display_value) return false;
+                                                        return true;
+                                                    })
+                                                    .map((m: any, idx: number) => (
+                                                        <tr key={idx} className="hover:bg-gray-50">
+                                                            <td className="px-4 py-2 font-medium text-gray-600">
+                                                                {m.display_key || m.key || 'N/D'}
+                                                            </td>
+                                                            <td className="px-4 py-2 text-gray-800">
+                                                                {m.display_value || m.value || '-'}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </form>

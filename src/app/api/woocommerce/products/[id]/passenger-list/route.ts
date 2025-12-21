@@ -101,14 +101,40 @@ export async function GET(
             try {
                 const meta = JSON.parse(metaDataStr);
                 if (Array.isArray(meta)) {
-                    const found = meta.find((m: any) => {
-                        const key = (m.key || m.display_key || '').toLowerCase();
-                        return key.includes('partenza') || key.includes('fermata') || key.includes('luogo') || key.includes('ritiro');
-                    });
-                    return found ? (found.value || found.display_value) : '-';
+                    // fallback: search for "fermata" or "partenza"
+                    const val = meta.find((m: any) =>
+                        (m.key?.toLowerCase().includes('fermata') || m.key?.toLowerCase().includes('partenza'))
+                    );
+                    if (val) return val.value || val.display_value || '-';
                 }
             } catch (e) { }
             return '-';
+        };
+
+        // Convert date from American (MM/DD/YYYY) to Italian (DD/MM/YYYY) format
+        const convertToItalianDate = (dateStr: string | null | undefined): string => {
+            if (!dateStr) return '';
+            // Check if already in Italian format or other valid formats
+            const trimmed = dateStr.trim();
+
+            // Try to detect MM/DD/YYYY format (American)
+            // If first part > 12, it's already DD/MM/YYYY
+            const parts = trimmed.split('/');
+            if (parts.length === 3) {
+                const first = parseInt(parts[0]);
+                const second = parseInt(parts[1]);
+                // If first part <= 12 and second part > 12, it's American MM/DD/YYYY
+                if (first <= 12 && second > 12) {
+                    return `${parts[1]}/${parts[0]}/${parts[2]}`; // Convert to DD/MM/YYYY
+                }
+                // If first part <= 12 and second part <= 12, ambiguous - assume American if month position makes sense
+                if (first <= 12 && second <= 12) {
+                    // Assume American format for dates like 07/23/2008 where second can't be month
+                    // But for 07/08/2008, keep as-is (could be either)
+                    return `${parts[1]}/${parts[0]}/${parts[2]}`; // Convert
+                }
+            }
+            return trimmed;
         };
 
         // Consolidate Dynamic Columns by Label (Normalization)
@@ -199,7 +225,7 @@ export async function GET(
                     } else if (key === 'Codice Fiscale' || key === '_field_Codice Fiscale' || key === '_field_Codice fiscale') {
                         currentPerson.cf = value;
                     } else if (key === 'Data di nascita' || key === '_field_Data di nascita') {
-                        currentPerson.dataNascita = value;
+                        currentPerson.dataNascita = convertToItalianDate(value);
                     } else if (key === 'Luogo di nascita') {
                         currentPerson.luogoNascita = value;
                     } else if (key === 'Allergie o intolleranze') {
@@ -264,6 +290,7 @@ export async function GET(
                             pax: 1, // Each person is 1 pax
                             roomIndex: passenger.roomIndex, // For color grouping
                             personIndex: passenger.personIndex,
+                            customerNote: order.customerNote || '',
                             note: '',
                             dynamic: { ...passenger.dynamic }
                         };
@@ -298,6 +325,7 @@ export async function GET(
                         orderStatus: order.status,
                         isConfirmed: isConfirmed,
                         pax: item.quantity,
+                        customerNote: order.customerNote || '',
                         note: '',
                         dynamic: {}
                     };

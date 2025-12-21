@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { ArrowRight, CheckCircle, Loader2, UserCog, Plus, FileSpreadsheet, Trash2 } from "lucide-react";
+import { ArrowRight, Loader2, UserCog, Plus, Trash2 } from "lucide-react";
 import { OrderEditModal } from "./OrderEditModal";
 import { ManualBookingModal } from "./ManualBookingModal";
 
@@ -46,7 +46,6 @@ export function ProductBookings({ product, updatedOrderIds = [], onRefresh }: Pr
     const [showManualModal, setShowManualModal] = useState(false);
     const [manualBookings, setManualBookings] = useState<ManualBooking[]>([]);
     const [loadingManual, setLoadingManual] = useState(false);
-    const [downloadingList, setDownloadingList] = useState(false);
 
     // Backwards compatibility mapping for Prisma Order -> Component Order Interface
     const relevantOrders = (product.orderItems
@@ -67,7 +66,11 @@ export function ProductBookings({ product, updatedOrderIds = [], onRefresh }: Pr
                     email: order.billingEmail || ''
                 },
                 line_items: order.lineItems || [],
-                manuallyModified: order.manuallyModified
+                manuallyModified: order.manuallyModified,
+                metaData: order.metaData, // Include order metaData for Dettagli tab
+                itemMetaData: item.metaData, // Include item metaData (form fields)
+                customerNote: order.customerNote, // Include customer note
+                adminNotes: order.adminNotes // Include admin notes
             };
         })
         .filter((o: any) => o !== null) || []) as Order[];
@@ -116,35 +119,6 @@ export function ProductBookings({ product, updatedOrderIds = [], onRefresh }: Pr
         }
     };
 
-    const handleDownloadList = async (forShare = false) => {
-        setDownloadingList(true);
-        try {
-            const url = forShare
-                ? `/api/woocommerce/products/${product.id}/export-passengers?share=true`
-                : `/api/woocommerce/products/${product.id}/passenger-list`;
-            const response = await fetch(url);
-            if (response.ok) {
-                const blob = await response.blob();
-                const downloadUrl = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = downloadUrl;
-                const suffix = forShare ? '_Condivisibile' : '';
-                a.download = `Lista_Passeggeri${suffix}_${product.name.replace(/[^a-zA-Z0-9]/g, '_')}.${forShare ? 'csv' : 'xlsx'}`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(downloadUrl);
-                a.remove();
-            } else {
-                alert("Errore nel download della lista");
-            }
-        } catch (error) {
-            console.error("Error downloading list:", error);
-            alert("Errore di connessione");
-        } finally {
-            setDownloadingList(false);
-        }
-    };
-
     const handleDeleteManual = async (id: number) => {
         if (!confirm("Eliminare questa prenotazione manuale?")) return;
         try {
@@ -175,23 +149,6 @@ export function ProductBookings({ product, updatedOrderIds = [], onRefresh }: Pr
                     >
                         <Plus className="h-3 w-3" />
                         Aggiungi
-                    </button>
-                    <button
-                        onClick={() => handleDownloadList(false)}
-                        disabled={downloadingList || totalBookings === 0}
-                        className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded hover:bg-blue-100 border border-blue-200 font-medium disabled:opacity-50"
-                    >
-                        {downloadingList ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileSpreadsheet className="h-3 w-3" />}
-                        Lista Excel
-                    </button>
-                    <button
-                        onClick={() => handleDownloadList(true)}
-                        disabled={downloadingList || totalBookings === 0}
-                        className="flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded hover:bg-purple-100 border border-purple-200 font-medium disabled:opacity-50"
-                        title="Scarica lista senza telefoni/email per collaboratori esterni"
-                    >
-                        {downloadingList ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileSpreadsheet className="h-3 w-3" />}
-                        Condividi
                     </button>
                 </div>
             </div>

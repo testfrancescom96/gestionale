@@ -289,6 +289,7 @@ export async function syncOrders(
                 billingPhone: o.billing?.phone,
                 billingAddress: o.billing?.address_1,
                 billingCity: o.billing?.city,
+                customerNote: o.customer_note || null, // Note inserite dal cliente
                 // @ts-ignore
                 metaData: JSON.stringify(o.meta_data || []), // Capture extra fields
                 updatedAt: new Date(), // Updates local timestamp
@@ -306,6 +307,7 @@ export async function syncOrders(
                 billingPhone: o.billing?.phone,
                 billingAddress: o.billing?.address_1,
                 billingCity: o.billing?.city,
+                customerNote: o.customer_note || null, // Note inserite dal cliente
                 // @ts-ignore
                 metaData: JSON.stringify(o.meta_data || []), // Capture extra fields
                 lastWooSync: new Date()

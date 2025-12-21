@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo } from "react";
-import { Loader2, X, Download, CheckSquare, Square, RefreshCw, LayoutGrid, LayoutList } from "lucide-react";
+import { Loader2, X, Download, CheckSquare, Square, RefreshCw, LayoutGrid, LayoutList, Share2, Link, Copy, Check } from "lucide-react";
 
 interface Props {
     isOpen: boolean;
@@ -17,6 +17,11 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
     const [downloading, setDownloading] = useState(false);
     // Display mode: 'headers' = header row per room (B), 'compact' = first row only (A)
     const [roomDisplayMode, setRoomDisplayMode] = useState<'headers' | 'compact'>('headers');
+    // Share state
+    const [showSharePanel, setShowSharePanel] = useState(false);
+    const [shareUrl, setShareUrl] = useState<string | null>(null);
+    const [sharing, setSharing] = useState(false);
+    const [copied, setCopied] = useState(false);
 
     // Initial Fetch (Config + Minimal Data)
     useEffect(() => {
@@ -160,6 +165,59 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
         }
     };
 
+    // Handle share link generation
+    const handleShare = async () => {
+        setSharing(true);
+        try {
+            const columnsToShare = Array.from(selectedFields);
+            const res = await fetch('/api/woocommerce/share', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    productId,
+                    selectedColumns: columnsToShare,
+                    showSaldo: false,
+                    expiresInDays: 30
+                })
+            });
+
+            if (res.ok) {
+                const { token } = await res.json();
+                const url = `${window.location.origin}/share/${token}`;
+                setShareUrl(url);
+                setShowSharePanel(true);
+            } else {
+                alert('Errore nella generazione del link');
+            }
+        } catch (error) {
+            console.error('Share error:', error);
+            alert('Errore nella generazione del link');
+        } finally {
+            setSharing(false);
+        }
+    };
+
+    // Copy URL to clipboard
+    const copyToClipboard = async () => {
+        if (shareUrl) {
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            } catch (err) {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = shareUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            }
+        }
+    };
+
     // Sort columns based on availableFields displayOrder
     const sortedColumns = useMemo(() => {
         if (!data?.columns) return [];
@@ -197,6 +255,14 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                         )}
                     </div>
                     <div className="flex items-center gap-3">
+                        <button
+                            onClick={handleShare}
+                            disabled={sharing || loading}
+                            className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium transition-colors disabled:opacity-50"
+                        >
+                            {sharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+                            Condividi
+                        </button>
                         <button
                             onClick={handleDownload}
                             disabled={downloading || loading}
@@ -259,6 +325,50 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                         * Aggiungi campi in Impostazioni ⚙️
                     </div>
                 </div>
+
+                {/* Share Panel */}
+                {showSharePanel && shareUrl && (
+                    <div className="px-6 py-4 border-b bg-indigo-50">
+                        <div className="flex items-center gap-3">
+                            <div className="flex-1 flex items-center gap-2 bg-white border border-indigo-200 rounded-lg p-2">
+                                <Link className="h-4 w-4 text-indigo-500 flex-shrink-0" />
+                                <input
+                                    type="text"
+                                    value={shareUrl}
+                                    readOnly
+                                    className="flex-1 bg-transparent text-sm text-gray-700 outline-none"
+                                />
+                            </div>
+                            <button
+                                onClick={copyToClipboard}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${copied
+                                        ? 'bg-green-600 text-white'
+                                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                    }`}
+                            >
+                                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                {copied ? 'Copiato!' : 'Copia'}
+                            </button>
+                            <a
+                                href={shareUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-indigo-600 hover:text-indigo-800 text-sm underline"
+                            >
+                                Apri
+                            </a>
+                            <button
+                                onClick={() => setShowSharePanel(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+                        <p className="text-xs text-indigo-600 mt-2">
+                            ✨ Questo link mostra una versione pubblica della lista con i campi selezionati. Valido per 30 giorni.
+                        </p>
+                    </div>
+                )}
 
                 {/* Body (Table Preview) */}
                 <div className="flex-1 overflow-auto bg-gray-50 p-6">
