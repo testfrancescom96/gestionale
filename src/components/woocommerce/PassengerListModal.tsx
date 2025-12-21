@@ -55,8 +55,10 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
 
             // Create a map of key -> label from global config
             const keyLabelMap = new Map<string, string>();
+            const displayOrderMap = new Map<string, number>();
             globalConfig.forEach((f: any) => {
                 keyLabelMap.set(f.fieldKey, f.label);
+                displayOrderMap.set(f.fieldKey, f.displayOrder ?? 100);
             });
 
             // 2. Fetch fields actually present in THIS product's orders
@@ -64,13 +66,16 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
             const productFields = await productFieldsRes.json();
 
             // 3. Filter: only show fields that exist in this product AND are not hidden
+            // Sort by displayOrder from global config
             const relevantFields = productFields
                 .filter((f: any) => !hiddenKeys.has(f.fieldKey))
                 .map((f: any) => ({
                     ...f,
                     // Use global label if exists, otherwise use discovered label
-                    label: keyLabelMap.get(f.fieldKey) || f.label || f.fieldKey
-                }));
+                    label: keyLabelMap.get(f.fieldKey) || f.label || f.fieldKey,
+                    displayOrder: displayOrderMap.get(f.fieldKey) ?? 100
+                }))
+                .sort((a: any, b: any) => (a.displayOrder - b.displayOrder) || a.label.localeCompare(b.label));
 
             setAvailableFields(relevantFields);
 
