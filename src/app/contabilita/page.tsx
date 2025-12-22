@@ -11,10 +11,12 @@ import {
     ArrowDownCircle,
     Filter,
     RefreshCw,
-    Plus
+    Plus,
+    FileText
 } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
+import FattureTab from "@/components/contabilita/FattureTab";
 
 interface Transazione {
     id: string;
@@ -28,6 +30,7 @@ interface Transazione {
 }
 
 export default function ContabilitaPage() {
+    const [activeTab, setActiveTab] = useState<"transazioni" | "fatture">("transazioni");
     const [transazioni, setTransazioni] = useState<Transazione[]>([]);
     const [loading, setLoading] = useState(false);
     const [filterBanca, setFilterBanca] = useState("TUTTE");
@@ -305,225 +308,258 @@ export default function ContabilitaPage() {
                 </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-100 rounded-full">
-                            <ArrowUpCircle className="h-5 w-5 text-green-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500">Entrate</p>
-                            <p className="text-xl font-bold text-green-600">€ {totaleEntrate.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-red-100 rounded-full">
-                            <ArrowDownCircle className="h-5 w-5 text-red-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500">Uscite</p>
-                            <p className="text-xl font-bold text-red-600">€ {totaleUscite.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-full ${saldo >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
-                            <CreditCard className={`h-5 w-5 ${saldo >= 0 ? 'text-green-600' : 'text-red-600'}`} />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500">Saldo Netto</p>
-                            <p className={`text-xl font-bold ${saldo >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                € {saldo.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-100 rounded-full">
-                            <FileSpreadsheet className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500">Movimenti</p>
-                            <p className="text-xl font-bold text-blue-600">{transazioni.length}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Actions Row */}
-            <div className="flex flex-wrap gap-4 mb-6">
-                {/* Import Buttons */}
-                <div className="flex gap-2 flex-wrap">
-                    {banche.filter(b => b !== "TUTTE" && b !== "MANUALE").map(banca => (
-                        <label key={banca} className="cursor-pointer">
-                            <input
-                                type="file"
-                                accept=".csv,.xls,.xlsx"
-                                className="hidden"
-                                onChange={(e) => handleImportCSV(e, banca)}
-                            />
-                            <span className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                                <Upload className="h-4 w-4" />
-                                {banca}
-                            </span>
-                        </label>
-                    ))}
-
-                    {/* Manual Transaction Button */}
+            {/* Tab Navigation */}
+            <div className="mb-6 border-b border-gray-200">
+                <nav className="-mb-px flex space-x-8">
                     <button
-                        onClick={() => setShowManualForm(!showManualForm)}
-                        className="flex items-center gap-1 px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+                        onClick={() => setActiveTab("transazioni")}
+                        className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${activeTab === "transazioni"
+                                ? "border-blue-600 text-blue-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                            }`}
                     >
-                        <Plus className="h-4 w-4" />
-                        Manuale
+                        <CreditCard className="h-5 w-5" />
+                        Transazioni Banca
                     </button>
-                </div>
-
-                <div className="flex-1" />
-
-                {/* Export Buttons */}
-                <button
-                    onClick={exportPrimaNota}
-                    disabled={transazioni.length === 0}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <Download className="h-4 w-4" />
-                    Esporta Prima Nota
-                </button>
-                <button
-                    onClick={exportFatturazione}
-                    disabled={transazioni.length === 0}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <Download className="h-4 w-4" />
-                    Esporta Fatturazione
-                </button>
-            </div>
-
-            {/* Manual Transaction Form */}
-            {showManualForm && (
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
-                    <h3 className="font-medium text-purple-800 mb-3">Aggiungi Transazione Manuale</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                        <input
-                            type="date"
-                            value={manualForm.data}
-                            onChange={(e) => setManualForm({ ...manualForm, data: e.target.value })}
-                            className="border rounded-lg px-3 py-2 text-sm"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Descrizione *"
-                            value={manualForm.descrizione}
-                            onChange={(e) => setManualForm({ ...manualForm, descrizione: e.target.value })}
-                            className="md:col-span-2 border rounded-lg px-3 py-2 text-sm"
-                        />
-                        <input
-                            type="number"
-                            step="0.01"
-                            placeholder="Importo € *"
-                            value={manualForm.importo}
-                            onChange={(e) => setManualForm({ ...manualForm, importo: e.target.value })}
-                            className="border rounded-lg px-3 py-2 text-sm"
-                        />
-                        <select
-                            value={manualForm.tipo}
-                            onChange={(e) => setManualForm({ ...manualForm, tipo: e.target.value as "ENTRATA" | "USCITA" })}
-                            className="border rounded-lg px-3 py-2 text-sm"
-                        >
-                            <option value="USCITA">Uscita</option>
-                            <option value="ENTRATA">Entrata</option>
-                        </select>
-                    </div>
-                    <div className="mt-3 flex justify-end gap-2">
-                        <button
-                            onClick={() => setShowManualForm(false)}
-                            className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800"
-                        >
-                            Annulla
-                        </button>
-                        <button
-                            onClick={handleAddManual}
-                            className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700"
-                        >
-                            Aggiungi
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Filters */}
-            <div className="flex gap-4 mb-4 items-center">
-                <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-gray-400" />
-                    <select
-                        value={filterBanca}
-                        onChange={(e) => setFilterBanca(e.target.value)}
-                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    <button
+                        onClick={() => setActiveTab("fatture")}
+                        className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${activeTab === "fatture"
+                                ? "border-purple-600 text-purple-600"
+                                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                            }`}
                     >
-                        {banche.map(b => <option key={b} value={b}>{b}</option>)}
-                    </select>
-                </div>
-                <select
-                    value={filterTipo}
-                    onChange={(e) => setFilterTipo(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                >
-                    <option value="TUTTI">Tutti i movimenti</option>
-                    <option value="ENTRATA">Solo Entrate</option>
-                    <option value="USCITA">Solo Uscite</option>
-                </select>
-                <button
-                    onClick={() => setTransazioni([])}
-                    className="flex items-center gap-1 text-sm text-gray-500 hover:text-red-600"
-                >
-                    <RefreshCw className="h-4 w-4" />
-                    Reset
-                </button>
+                        <FileText className="h-5 w-5" />
+                        Fatture XML
+                    </button>
+                </nav>
             </div>
 
-            {/* Transazioni Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                {filteredTransazioni.length === 0 ? (
-                    <div className="p-12 text-center text-gray-500">
-                        <FileSpreadsheet className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-                        <p className="text-lg font-medium">Nessuna transazione</p>
-                        <p className="text-sm mt-2">Importa un estratto conto CSV per iniziare</p>
+            {/* Tab Content */}
+            {activeTab === "fatture" ? (
+                <FattureTab />
+            ) : (
+                <>
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-green-100 rounded-full">
+                                    <ArrowUpCircle className="h-5 w-5 text-green-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Entrate</p>
+                                    <p className="text-xl font-bold text-green-600">€ {totaleEntrate.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-red-100 rounded-full">
+                                    <ArrowDownCircle className="h-5 w-5 text-red-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Uscite</p>
+                                    <p className="text-xl font-bold text-red-600">€ {totaleUscite.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-full ${saldo >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
+                                    <CreditCard className={`h-5 w-5 ${saldo >= 0 ? 'text-green-600' : 'text-red-600'}`} />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Saldo Netto</p>
+                                    <p className={`text-xl font-bold ${saldo >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                        € {saldo.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-100 rounded-full">
+                                    <FileSpreadsheet className="h-5 w-5 text-blue-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Movimenti</p>
+                                    <p className="text-xl font-bold text-blue-600">{transazioni.length}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                ) : (
-                    <table className="w-full text-sm">
-                        <thead className="bg-gray-50 border-b border-gray-200">
-                            <tr>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Banca</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrizione</th>
-                                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Importo</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {filteredTransazioni.map(t => (
-                                <tr key={t.id} className="hover:bg-gray-50">
-                                    <td className="px-4 py-3 text-gray-600">{t.data}</td>
-                                    <td className="px-4 py-3">
-                                        <span className="px-2 py-1 bg-gray-100 rounded text-xs font-medium">{t.banca}</span>
-                                    </td>
-                                    <td className="px-4 py-3 text-gray-900 max-w-md truncate" title={t.descrizione}>
-                                        {t.descrizione}
-                                    </td>
-                                    <td className={`px-4 py-3 text-right font-medium ${t.tipo === 'ENTRATA' ? 'text-green-600' : 'text-red-600'}`}>
-                                        {t.tipo === 'ENTRATA' ? '+' : '-'} € {t.importo.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-                                    </td>
-                                </tr>
+
+                    {/* Actions Row */}
+                    <div className="flex flex-wrap gap-4 mb-6">
+                        {/* Import Buttons */}
+                        <div className="flex gap-2 flex-wrap">
+                            {banche.filter(b => b !== "TUTTE" && b !== "MANUALE").map(banca => (
+                                <label key={banca} className="cursor-pointer">
+                                    <input
+                                        type="file"
+                                        accept=".csv,.xls,.xlsx"
+                                        className="hidden"
+                                        onChange={(e) => handleImportCSV(e, banca)}
+                                    />
+                                    <span className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                                        <Upload className="h-4 w-4" />
+                                        {banca}
+                                    </span>
+                                </label>
                             ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
+
+                            {/* Manual Transaction Button */}
+                            <button
+                                onClick={() => setShowManualForm(!showManualForm)}
+                                className="flex items-center gap-1 px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+                            >
+                                <Plus className="h-4 w-4" />
+                                Manuale
+                            </button>
+                        </div>
+
+                        <div className="flex-1" />
+
+                        {/* Export Buttons */}
+                        <button
+                            onClick={exportPrimaNota}
+                            disabled={transazioni.length === 0}
+                            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <Download className="h-4 w-4" />
+                            Esporta Prima Nota
+                        </button>
+                        <button
+                            onClick={exportFatturazione}
+                            disabled={transazioni.length === 0}
+                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <Download className="h-4 w-4" />
+                            Esporta Fatturazione
+                        </button>
+                    </div>
+
+                    {/* Manual Transaction Form */}
+                    {showManualForm && (
+                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+                            <h3 className="font-medium text-purple-800 mb-3">Aggiungi Transazione Manuale</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                                <input
+                                    type="date"
+                                    value={manualForm.data}
+                                    onChange={(e) => setManualForm({ ...manualForm, data: e.target.value })}
+                                    className="border rounded-lg px-3 py-2 text-sm"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Descrizione *"
+                                    value={manualForm.descrizione}
+                                    onChange={(e) => setManualForm({ ...manualForm, descrizione: e.target.value })}
+                                    className="md:col-span-2 border rounded-lg px-3 py-2 text-sm"
+                                />
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Importo € *"
+                                    value={manualForm.importo}
+                                    onChange={(e) => setManualForm({ ...manualForm, importo: e.target.value })}
+                                    className="border rounded-lg px-3 py-2 text-sm"
+                                />
+                                <select
+                                    value={manualForm.tipo}
+                                    onChange={(e) => setManualForm({ ...manualForm, tipo: e.target.value as "ENTRATA" | "USCITA" })}
+                                    className="border rounded-lg px-3 py-2 text-sm"
+                                >
+                                    <option value="USCITA">Uscita</option>
+                                    <option value="ENTRATA">Entrata</option>
+                                </select>
+                            </div>
+                            <div className="mt-3 flex justify-end gap-2">
+                                <button
+                                    onClick={() => setShowManualForm(false)}
+                                    className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800"
+                                >
+                                    Annulla
+                                </button>
+                                <button
+                                    onClick={handleAddManual}
+                                    className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700"
+                                >
+                                    Aggiungi
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Filters */}
+                    <div className="flex gap-4 mb-4 items-center">
+                        <div className="flex items-center gap-2">
+                            <Filter className="h-4 w-4 text-gray-400" />
+                            <select
+                                value={filterBanca}
+                                onChange={(e) => setFilterBanca(e.target.value)}
+                                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                            >
+                                {banche.map(b => <option key={b} value={b}>{b}</option>)}
+                            </select>
+                        </div>
+                        <select
+                            value={filterTipo}
+                            onChange={(e) => setFilterTipo(e.target.value)}
+                            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        >
+                            <option value="TUTTI">Tutti i movimenti</option>
+                            <option value="ENTRATA">Solo Entrate</option>
+                            <option value="USCITA">Solo Uscite</option>
+                        </select>
+                        <button
+                            onClick={() => setTransazioni([])}
+                            className="flex items-center gap-1 text-sm text-gray-500 hover:text-red-600"
+                        >
+                            <RefreshCw className="h-4 w-4" />
+                            Reset
+                        </button>
+                    </div>
+
+                    {/* Transazioni Table */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        {filteredTransazioni.length === 0 ? (
+                            <div className="p-12 text-center text-gray-500">
+                                <FileSpreadsheet className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                                <p className="text-lg font-medium">Nessuna transazione</p>
+                                <p className="text-sm mt-2">Importa un estratto conto CSV per iniziare</p>
+                            </div>
+                        ) : (
+                            <table className="w-full text-sm">
+                                <thead className="bg-gray-50 border-b border-gray-200">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Banca</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrizione</th>
+                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Importo</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {filteredTransazioni.map(t => (
+                                        <tr key={t.id} className="hover:bg-gray-50">
+                                            <td className="px-4 py-3 text-gray-600">{t.data}</td>
+                                            <td className="px-4 py-3">
+                                                <span className="px-2 py-1 bg-gray-100 rounded text-xs font-medium">{t.banca}</span>
+                                            </td>
+                                            <td className="px-4 py-3 text-gray-900 max-w-md truncate" title={t.descrizione}>
+                                                {t.descrizione}
+                                            </td>
+                                            <td className={`px-4 py-3 text-right font-medium ${t.tipo === 'ENTRATA' ? 'text-green-600' : 'text-red-600'}`}>
+                                                {t.tipo === 'ENTRATA' ? '+' : '-'} € {t.importo.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                </>
+            )}
         </div>
     );
 }
