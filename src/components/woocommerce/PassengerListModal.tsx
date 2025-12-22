@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useMemo } from "react";
-import { Loader2, X, Download, CheckSquare, Square, RefreshCw, LayoutGrid, LayoutList, Share2, Link, Copy, Check } from "lucide-react";
+import { Loader2, X, Download, CheckSquare, Square, RefreshCw, LayoutGrid, LayoutList, Share2, Link, Copy, Check, Settings } from "lucide-react";
+import PricingManagerModal from "./PricingManagerModal";
 
 interface Props {
     isOpen: boolean;
@@ -22,6 +23,8 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
     const [shareUrl, setShareUrl] = useState<string | null>(null);
     const [sharing, setSharing] = useState(false);
     const [copied, setCopied] = useState(false);
+    // Pricing modal state
+    const [showPricingModal, setShowPricingModal] = useState(false);
 
     // Initial Fetch (Config + Minimal Data)
     useEffect(() => {
@@ -274,6 +277,13 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                         )}
                     </div>
                     <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setShowPricingModal(true)}
+                            className="flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 font-medium transition-colors"
+                        >
+                            <Settings className="h-4 w-4" />
+                            Tariffe
+                        </button>
                         <button
                             onClick={handleShare}
                             disabled={sharing || loading}
@@ -532,6 +542,14 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                     ) : null}
                 </div>
             </div>
+
+            {/* Pricing Manager Modal */}
+            <PricingManagerModal
+                productId={productId}
+                productName={data?.productName || ""}
+                isOpen={showPricingModal}
+                onClose={() => setShowPricingModal(false)}
+            />
         </div>
     );
 }
