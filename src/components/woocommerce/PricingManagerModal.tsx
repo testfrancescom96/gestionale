@@ -86,7 +86,8 @@ export default function PricingManagerModal({ productId, productName, isOpen, on
         const item = pricing.find(p => p.id === id);
         if (!item) return;
 
-        setSaving(true);
+        // Don't re-fetch - we already have the updated state locally
+        // Just save to backend silently
         try {
             await fetch(`/api/woocommerce/products/${productId}/pricing`, {
                 method: "POST",
@@ -99,12 +100,9 @@ export default function PricingManagerModal({ productId, productName, isOpen, on
                     attivo: data.attivo ?? item.attivo
                 })
             });
-            fetchPricing();
-            onSaved?.();
+            // Don't fetchPricing() here - it causes re-render and focus loss
         } catch (error) {
             console.error("Error updating pricing:", error);
-        } finally {
-            setSaving(false);
         }
     };
 

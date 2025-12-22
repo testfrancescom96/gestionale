@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const {
             wooProductId,
+            productId, // Also accept productId for compatibility
             nome,
             selectedColumns,
             showSaldo = true,
@@ -37,9 +38,12 @@ export async function POST(request: NextRequest) {
             expiresInDays
         } = body;
 
-        if (!wooProductId || !selectedColumns) {
+        // Accept either wooProductId or productId
+        const finalProductId = wooProductId || productId;
+
+        if (!finalProductId || !selectedColumns) {
             return NextResponse.json(
-                { error: "wooProductId e selectedColumns sono obbligatori" },
+                { error: "wooProductId/productId e selectedColumns sono obbligatori" },
                 { status: 400 }
             );
         }
@@ -56,7 +60,7 @@ export async function POST(request: NextRequest) {
 
         const share = await prisma.sharedPassengerList.create({
             data: {
-                wooProductId: parseInt(wooProductId),
+                wooProductId: parseInt(finalProductId),
                 token,
                 nome: nome || null,
                 selectedColumns: JSON.stringify(selectedColumns),
