@@ -169,8 +169,6 @@ export async function GET(
                     m.key === '_field_Nome' || m.display_key === '_field_Nome'
                 );
 
-                console.log(`[extractMultiplePassengers] productName: ${productName}, nomeEntries: ${nomeEntries.length}`);
-
                 if (nomeEntries.length <= 1) return []; // Single passenger, use normal flow
 
                 // Detect room capacity from product variation name
@@ -244,9 +242,6 @@ export async function GET(
                     currentPerson.roomIndex = Math.floor(personIndex / roomCapacity);
                     passengers.push(currentPerson);
                 }
-
-                console.log(`[extractMultiplePassengers] Extracted ${passengers.length} passengers:`,
-                    passengers.map(p => `${p.nome || '?'} ${p.cognome || '?'}`).join(', '));
 
                 return passengers;
             } catch (e) {

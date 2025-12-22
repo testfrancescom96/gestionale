@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo } from "react";
-import { Loader2, X, Download, CheckSquare, Square, RefreshCw, LayoutGrid, LayoutList, Share2, Link, Copy, Check, Settings } from "lucide-react";
+import { Loader2, X, Download, CheckSquare, Square, RefreshCw, LayoutGrid, LayoutList, Share2, Link, Copy, Check, Settings, FileText } from "lucide-react";
 import PricingManagerModal from "./PricingManagerModal";
 
 interface Props {
@@ -16,6 +16,7 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
     const [selectedFields, setSelectedFields] = useState<Set<string>>(new Set());
     const [previewKey, setPreviewKey] = useState(0); // Force re-fetch
     const [downloading, setDownloading] = useState(false);
+    const [downloadingPDF, setDownloadingPDF] = useState(false);
     // Display mode: 'headers' = header row per room (B), 'compact' = first row only (A)
     const [roomDisplayMode, setRoomDisplayMode] = useState<'headers' | 'compact'>('headers');
     // Share state
@@ -168,6 +169,34 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
         }
     };
 
+    const handleDownloadPDF = async () => {
+        setDownloadingPDF(true);
+        try {
+            const columnsParam = Array.from(selectedFields).join(',');
+            const url = `/api/woocommerce/products/${productId}/export-pdf?columns=${columnsParam}`;
+
+            const response = await fetch(url);
+            if (response.ok) {
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = `Lista_Passeggeri_${data?.productName?.replace(/[^a-zA-Z0-9]/g, '_') || 'Event'}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(downloadUrl);
+                a.remove();
+            } else {
+                alert('Errore durante la generazione del PDF');
+            }
+        } catch (error) {
+            console.error("PDF Download error:", error);
+            alert("Errore durante il download del PDF");
+        } finally {
+            setDownloadingPDF(false);
+        }
+    };
+
     // Handle share link generation
     const handleShare = async () => {
         setSharing(true);
@@ -299,6 +328,14 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                         >
                             {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                             Scarica Excel
+                        </button>
+                        <button
+                            onClick={handleDownloadPDF}
+                            disabled={downloadingPDF || loading}
+                            className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 font-medium transition-colors disabled:opacity-50"
+                        >
+                            {downloadingPDF ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                            Scarica PDF
                         </button>
                         <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
                             <X className="h-6 w-6 text-gray-500" />

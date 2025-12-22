@@ -17,6 +17,8 @@
     "exceljs": "^4.4.0",
     "googleapis": "^169.0.0",
     "jose": "^6.1.3",
+    "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.556.0",
     "next": "16.0.7",
     "pdf-lib": "^1.17.1",
