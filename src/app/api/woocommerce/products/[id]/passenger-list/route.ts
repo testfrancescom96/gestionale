@@ -245,6 +245,9 @@ export async function GET(
                     passengers.push(currentPerson);
                 }
 
+                console.log(`[extractMultiplePassengers] Extracted ${passengers.length} passengers:`,
+                    passengers.map(p => `${p.nome || '?'} ${p.cognome || '?'}`).join(', '));
+
                 return passengers;
             } catch (e) {
                 return [];
