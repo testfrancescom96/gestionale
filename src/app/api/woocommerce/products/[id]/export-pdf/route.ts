@@ -2,16 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
-// Extend jsPDF type for autoTable
-declare module 'jspdf' {
-    interface jsPDF {
-        autoTable: (options: any) => jsPDF;
-        lastAutoTable: { finalY: number };
-    }
-}
+// Type for autoTable
+type AutoTableJsPDF = jsPDF & {
+    lastAutoTable: { finalY: number };
+};
 
 export async function GET(
     request: NextRequest,
@@ -186,7 +183,7 @@ export async function GET(
         }
 
         // Generate table
-        doc.autoTable({
+        autoTable(doc, {
             startY: 35,
             head: [tableColumns.map(c => c.header)],
             body: tableBody.map(row => tableColumns.map(c => row[c.dataKey] || '')),
@@ -226,7 +223,7 @@ export async function GET(
 
         // Summary row
         const totalPax = rows.reduce((sum, r) => sum + (r.pax || 1), 0);
-        const finalY = doc.lastAutoTable.finalY + 5;
+        const finalY = (doc as AutoTableJsPDF).lastAutoTable.finalY + 5;
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
         doc.text(`TOTALE PASSEGGERI: ${totalPax}`, 10, finalY);
