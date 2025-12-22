@@ -1,12 +1,20 @@
 
 import { useState, useEffect, useMemo } from "react";
-import { Loader2, X, Save, Check, Plus, Search, Filter, RefreshCw, Eye, EyeOff, CheckSquare, Square } from "lucide-react";
+import { Loader2, X, Save, Check, Plus, Search, Filter, RefreshCw, Eye, EyeOff, CheckSquare, Square, AlertTriangle, Package } from "lucide-react";
 
 interface FieldConfig {
     fieldKey: string;
     label: string;
     mappingType: string;
     isSaved: boolean;
+}
+
+interface FieldUsageData {
+    productIds: number[];
+    productNames: string[];
+    count: number;
+    lastUsed: string | null;
+    isOld: boolean;
 }
 
 interface Props {
@@ -26,6 +34,10 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
     const [newFieldKey, setNewFieldKey] = useState("");
     const [newFieldLabel, setNewFieldLabel] = useState("");
 
+    // Field usage tracking
+    const [fieldUsage, setFieldUsage] = useState<Record<string, FieldUsageData>>({});
+    const [usageWarnings, setUsageWarnings] = useState<{ fieldKey: string; message: string }[]>([]);
+
     useEffect(() => {
         if (isOpen) fetchFields();
     }, [isOpen]);
@@ -42,6 +54,22 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
             setLoading(false);
         }
     };
+
+    // Fetch field usage data
+    const fetchFieldUsage = async () => {
+        try {
+            const res = await fetch('/api/woocommerce/config/field-usage');
+            const data = await res.json();
+            setFieldUsage(data.fieldUsage || {});
+            setUsageWarnings(data.warnings || []);
+        } catch (error) {
+            console.error("Error fetching field usage:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (isOpen) fetchFieldUsage();
+    }, [isOpen]);
 
     const handleManualAdd = async () => {
         if (!newFieldKey || !newFieldLabel) return;
@@ -130,6 +158,23 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                     </div>
                 </div>
 
+                {/* Warnings for hidden fields being reused */}
+                {usageWarnings.length > 0 && (
+                    <div className="mx-4 mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                        <div className="flex items-start gap-2">
+                            <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <p className="text-sm font-medium text-amber-800">Campi nascosti in uso</p>
+                                <ul className="mt-1 text-xs text-amber-700 space-y-1">
+                                    {usageWarnings.map((w, i) => (
+                                        <li key={i}>⚠️ {w.message}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Toolbar */}
                 <div className="p-4 border-b flex flex-col md:flex-row gap-4 justify-between bg-white items-center">
                     {/* Tabs */}
@@ -207,109 +252,128 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
 
                             {/* List */}
                             <div className="bg-white border rounded-lg shadow-sm divide-y">
-                                <div className="grid gap-3 px-4 py-3 bg-gray-100 text-xs font-bold text-gray-500 uppercase" style={{ gridTemplateColumns: '4fr 3fr 1fr 1fr 1fr 1fr' }}>
+                                <div className="grid gap-3 px-4 py-3 bg-gray-100 text-xs font-bold text-gray-500 uppercase" style={{ gridTemplateColumns: '3fr 2fr 1fr 1fr 1fr 2fr 1fr' }}>
                                     <div>Nome Colonna / Chiave Woo</div>
                                     <div>Alias (Unisci con altra chiave)</div>
                                     <div className="text-center">Visibile</div>
                                     <div className="text-center" title="Pre-selezionato di default nella lista passeggeri">Pre-sel</div>
                                     <div className="text-center" title="Ordine di visualizzazione (numeri bassi = prima)">Ordine</div>
+                                    <div className="text-center">Uso Prodotti</div>
                                     <div className="text-right">Stato</div>
                                 </div>
 
-                                {filteredFields.map((field) => (
-                                    <div key={field.fieldKey} className="grid gap-3 items-center px-4 py-3 hover:bg-gray-50 transition-colors" style={{ gridTemplateColumns: '4fr 3fr 1fr 1fr 1fr 1fr' }}>
+                                {filteredFields.map((field) => {
+                                    const usage = fieldUsage[field.fieldKey];
+                                    return (
+                                        <div key={field.fieldKey} className="grid gap-3 items-center px-4 py-3 hover:bg-gray-50 transition-colors" style={{ gridTemplateColumns: '3fr 2fr 1fr 1fr 1fr 2fr 1fr' }}>
 
-                                        {/* Name & Key */}
-                                        <div className="overflow-hidden">
-                                            <input
-                                                type="text"
-                                                value={field.label}
-                                                onChange={(e) => {
-                                                    const newFields = fields.map(f => f.fieldKey === field.fieldKey ? { ...f, label: e.target.value } : f);
-                                                    setFields(newFields);
-                                                }}
-                                                onBlur={() => handleSave(field)}
-                                                className="block w-full text-sm font-bold text-gray-900 border border-gray-200 rounded px-2 py-1 bg-white hover:border-blue-300 focus:ring-1 focus:ring-blue-500 mb-1"
-                                                placeholder="Nome colonna export"
-                                            />
-                                            <div className="text-[10px] text-gray-400 font-mono truncate px-1 flex items-center gap-1">
-                                                <span className="font-semibold text-gray-300">KEY:</span> {field.fieldKey}
+                                            {/* Name & Key */}
+                                            <div className="overflow-hidden">
+                                                <input
+                                                    type="text"
+                                                    value={field.label}
+                                                    onChange={(e) => {
+                                                        const newFields = fields.map(f => f.fieldKey === field.fieldKey ? { ...f, label: e.target.value } : f);
+                                                        setFields(newFields);
+                                                    }}
+                                                    onBlur={() => handleSave(field)}
+                                                    className="block w-full text-sm font-bold text-gray-900 border border-gray-200 rounded px-2 py-1 bg-white hover:border-blue-300 focus:ring-1 focus:ring-blue-500 mb-1"
+                                                    placeholder="Nome colonna export"
+                                                />
+                                                <div className="text-[10px] text-gray-400 font-mono truncate px-1 flex items-center gap-1">
+                                                    <span className="font-semibold text-gray-300">KEY:</span> {field.fieldKey}
+                                                </div>
+                                            </div>
+
+                                            {/* Alias Field - for merging duplicate keys */}
+                                            <div>
+                                                <input
+                                                    type="text"
+                                                    value={(field as any).aliasOf || ""}
+                                                    onChange={(e) => {
+                                                        const newFields = fields.map(f => f.fieldKey === field.fieldKey ? { ...f, aliasOf: e.target.value } : f);
+                                                        setFields(newFields as any);
+                                                    }}
+                                                    onBlur={() => handleSave({ ...field, aliasOf: (field as any).aliasOf } as any)}
+                                                    className="block w-full text-xs text-gray-600 border border-gray-200 rounded px-2 py-1.5 bg-gray-50 hover:border-blue-300 focus:ring-1 focus:ring-blue-500"
+                                                    placeholder="Es: pa_fermata (se duplicato)"
+                                                    title="Se questo campo è uguale a un altro, scrivi qui la chiave principale"
+                                                />
+                                            </div>
+
+                                            {/* Visibility Toggle */}
+                                            <div className="flex justify-center">
+                                                <button
+                                                    onClick={() => handleSave({
+                                                        ...field,
+                                                        mappingType: field.mappingType === 'HIDDEN' ? 'COLUMN' : 'HIDDEN'
+                                                    })}
+                                                    className={`p-1.5 rounded-md transition-colors ${field.mappingType === 'HIDDEN' ? 'text-gray-300 hover:bg-gray-100' : 'text-blue-600 bg-blue-50 hover:bg-blue-100'}`}
+                                                    title={field.mappingType === 'HIDDEN' ? 'Campo nascosto' : 'Campo visibile'}
+                                                >
+                                                    {field.mappingType === 'HIDDEN' ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                </button>
+                                            </div>
+
+                                            {/* Default Selected Toggle */}
+                                            <div className="flex justify-center">
+                                                <button
+                                                    onClick={() => handleSave({
+                                                        ...field,
+                                                        isDefaultSelected: !(field as any).isDefaultSelected
+                                                    } as any)}
+                                                    className={`p-1.5 rounded-md transition-colors ${(field as any).isDefaultSelected ? 'text-green-600 bg-green-50 hover:bg-green-100' : 'text-gray-300 hover:bg-gray-100'}`}
+                                                    title={(field as any).isDefaultSelected ? 'Pre-selezionato di default' : 'Non pre-selezionato'}
+                                                >
+                                                    {(field as any).isDefaultSelected ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
+                                                </button>
+                                            </div>
+
+                                            {/* Display Order */}
+                                            <div className="flex justify-center">
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    max="999"
+                                                    value={(field as any).displayOrder || 100}
+                                                    onChange={(e) => {
+                                                        const newFields = fields.map(f => f.fieldKey === field.fieldKey ? { ...f, displayOrder: parseInt(e.target.value) || 100 } : f);
+                                                        setFields(newFields as any);
+                                                    }}
+                                                    onBlur={() => handleSave({ ...field, displayOrder: (field as any).displayOrder || 100 } as any)}
+                                                    className="w-16 text-center text-xs border border-gray-200 rounded px-2 py-1 bg-white hover:border-blue-300 focus:ring-1 focus:ring-blue-500"
+                                                    title="Ordine di visualizzazione (numeri bassi = prima)"
+                                                />
+                                            </div>
+
+                                            {/* Usage Stats */}
+                                            <div className="flex items-center justify-center gap-1">
+                                                {usage ? (
+                                                    <div className="flex items-center gap-1" title={usage.productNames.join(', ')}>
+                                                        <Package className={`h-3.5 w-3.5 ${usage.isOld ? 'text-gray-400' : 'text-green-500'}`} />
+                                                        <span className={`text-xs font-medium ${usage.isOld ? 'text-gray-400' : 'text-gray-700'}`}>
+                                                            {usage.productIds.length}
+                                                        </span>
+                                                        {usage.isOld && <span className="text-[9px] text-gray-400">(vecchio)</span>}
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-[10px] text-gray-300">-</span>
+                                                )}
+                                            </div>
+
+                                            {/* Status */}
+                                            <div className="text-right">
+                                                {saving === field.fieldKey ? (
+                                                    <Loader2 className="h-4 w-4 animate-spin text-gray-400 ml-auto" />
+                                                ) : field.isSaved ? (
+                                                    <span className="text-green-600 text-[10px] font-bold">✓</span>
+                                                ) : (
+                                                    <span className="text-gray-300 text-[10px]">•</span>
+                                                )}
                                             </div>
                                         </div>
-
-                                        {/* Alias Field - for merging duplicate keys */}
-                                        <div>
-                                            <input
-                                                type="text"
-                                                value={(field as any).aliasOf || ""}
-                                                onChange={(e) => {
-                                                    const newFields = fields.map(f => f.fieldKey === field.fieldKey ? { ...f, aliasOf: e.target.value } : f);
-                                                    setFields(newFields as any);
-                                                }}
-                                                onBlur={() => handleSave({ ...field, aliasOf: (field as any).aliasOf } as any)}
-                                                className="block w-full text-xs text-gray-600 border border-gray-200 rounded px-2 py-1.5 bg-gray-50 hover:border-blue-300 focus:ring-1 focus:ring-blue-500"
-                                                placeholder="Es: pa_fermata (se duplicato)"
-                                                title="Se questo campo è uguale a un altro, scrivi qui la chiave principale"
-                                            />
-                                        </div>
-
-                                        {/* Visibility Toggle */}
-                                        <div className="flex justify-center">
-                                            <button
-                                                onClick={() => handleSave({
-                                                    ...field,
-                                                    mappingType: field.mappingType === 'HIDDEN' ? 'COLUMN' : 'HIDDEN'
-                                                })}
-                                                className={`p-1.5 rounded-md transition-colors ${field.mappingType === 'HIDDEN' ? 'text-gray-300 hover:bg-gray-100' : 'text-blue-600 bg-blue-50 hover:bg-blue-100'}`}
-                                                title={field.mappingType === 'HIDDEN' ? 'Campo nascosto' : 'Campo visibile'}
-                                            >
-                                                {field.mappingType === 'HIDDEN' ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                            </button>
-                                        </div>
-
-                                        {/* Default Selected Toggle */}
-                                        <div className="flex justify-center">
-                                            <button
-                                                onClick={() => handleSave({
-                                                    ...field,
-                                                    isDefaultSelected: !(field as any).isDefaultSelected
-                                                } as any)}
-                                                className={`p-1.5 rounded-md transition-colors ${(field as any).isDefaultSelected ? 'text-green-600 bg-green-50 hover:bg-green-100' : 'text-gray-300 hover:bg-gray-100'}`}
-                                                title={(field as any).isDefaultSelected ? 'Pre-selezionato di default' : 'Non pre-selezionato'}
-                                            >
-                                                {(field as any).isDefaultSelected ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
-                                            </button>
-                                        </div>
-
-                                        {/* Display Order */}
-                                        <div className="flex justify-center">
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                max="999"
-                                                value={(field as any).displayOrder || 100}
-                                                onChange={(e) => {
-                                                    const newFields = fields.map(f => f.fieldKey === field.fieldKey ? { ...f, displayOrder: parseInt(e.target.value) || 100 } : f);
-                                                    setFields(newFields as any);
-                                                }}
-                                                onBlur={() => handleSave({ ...field, displayOrder: (field as any).displayOrder || 100 } as any)}
-                                                className="w-16 text-center text-xs border border-gray-200 rounded px-2 py-1 bg-white hover:border-blue-300 focus:ring-1 focus:ring-blue-500"
-                                                title="Ordine di visualizzazione (numeri bassi = prima)"
-                                            />
-                                        </div>
-
-                                        {/* Status */}
-                                        <div className="text-right">
-                                            {saving === field.fieldKey ? (
-                                                <Loader2 className="h-4 w-4 animate-spin text-gray-400 ml-auto" />
-                                            ) : field.isSaved ? (
-                                                <span className="text-green-600 text-[10px] font-bold">✓</span>
-                                            ) : (
-                                                <span className="text-gray-300 text-[10px]">•</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
 
                                 {filteredFields.length === 0 && (
                                     <div className="p-8 text-center text-gray-500 text-sm">
