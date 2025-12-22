@@ -423,18 +423,22 @@ export async function GET(
             // Build columns respecting the selected keys
             const columns: { header: string; key: string; isDynamic?: boolean }[] = [];
 
-            // Helper to check if column is selected
-            const colSelected = (key: string) => selectedKeys === null || selectedKeys.includes(key);
+            // Helper to check if column is selected (case-insensitive)
+            const colSelected = (key: string) => {
+                if (selectedKeys === null) return true;
+                const keyLower = key.toLowerCase();
+                return selectedKeys.some(k => k.toLowerCase() === keyLower);
+            };
 
             // Always include row number
             columns.push({ header: 'N°', key: 'num' });
 
-            // Base columns - only if selected
-            if (colSelected('cognome') || colSelected('_billing_name'))
+            // Base columns - check both cases
+            if (colSelected('Cognome') || colSelected('cognome') || colSelected('_billing_name'))
                 columns.push({ header: 'Cognome', key: 'cognome' });
-            if (colSelected('nome') || colSelected('_billing_name'))
+            if (colSelected('Nome') || colSelected('nome') || colSelected('_billing_name'))
                 columns.push({ header: 'Nome', key: 'nome' });
-            if (colSelected('telefono') || colSelected('_billing_phone'))
+            if (colSelected('Telefono') || colSelected('telefono') || colSelected('Recapito telefonico') || colSelected('_billing_phone'))
                 columns.push({ header: 'Telefono', key: 'telefono' });
             if (colSelected('email') || colSelected('Email') || colSelected('_billing_email'))
                 columns.push({ header: 'Email', key: 'email' });
