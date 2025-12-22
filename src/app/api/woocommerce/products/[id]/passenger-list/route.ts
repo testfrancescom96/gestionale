@@ -453,7 +453,10 @@ export async function GET(
                 columns.push({ header: 'CAP', key: 'cap' });
 
             // Add Consolidated Columns - only if any of their keys is selected
+            // Skip base columns that are already added above (Nome, Cognome, Telefono, Email)
+            const skipLabels = new Set(['Nome', 'Cognome', 'Telefono', 'Email', 'Recapito telefonico', 'Recapito Telefonico']);
             for (const [label, keys] of consolidatedCols.entries()) {
+                if (skipLabels.has(label)) continue; // Already added as base column
                 if (keys.some(k => colSelected(k))) {
                     columns.push({ header: label, key: label, isDynamic: true });
                 }
