@@ -228,8 +228,27 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
             orderMap.set(f.fieldKey, f.displayOrder ?? 100);
         });
 
-        // Sort columns by displayOrder, then by header alphabetically
+        // Fixed order for base columns: num always first, then cognome, then nome
+        const fixedOrder: Record<string, number> = {
+            'num': -10,      // Always first
+            'cognome': -2,   // Second
+            'nome': -1,      // Third
+        };
+
+        // Sort columns by fixed order, then displayOrder, then alphabetically
         return [...data.columns].sort((a: any, b: any) => {
+            const fixedA = fixedOrder[a.key];
+            const fixedB = fixedOrder[b.key];
+
+            // If both have fixed order, use that
+            if (fixedA !== undefined && fixedB !== undefined) {
+                return fixedA - fixedB;
+            }
+            // If only one has fixed order, it comes first
+            if (fixedA !== undefined) return -1;
+            if (fixedB !== undefined) return 1;
+
+            // Otherwise use displayOrder then alphabetical
             const orderA = orderMap.get(a.key) ?? 100;
             const orderB = orderMap.get(b.key) ?? 100;
             return (orderA - orderB) || a.header.localeCompare(b.header);
@@ -342,8 +361,8 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                             <button
                                 onClick={copyToClipboard}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${copied
-                                        ? 'bg-green-600 text-white'
-                                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                    ? 'bg-green-600 text-white'
+                                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
                                     }`}
                             >
                                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
