@@ -280,6 +280,10 @@ export async function GET(
                     // Multi-passenger mode: one row per person
                     const importoPerPerson = (item.total || 0) / multiPassengers.length;
 
+                    // Extract Tipologia camera from metaData to pass to all passengers
+                    const tipologiaCamera = getMetaValue(item.metaData, 'Tipologia camera') ||
+                        getMetaValue(item.metaData, '_field_Tipologia camera') || '';
+
                     for (const passenger of multiPassengers) {
                         const row: any = {
                             cognome: passenger.cognome || '',
@@ -304,6 +308,7 @@ export async function GET(
                         if (passenger.dataNascita) row.dynamic['Data di nascita'] = passenger.dataNascita;
                         if (passenger.luogoNascita) row.dynamic['Luogo di nascita'] = passenger.luogoNascita;
                         if (passenger.allergie) row.dynamic['Allergie o intolleranze'] = passenger.allergie;
+                        if (tipologiaCamera) row.dynamic['Tipologia camera'] = tipologiaCamera;
 
                         let noteContent = `Ordine #${order.id} - Camera ${passenger.roomIndex + 1}`;
                         if (!isConfirmed) {
