@@ -92,13 +92,14 @@ export async function GET(request: NextRequest) {
 
         // Also get configured fields to identify unused ones
         const configuredFields = await prisma.wooExportConfig.findMany({
-            select: { fieldKey: true, label: true, hidden: true }
+            select: { fieldKey: true, label: true, mappingType: true }
         });
 
         // Add warning for hidden fields being reused
         const warnings: { fieldKey: string; message: string }[] = [];
         for (const config of configuredFields) {
-            if (config.hidden && result[config.fieldKey]) {
+            const isHidden = config.mappingType === 'HIDDEN';
+            if (isHidden && result[config.fieldKey]) {
                 // Hidden field is being used in products
                 const usage = result[config.fieldKey];
                 if (!usage.isOld) {
