@@ -458,8 +458,20 @@ export async function GET(
                 columns.push({ header: 'CAP', key: 'cap' });
 
             // Add Consolidated Columns - only if any of their keys is selected
-            // Skip base columns that are already added above (Nome, Cognome, Telefono, Email)
-            const skipLabels = new Set(['Nome', 'Cognome', 'Telefono', 'Email', 'Recapito telefonico', 'Recapito Telefonico']);
+            // Skip base columns that are already added above (these become separate columns)
+            const skipLabels = new Set([
+                // Name fields (already have base nome/cognome columns)
+                'Nome', 'Cognome', 'nome', 'cognome',
+                // Phone fields (already have base telefono column)
+                'Telefono', 'telefono', 'Recapito telefonico', 'Recapito Telefonico',
+                // Email (already have base email column)
+                'Email', 'email',
+                // Partenza (already have base puntoPartenza column)
+                'Partenza', 'partenza', 'Punto Partenza', 'Punto partenza', 'punto_partenza',
+                '_service_Partenza', 'Seleziona i servizi di interesse',
+                // CF (handled separately)
+                'Codice Fiscale', 'C.F.', 'CF', 'cf',
+            ]);
             for (const [label, keys] of consolidatedCols.entries()) {
                 if (skipLabels.has(label)) continue; // Already added as base column
                 if (keys.some(k => colSelected(k))) {
