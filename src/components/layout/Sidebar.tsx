@@ -42,12 +42,13 @@ const navSections = [
         items: [
             { name: "Clienti", href: "/clienti", icon: Users },
             { name: "Fornitori", href: "/fornitori", icon: Building2 },
-            { name: "Noleggi Bus", href: "/vettori", icon: Bus },
+            { name: "Vettori", href: "/anagrafiche/vettori", icon: Bus },
         ]
     },
     {
         title: "CONTROLLO",
         items: [
+            { name: "Noleggi Bus", href: "/noleggi-bus", icon: Bus },
             { name: "Scadenzario", href: "/scadenzario", icon: Calendar },
             { name: "Contabilità", href: "/contabilita", icon: Wallet },
             { name: "Report", href: "/report", icon: DollarSign },

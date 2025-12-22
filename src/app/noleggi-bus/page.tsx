@@ -4,19 +4,16 @@ import { useState, useEffect } from "react";
 import {
     Bus,
     Plus,
-    Euro,
-    Calendar,
     Check,
     X,
     Edit2,
     Trash2,
-    FileText,
     Filter,
-    Download
+    Download,
+    ExternalLink
 } from "lucide-react";
 import { format } from "date-fns";
-import { it } from "date-fns/locale";
-import { NuovoFornitoreModal } from "@/components/fornitori/NuovoFornitoreModal";
+import Link from "next/link";
 
 interface Noleggio {
     id: string;
@@ -50,7 +47,7 @@ interface Stats {
     daPagare: number;
 }
 
-export default function VettoriPage() {
+export default function NoleggiBusPage() {
     const [noleggi, setNoleggi] = useState<Noleggio[]>([]);
     const [stats, setStats] = useState<Stats | null>(null);
     const [loading, setLoading] = useState(true);
@@ -58,7 +55,6 @@ export default function VettoriPage() {
     const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString());
     const [filterVettore, setFilterVettore] = useState("");
     const [showForm, setShowForm] = useState(false);
-    const [showFornitoreModal, setShowFornitoreModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         dataPartenza: "",
@@ -231,10 +227,10 @@ export default function VettoriPage() {
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                         <Bus className="h-8 w-8 text-blue-600" />
-                        Gestione Vettori
+                        Noleggi Bus
                     </h1>
                     <p className="mt-2 text-gray-600">
-                        Noleggi bus, fatture e pagamenti
+                        Gestione noleggi, costi e pagamenti
                     </p>
                 </div>
                 <button
@@ -353,14 +349,14 @@ export default function VettoriPage() {
                                     <option key={f.id} value={f.id}>{f.ragioneSociale}</option>
                                 ))}
                             </select>
-                            <button
-                                type="button"
-                                onClick={() => setShowFornitoreModal(true)}
-                                className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700"
-                                title="Nuovo Vettore (Anagrafica)"
+                            <Link
+                                href="/anagrafiche/vettori"
+                                className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 px-2"
+                                title="Gestisci anagrafica vettori"
                             >
-                                <Plus className="h-4 w-4" />
-                            </button>
+                                <ExternalLink className="h-3 w-3" />
+                                Anagrafica
+                            </Link>
                         </div>
 
                         <input
@@ -558,20 +554,7 @@ export default function VettoriPage() {
                 </table>
             </div>
 
-            <NuovoFornitoreModal
-                isOpen={showFornitoreModal}
-                onClose={() => setShowFornitoreModal(false)}
-                tipoPredefinito="VETTORE"
-                onFornitoreCreato={(newFornitore) => {
-                    setFornitori(prev => [...prev, newFornitore]);
-                    // Auto-select
-                    setFormData(prev => ({
-                        ...prev,
-                        fornitoreId: newFornitore.id,
-                        nomeVettore: newFornitore.ragioneSociale
-                    }));
-                }}
-            />
+
         </div>
     );
 }
