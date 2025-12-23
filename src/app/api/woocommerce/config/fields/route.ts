@@ -96,6 +96,36 @@ export async function GET(req: NextRequest) {
                 });
             }
         }
+        // Priority 3: System fields (calculated, not from metadata)
+        const systemFields = [
+            { key: 'importo', label: 'Importo' },
+            { key: 'pax', label: 'Pax' },
+            { key: 'puntoPartenza', label: 'Punto Partenza' },
+            { key: 'email', label: 'Email' },
+            { key: 'telefono', label: 'Telefono' },
+        ];
+
+        for (const sf of systemFields) {
+            if (!processedKeys.has(sf.key)) {
+                // Check if saved in DB
+                const savedConfig = configMap.get(sf.key);
+                if (savedConfig) {
+                    // Already in result from priority 1
+                } else {
+                    result.push({
+                        fieldKey: sf.key,
+                        label: sf.label,
+                        mappingType: "COLUMN",
+                        isDefaultSelected: false,
+                        aliasOf: null,
+                        displayOrder: 50, // System fields before scanned
+                        isSaved: false,
+                        isSystem: true
+                    });
+                }
+                processedKeys.add(sf.key);
+            }
+        }
 
         // Sort by displayOrder, then by label
         result.sort((a, b) => (a.displayOrder - b.displayOrder) || a.label.localeCompare(b.label));

@@ -13,6 +13,8 @@ interface FieldUsageData {
     productIds: number[];
     productNames: string[];
     count: number;
+    totalProducts: number;
+    publishedProducts: number;
     lastUsed: string | null;
     isOld: boolean;
 }
@@ -258,7 +260,7 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                                     <div className="text-center">Visibile</div>
                                     <div className="text-center" title="Pre-selezionato di default nella lista passeggeri">Pre-sel</div>
                                     <div className="text-center" title="Ordine di visualizzazione (numeri bassi = prima)">Ordine</div>
-                                    <div className="text-center">Uso Prodotti</div>
+                                    <div className="text-center cursor-help" title="Pubblicati / Totali: quanti prodotti (pubblicati vs draft) usano questo campo">Uso (pub/tot)</div>
                                     <div className="text-right">Stato</div>
                                 </div>
 
@@ -349,15 +351,23 @@ export function ExportSettingsModal({ isOpen, onClose }: Props) {
                                             {/* Usage Stats */}
                                             <div className="flex items-center justify-center gap-1">
                                                 {usage ? (
-                                                    <div className="flex items-center gap-1" title={usage.productNames.join(', ')}>
+                                                    <div
+                                                        className="flex items-center gap-1 cursor-help"
+                                                        title={`Usato in ${usage.publishedProducts || 0} prodotti pubblicati e ${usage.totalProducts || usage.productIds.length} totali\n\nProdotti: ${usage.productNames.join(', ')}`}
+                                                    >
                                                         <Package className={`h-3.5 w-3.5 ${usage.isOld ? 'text-gray-400' : 'text-green-500'}`} />
                                                         <span className={`text-xs font-medium ${usage.isOld ? 'text-gray-400' : 'text-gray-700'}`}>
-                                                            {usage.productIds.length}
+                                                            {usage.publishedProducts || 0}/{usage.totalProducts || usage.productIds.length}
                                                         </span>
                                                         {usage.isOld && <span className="text-[9px] text-gray-400">(vecchio)</span>}
                                                     </div>
                                                 ) : (
-                                                    <span className="text-[10px] text-gray-300">-</span>
+                                                    <span
+                                                        className="text-[10px] text-gray-300 cursor-help"
+                                                        title="Nessun ordine contiene questo campo. Potrebbe essere un campo nuovo o non ancora usato."
+                                                    >
+                                                        0/0
+                                                    </span>
                                                 )}
                                             </div>
 

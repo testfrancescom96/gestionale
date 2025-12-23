@@ -172,10 +172,23 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
     const handleDownloadPDF = async () => {
         setDownloadingPDF(true);
         try {
-            const columnsParam = Array.from(selectedFields).join(',');
-            const url = `/api/woocommerce/products/${productId}/export-pdf?columns=${columnsParam}`;
+            // Use POST method and send data from frontend
+            const url = `/api/woocommerce/products/${productId}/export-pdf`;
 
-            const response = await fetch(url);
+            // Get all passengers from the data
+            const passengers = data?.passengers || [];
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    passengers,
+                    productName: data?.productName,
+                    eventDate: data?.eventDate,
+                    columns: Array.from(selectedFields)
+                })
+            });
+
             if (response.ok) {
                 const blob = await response.blob();
                 const downloadUrl = window.URL.createObjectURL(blob);
@@ -187,7 +200,8 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
                 window.URL.revokeObjectURL(downloadUrl);
                 a.remove();
             } else {
-                alert('Errore durante la generazione del PDF');
+                const errorData = await response.json().catch(() => ({}));
+                alert(`Errore: ${errorData.error || 'Generazione PDF fallita'}`);
             }
         } catch (error) {
             console.error("PDF Download error:", error);
@@ -214,8 +228,7 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
             });
 
             if (res.ok) {
-                const { token } = await res.json();
-                const url = `${window.location.origin}/share/${token}`;
+                const { shareUrl: url } = await res.json();
                 setShareUrl(url);
                 setShowSharePanel(true);
             } else {

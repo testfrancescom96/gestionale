@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
 // API to analyze which products use which fields
-// Returns: { fieldKey: { productIds: number[], productNames: string[], count: number, lastUsed?: Date } }
+// Returns: { fieldKey: { productIds, productNames, count, totalProducts, publishedProducts, lastUsed } }
 export async function GET(request: NextRequest) {
     try {
-        // Fetch all products with their order items
+        // Fetch all products with their order items and status
         const products = await prisma.wooProduct.findMany({
             select: {
                 id: true,
                 name: true,
+                status: true, // publish, draft, etc.
                 eventDate: true,
                 orderItems: {
                     select: {
@@ -19,15 +20,16 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        // Map: fieldKey -> { productIds, productNames, count, lastUsed }
+        // Map: fieldKey -> { productIds, productNames, count, lastUsed, publishedProducts, allProducts }
         const fieldUsage = new Map<string, {
-            productIds: Set<number>;
+            allProductIds: Set<number>;
+            publishedProductIds: Set<number>;
             productNames: Set<string>;
             count: number;
             lastUsed: Date | null;
         }>();
 
-        const addFieldUsage = (key: string, productId: number, productName: string, eventDate: Date | null) => {
+        const addFieldUsage = (key: string, productId: number, productName: string, productStatus: string, eventDate: Date | null) => {
             if (!key || key === '') return;
 
             // Skip internal keys that start with _ but not _field_
@@ -35,7 +37,8 @@ export async function GET(request: NextRequest) {
 
             if (!fieldUsage.has(key)) {
                 fieldUsage.set(key, {
-                    productIds: new Set(),
+                    allProductIds: new Set(),
+                    publishedProductIds: new Set(),
                     productNames: new Set(),
                     count: 0,
                     lastUsed: null
@@ -43,7 +46,13 @@ export async function GET(request: NextRequest) {
             }
 
             const entry = fieldUsage.get(key)!;
-            entry.productIds.add(productId);
+            entry.allProductIds.add(productId);
+
+            // Track published products separately
+            if (productStatus === 'publish') {
+                entry.publishedProductIds.add(productId);
+            }
+
             entry.productNames.add(productName);
             entry.count++;
 
@@ -60,7 +69,7 @@ export async function GET(request: NextRequest) {
                         const meta = JSON.parse(item.metaData);
                         if (Array.isArray(meta)) {
                             meta.forEach((m: any) => {
-                                addFieldUsage(m.key || m.display_key, product.id, product.name, product.eventDate);
+                                addFieldUsage(m.key || m.display_key, product.id, product.name, product.status, product.eventDate);
                             });
                         }
                     } catch { }
@@ -73,6 +82,8 @@ export async function GET(request: NextRequest) {
             productIds: number[];
             productNames: string[];
             count: number;
+            totalProducts: number;       // All products using this field
+            publishedProducts: number;   // Only published products
             lastUsed: string | null;
             isOld: boolean; // More than 6 months since last use
         }> = {};
@@ -82,9 +93,11 @@ export async function GET(request: NextRequest) {
 
         for (const [key, data] of fieldUsage.entries()) {
             result[key] = {
-                productIds: Array.from(data.productIds),
+                productIds: Array.from(data.allProductIds),
                 productNames: Array.from(data.productNames).slice(0, 5), // Limit to 5 names
                 count: data.count,
+                totalProducts: data.allProductIds.size,
+                publishedProducts: data.publishedProductIds.size,
                 lastUsed: data.lastUsed?.toISOString() || null,
                 isOld: data.lastUsed ? data.lastUsed < sixMonthsAgo : true
             };

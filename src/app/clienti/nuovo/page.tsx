@@ -210,7 +210,7 @@ export default function NuovoClientePage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
+        <div className="min-h-full bg-gray-50 p-8 pb-16">
             <div className="mx-auto max-w-3xl">
                 {/* Header */}
                 <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">

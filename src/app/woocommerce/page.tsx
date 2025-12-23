@@ -9,7 +9,7 @@ export default function WooCommercePage() {
     const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "products">("dashboard");
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
+        <div className="min-h-full bg-gray-50 p-8 pb-16">
             <div className="mx-auto max-w-7xl">
                 <div className="mb-8 flex items-center justify-between">
                     <div>
