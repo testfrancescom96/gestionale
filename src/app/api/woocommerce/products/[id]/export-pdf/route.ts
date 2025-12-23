@@ -48,34 +48,41 @@ function generatePDF(
     doc.setFont('helvetica', 'normal');
     doc.text(`Data: ${eventDateStr}`, pageWidth / 2, 28, { align: 'center' });
 
-    // Define all possible columns with their display names
-    const allColumns: { id: string; header: string; getter: (row: PassengerRow) => string }[] = [
-        { id: 'num', header: 'N°', getter: (r) => String(r.num || '') },
-        { id: 'cognome', header: 'Cognome', getter: (r) => String(r.cognome || '') },
-        { id: 'nome', header: 'Nome', getter: (r) => String(r.nome || '') },
-        { id: 'telefono', header: 'Telefono', getter: (r) => String(r.telefono || '') },
-        { id: 'puntoPartenza', header: 'Partenza', getter: (r) => String(r.puntoPartenza || '') },
-        { id: 'email', header: 'Email', getter: (r) => String(r.email || '') },
-        { id: 'importo', header: 'Importo €', getter: (r) => `€ ${(Number(r.importo) || 0).toFixed(2)}` },
-        { id: 'pax', header: 'Pax', getter: (r) => String(r.pax || 1) },
+    // Define all possible columns with their display names and aliases
+    const allColumns: { id: string; header: string; aliases: string[]; getter: (row: PassengerRow) => string }[] = [
+        { id: 'num', header: 'N°', aliases: ['num', 'n°', 'numero'], getter: (r) => String(r.num || '') },
+        { id: 'cognome', header: 'Cognome', aliases: ['cognome', '_field_cognome', 'surname', 'last_name'], getter: (r) => String(r.cognome || '') },
+        { id: 'nome', header: 'Nome', aliases: ['nome', '_field_nome', 'name', 'first_name'], getter: (r) => String(r.nome || '') },
+        { id: 'telefono', header: 'Telefono', aliases: ['telefono', '_field_telefono', 'phone', 'tel', 'recapito telefonico'], getter: (r) => String(r.telefono || '') },
+        { id: 'puntoPartenza', header: 'Partenza', aliases: ['puntopartenza', 'partenza', '_service_partenza', 'punto partenza', 'fermata'], getter: (r) => String(r.puntoPartenza || '') },
+        { id: 'email', header: 'Email', aliases: ['email', '_field_email'], getter: (r) => String(r.email || '') },
+        { id: 'importo', header: 'Importo €', aliases: ['importo', 'pagato', 'totale', 'prezzo'], getter: (r) => `€ ${(Number(r.importo) || 0).toFixed(2)}` },
+        { id: 'pax', header: 'Pax', aliases: ['pax', 'quantity', 'quantità'], getter: (r) => String(r.pax || 1) },
     ];
 
-    // Normalize selection function - handles _field_, _service_ prefixes
-    const isColumnSelected = (colId: string): boolean => {
+    // Normalize selection function - handles various field name formats
+    const isColumnSelected = (colId: string, aliases: string[]): boolean => {
         if (selectedColumns.length === 0) return true; // All if empty
-        const normalized = colId.toLowerCase();
-        return selectedColumns.some(s => {
-            const sel = s.toLowerCase()
+
+        // Check each selected column against the column's aliases
+        return selectedColumns.some(sel => {
+            const selNormalized = sel.toLowerCase()
                 .replace('_field_', '')
-                .replace('_service_', '');
-            return sel === normalized || s.toLowerCase() === normalized;
+                .replace('_service_', '')
+                .replace(/[_-]/g, ' ')
+                .trim();
+
+            return aliases.some(alias =>
+                alias.toLowerCase() === selNormalized ||
+                alias.toLowerCase() === sel.toLowerCase()
+            );
         });
     };
 
     // Always include num column, then filter the rest
     const columnsToUse = [
         allColumns[0], // Always N°
-        ...allColumns.slice(1).filter(c => isColumnSelected(c.id))
+        ...allColumns.slice(1).filter(c => isColumnSelected(c.id, c.aliases))
     ];
 
     // If still only N°, add defaults
