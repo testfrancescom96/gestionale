@@ -273,7 +273,9 @@ export async function GET(
 
                 if (multiPassengers.length > 0) {
                     // Multi-passenger mode: one row per person
-                    const importoPerPerson = (item.total || 0) / multiPassengers.length;
+                    // Add 10% IVA - WooCommerce sends net amounts
+                    const importoLordo = (item.total || 0) * 1.10;
+                    const importoPerPerson = importoLordo / multiPassengers.length;
 
                     // Extract Tipologia camera from metaData to pass to all passengers
                     const tipologiaCamera = getMetaValue(item.metaData, 'Tipologia camera') ||
@@ -324,7 +326,8 @@ export async function GET(
                         telefono: fieldTelefono || order.billingPhone || '',
                         email: order.billingEmail || '',
                         puntoPartenza: findPartenza(item.metaData),
-                        importo: item.total || 0,
+                        // Add 10% IVA - WooCommerce sends net amounts
+                        importo: (item.total || 0) * 1.10,
                         source: 'order',
                         orderId: order.id,
                         orderStatus: order.status,
