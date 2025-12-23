@@ -478,6 +478,8 @@ export async function GET(
                 columns.push({ header: 'Pax', key: 'pax' });
             if (colSelected('importo') || colSelected('Importo') || colSelected('totale') || colSelected('pagato'))
                 columns.push({ header: 'Pagato €', key: 'importo' });
+            if (colSelected('_order_id') || colSelected('orderId') || colSelected('N° Ordine'))
+                columns.push({ header: 'N° Ordine', key: 'orderId' });
             if (colSelected('note'))
                 columns.push({ header: 'Note', key: 'note' });
 
