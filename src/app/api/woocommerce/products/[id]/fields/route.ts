@@ -65,11 +65,17 @@ export async function GET(
             { fieldKey: '_quantity', label: 'Quantità', count: orderItems.length },
         ];
 
-        // Combine: standard fields first, then dynamic fields sorted by frequency
+        // System fields - calculated, always available for any product
+        const systemFields = [
+            { fieldKey: 'importo', label: 'Importo €', count: orderItems.length, isSystem: true },
+            { fieldKey: 'pax', label: 'Pax', count: orderItems.length, isSystem: true },
+        ];
+
+        // Combine: system fields first, then standard fields, then dynamic fields sorted by frequency
         const dynamicFields = Array.from(fieldMap.values())
             .sort((a, b) => b.count - a.count);
 
-        const allFields = [...standardFields, ...dynamicFields];
+        const allFields = [...systemFields, ...standardFields, ...dynamicFields];
 
         return NextResponse.json(allFields);
 
