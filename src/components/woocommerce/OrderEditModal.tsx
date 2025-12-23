@@ -75,26 +75,34 @@ export function OrderEditModal({ isOpen, order, onClose, onSave }: OrderEditModa
 
             // Priority 1: itemMetaData (form fields from checkout)
             if (order?.itemMetaData) {
-                const itemMeta = typeof order.itemMetaData === 'string'
-                    ? JSON.parse(order.itemMetaData)
-                    : order.itemMetaData;
-                if (Array.isArray(itemMeta)) allMeta = [...itemMeta];
+                try {
+                    const itemMeta = typeof order.itemMetaData === 'string'
+                        ? JSON.parse(order.itemMetaData)
+                        : order.itemMetaData;
+                    if (Array.isArray(itemMeta)) allMeta = [...itemMeta];
+                } catch (parseError) {
+                    console.warn('Could not parse itemMetaData:', parseError);
+                }
             }
 
             // Priority 2: order.metaData (order-level metadata)
             if (order?.metaData) {
-                const orderMetaData = typeof order.metaData === 'string'
-                    ? JSON.parse(order.metaData)
-                    : order.metaData;
-                if (Array.isArray(orderMetaData)) {
-                    // Merge, but prefer itemMeta for duplicates
-                    const existingKeys = new Set(allMeta.map(m => m.key || m.display_key));
-                    for (const m of orderMetaData) {
-                        const key = m.key || m.display_key;
-                        if (!existingKeys.has(key)) {
-                            allMeta.push(m);
+                try {
+                    const orderMetaData = typeof order.metaData === 'string'
+                        ? JSON.parse(order.metaData)
+                        : order.metaData;
+                    if (Array.isArray(orderMetaData)) {
+                        // Merge, but prefer itemMeta for duplicates
+                        const existingKeys = new Set(allMeta.map(m => m.key || m.display_key));
+                        for (const m of orderMetaData) {
+                            const key = m.key || m.display_key;
+                            if (!existingKeys.has(key)) {
+                                allMeta.push(m);
+                            }
                         }
                     }
+                } catch (parseError) {
+                    console.warn('Could not parse metaData:', parseError);
                 }
             }
 
@@ -111,6 +119,7 @@ export function OrderEditModal({ isOpen, order, onClose, onSave }: OrderEditModa
             setOrderMeta(allMeta);
         } catch (error) {
             console.error('Error loading meta:', error);
+            setOrderMeta([]);
         } finally {
             setLoadingMeta(false);
         }

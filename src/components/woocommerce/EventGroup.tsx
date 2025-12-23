@@ -45,20 +45,20 @@ export function EventGroup({ data, updatedOrderIds, highlightId, onRefresh, onDo
     };
 
     return (
-        <div className="border rounded-xl mb-4 overflow-hidden bg-white shadow-sm border-gray-100">
+        <div className="border-2 rounded-xl mb-6 overflow-hidden bg-white shadow-md border-blue-200">
             <div
-                className="bg-gray-50/50 p-4 flex items-center justify-between cursor-pointer hover:bg-gray-100/50 transition-colors"
+                className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 flex items-center justify-between cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-colors border-b border-blue-100"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
                 <div className="flex items-center gap-3">
-                    <div className="bg-white p-1.5 rounded-md shadow-sm border border-gray-100 text-gray-400">
+                    <div className="bg-blue-600 p-1.5 rounded-md shadow-sm text-white">
                         {isExpanded ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
                     </div>
                     <div>
-                        <h3 className="font-bold text-lg text-gray-800 capitalize leading-none mb-1">
+                        <h3 className="font-bold text-xl text-blue-900 capitalize leading-none mb-1">
                             {data.monthName} {data.year}
                         </h3>
-                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                        <p className="text-sm text-blue-600 font-semibold uppercase tracking-wide">
                             {data.products.length} Event{data.products.length === 1 ? 'o' : 'i'} in programma
                         </p>
                     </div>

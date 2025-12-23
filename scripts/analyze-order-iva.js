@@ -10,11 +10,11 @@ async function main() {
         console.log(`📊 ANALISI ORDINE #${orderId} - PROBLEMA IVA`);
         console.log('='.repeat(80));
 
-        // 1. Trova l'ordine
+        // 1. Trova l'ordine (usa id non wooId)
         const order = await prisma.wooOrder.findFirst({
-            where: { wooId: orderId },
+            where: { id: orderId },
             include: {
-                items: true
+                lineItems: true
             }
         });
 
@@ -61,7 +61,7 @@ async function main() {
 
         // 3. Analizza gli item dell'ordine
         console.log('\n📋 ITEMS DELL\'ORDINE:');
-        for (const item of order.items) {
+        for (const item of order.lineItems) {
             console.log(`\n   ITEM ID: ${item.id}`);
             console.log(`   - total (campo DB): ${item.total}`);
             console.log(`   - quantity: ${item.quantity}`);
