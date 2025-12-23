@@ -19,6 +19,7 @@ export function WooDashboard() {
     // Orders state removed for performance - using nested orderItems
     const [loading, setLoading] = useState(true);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+    const [syncStats, setSyncStats] = useState<{ orderCount: number; dateFrom: string; dateTo: string } | null>(null);
 
     const [groupedEvents, setGroupedEvents] = useState<{ pinned: any[], years: YearGroup[], undated: any[] }>({ pinned: [], years: [], undated: [] });
 
@@ -81,6 +82,35 @@ export function WooDashboard() {
                 setProducts(prodData.products);
                 const groups = groupProductsByDate(prodData.products);
                 setGroupedEvents(groups);
+
+                // Calculate sync stats from orderItems
+                let allOrderDates: Date[] = [];
+                let totalOrders = 0;
+
+                prodData.products.forEach((product: any) => {
+                    if (product.orderItems && Array.isArray(product.orderItems)) {
+                        product.orderItems.forEach((item: any) => {
+                            if (item.order?.dateCreated) {
+                                allOrderDates.push(new Date(item.order.dateCreated));
+                                totalOrders++;
+                            }
+                        });
+                    }
+                });
+
+                if (allOrderDates.length > 0) {
+                    allOrderDates.sort((a, b) => a.getTime() - b.getTime());
+                    const dateFrom = allOrderDates[0];
+                    const dateTo = allOrderDates[allOrderDates.length - 1];
+
+                    setSyncStats({
+                        orderCount: totalOrders,
+                        dateFrom: dateFrom.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }),
+                        dateTo: dateTo.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })
+                    });
+                } else {
+                    setSyncStats(null);
+                }
             }
 
             setLastUpdated(new Date());
@@ -256,9 +286,11 @@ export function WooDashboard() {
                 <div>
                     <h2 className="text-lg font-bold text-gray-900">Dashboard Eventi</h2>
                     <p className="text-sm text-gray-500">
-                        {lastUpdated
-                            ? `Ultimo aggiornamento: ${lastUpdated.toLocaleTimeString()}`
-                            : "In attesa di dati..."}
+                        {syncStats
+                            ? `📦 ${syncStats.orderCount} ordini dal ${syncStats.dateFrom} al ${syncStats.dateTo}`
+                            : lastUpdated
+                                ? `Ultimo caricamento: ${lastUpdated.toLocaleTimeString()}`
+                                : "In attesa di dati..."}
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
