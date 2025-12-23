@@ -171,9 +171,26 @@ export async function POST(
             return NextResponse.json({ error: "Dati passeggeri mancanti" }, { status: 400 });
         }
 
-        const eventDateStr = eventDate
-            ? format(new Date(eventDate), "dd MMMM yyyy", { locale: it })
-            : "Data N/D";
+        // Handle eventDate - it might already be formatted or be a Date/ISO string
+        let eventDateStr = "Data N/D";
+        if (eventDate) {
+            try {
+                // If it's already a formatted string like "04 gennaio 2025", use it directly
+                if (typeof eventDate === 'string' && /^\d{2}\s+\w+\s+\d{4}$/.test(eventDate)) {
+                    eventDateStr = eventDate;
+                } else {
+                    const dateObj = new Date(eventDate);
+                    if (!isNaN(dateObj.getTime())) {
+                        eventDateStr = format(dateObj, "dd MMMM yyyy", { locale: it });
+                    } else {
+                        // Use as-is if it's a string but not parseable
+                        eventDateStr = String(eventDate);
+                    }
+                }
+            } catch {
+                eventDateStr = String(eventDate) || "Data N/D";
+            }
+        }
 
         const pdfBuffer = generatePDF(
             passengers,
