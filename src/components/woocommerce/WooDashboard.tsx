@@ -106,7 +106,8 @@ export function WooDashboard() {
                     setSyncStats({
                         orderCount: totalOrders,
                         dateFrom: dateFrom.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }),
-                        dateTo: dateTo.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })
+                        dateTo: dateTo.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }) +
+                            ' ore ' + dateTo.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
                     });
                 } else {
                     setSyncStats(null);
