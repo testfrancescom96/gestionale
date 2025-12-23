@@ -175,8 +175,8 @@ export function PassengerListModal({ isOpen, onClose, productId }: Props) {
             // Use POST method and send data from frontend
             const url = `/api/woocommerce/products/${productId}/export-pdf`;
 
-            // Get all passengers from the data
-            const passengers = data?.passengers || [];
+            // FIXED: Get all passengers from the data - API returns 'rows' not 'passengers'
+            const passengers = data?.rows || [];
 
             const response = await fetch(url, {
                 method: 'POST',
