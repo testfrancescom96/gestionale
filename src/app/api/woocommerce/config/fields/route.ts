@@ -96,34 +96,52 @@ export async function GET(req: NextRequest) {
                 });
             }
         }
+
         // Priority 3: System fields (calculated, not from metadata)
+        // These ALWAYS get added (if not already in result)
         const systemFields = [
-            { key: 'importo', label: 'Importo' },
-            { key: 'pax', label: 'Pax' },
-            { key: 'puntoPartenza', label: 'Punto Partenza' },
-            { key: 'email', label: 'Email' },
-            { key: 'telefono', label: 'Telefono' },
+            { key: 'importo', label: 'Importo €', defaultSelected: true },
+            { key: 'pax', label: 'Pax', defaultSelected: false },
+            { key: 'puntoPartenza', label: 'Punto Partenza', defaultSelected: true },
+            { key: 'email', label: 'Email', defaultSelected: false },
+            { key: 'telefono', label: 'Telefono', defaultSelected: true },
         ];
 
         for (const sf of systemFields) {
-            if (!processedKeys.has(sf.key)) {
+            // Check if already in result
+            const existingIndex = result.findIndex(r => r.fieldKey === sf.key);
+
+            if (existingIndex === -1) {
                 // Check if saved in DB
                 const savedConfig = configMap.get(sf.key);
                 if (savedConfig) {
-                    // Already in result from priority 1
+                    // Add from saved config
+                    result.push({
+                        fieldKey: savedConfig.fieldKey,
+                        label: savedConfig.label || sf.label,
+                        mappingType: savedConfig.mappingType || 'COLUMN',
+                        isDefaultSelected: savedConfig.isDefaultSelected ?? sf.defaultSelected,
+                        aliasOf: savedConfig.aliasOf,
+                        displayOrder: savedConfig.displayOrder ?? 5,
+                        isSaved: true,
+                        isSystem: true
+                    });
                 } else {
+                    // Add as new system field
                     result.push({
                         fieldKey: sf.key,
                         label: sf.label,
                         mappingType: "COLUMN",
-                        isDefaultSelected: false,
+                        isDefaultSelected: sf.defaultSelected,
                         aliasOf: null,
-                        displayOrder: 50, // System fields before scanned
+                        displayOrder: 5, // System fields at top
                         isSaved: false,
                         isSystem: true
                     });
                 }
-                processedKeys.add(sf.key);
+            } else {
+                // Mark existing as system field
+                result[existingIndex].isSystem = true;
             }
         }
 
