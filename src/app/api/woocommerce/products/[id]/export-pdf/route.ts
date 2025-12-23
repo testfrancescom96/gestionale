@@ -60,23 +60,33 @@ function generatePDF(
         { id: 'pax', header: 'Pax', aliases: ['pax', 'quantity', 'quantità'], getter: (r) => String(r.pax || 1) },
     ];
 
+    // Log selected columns for debugging
+    console.log('PDF Export - Selected columns:', selectedColumns);
+
     // Normalize selection function - handles various field name formats
     const isColumnSelected = (colId: string, aliases: string[]): boolean => {
         if (selectedColumns.length === 0) return true; // All if empty
 
         // Check each selected column against the column's aliases
-        return selectedColumns.some(sel => {
-            const selNormalized = sel.toLowerCase()
+        const matched = selectedColumns.some(sel => {
+            const selLower = sel.toLowerCase();
+            const selNormalized = selLower
                 .replace('_field_', '')
                 .replace('_service_', '')
                 .replace(/[_-]/g, ' ')
                 .trim();
 
-            return aliases.some(alias =>
-                alias.toLowerCase() === selNormalized ||
-                alias.toLowerCase() === sel.toLowerCase()
-            );
+            // Check direct match first
+            if (aliases.some(alias => alias.toLowerCase() === selLower)) return true;
+            // Check normalized match
+            if (aliases.some(alias => alias.toLowerCase() === selNormalized)) return true;
+            // Check if column id is in the selection
+            if (selNormalized === colId.toLowerCase()) return true;
+
+            return false;
         });
+
+        return matched;
     };
 
     // Always include num column, then filter the rest
@@ -85,8 +95,11 @@ function generatePDF(
         ...allColumns.slice(1).filter(c => isColumnSelected(c.id, c.aliases))
     ];
 
+    console.log('PDF Export - Columns matched:', columnsToUse.map(c => c.id));
+
     // If still only N°, add defaults
     if (columnsToUse.length === 1) {
+        console.log('PDF Export - No columns matched, using defaults');
         const defaults = ['cognome', 'nome', 'telefono', 'puntoPartenza'];
         for (const d of defaults) {
             const col = allColumns.find(c => c.id === d);
