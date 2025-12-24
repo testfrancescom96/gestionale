@@ -40,6 +40,25 @@ export function WooDashboard() {
     // Product Params Editor State
     const [editingParamsProduct, setEditingParamsProduct] = useState<{ id: number; name: string } | null>(null);
 
+    // Sync Timestamps State
+    const [syncTimes, setSyncTimes] = useState<{ orders: Date | null; products: Date | null }>({ orders: null, products: null });
+
+    // Fetch sync timestamps
+    const fetchSyncTimes = async () => {
+        try {
+            const res = await fetch('/api/woocommerce/sync/status');
+            if (res.ok) {
+                const data = await res.json();
+                setSyncTimes({
+                    orders: data.lastOrderSyncAt ? new Date(data.lastOrderSyncAt) : null,
+                    products: data.lastProductSyncAt ? new Date(data.lastProductSyncAt) : null
+                });
+            }
+        } catch (e) {
+            console.error('Failed to fetch sync times:', e);
+        }
+    };
+
     const handleEditParams = (productId: number, productName: string) => {
         setEditingParamsProduct({ id: productId, name: productName });
     };
@@ -52,6 +71,7 @@ export function WooDashboard() {
     // Effect: Auto-load data on mount
     useEffect(() => {
         loadLocalData();
+        fetchSyncTimes();
     }, []);
 
     // Effect to handle highlight auto-expansion once data is loaded
@@ -150,14 +170,37 @@ export function WooDashboard() {
         setupSSE(eventSource);
     };
 
-    const setupSSE = (eventSource: EventSource) => {
-        eventSource.onmessage = (event) => {
+    const setupSSE = (eventSource: EventSource, syncType?: string) => {
+        eventSource.onmessage = async (event) => {
             try {
                 const data = JSON.parse(event.data);
                 if (data.status === 'progress' || data.status === 'info') {
                     setProgressMsg(data.message);
                 } else if (data.status === 'done') {
                     eventSource.close();
+
+                    // Update sync timestamps on server
+                    if (syncType === 'orders' || syncType === 'all' || syncType === 'smart' || syncType === 'rapid' || syncType === 'full') {
+                        try {
+                            await fetch('/api/woocommerce/sync/status', {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ updateOrders: true })
+                            });
+                        } catch (e) { console.error('Failed to update order sync time', e); }
+                    }
+                    if (syncType === 'products' || syncType === 'all') {
+                        try {
+                            await fetch('/api/woocommerce/sync/status', {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ updateProducts: true })
+                            });
+                        } catch (e) { console.error('Failed to update product sync time', e); }
+                    }
+
+                    // Refresh sync times and data
+                    fetchSyncTimes();
                     loadLocalData();
                     setLoading(false);
                     setProgressMsg("");
@@ -183,40 +226,46 @@ export function WooDashboard() {
         };
     };
 
-    const triggerSync = async (type: 'smart' | 'rapid' | 'full' | 'days30' | 'custom_limit') => {
+    const triggerSync = async (type: 'smart' | 'rapid' | 'full' | 'days30' | 'custom_limit' | 'orders' | 'products' | 'all') => {
         setLoading(true);
         setProgressMsg("Avvio connessione...");
         setUpdatedOrderIds([]);
 
         const params = new URLSearchParams();
-        params.set("type", "all");
 
-        // ... params setup ...
-        // I need to paste the param logic here or reuse? 
-        // I will implement the params setup block below in the 'setupSSE' usage
-
-
-        if (type === 'smart') {
+        // Handle new sync types
+        if (type === 'orders') {
+            params.set("type", "orders");
+            params.set("order_mode", "smart");
+        } else if (type === 'products') {
+            params.set("type", "products");
+            params.set("mode", "full");
+        } else if (type === 'all') {
+            params.set("type", "all");
+            params.set("order_mode", "smart");
+            params.set("mode", "full");
+        } else if (type === 'smart') {
+            params.set("type", "all");
             params.set("order_mode", "smart");
             params.set("mode", "incremental");
         } else if (type === 'rapid') {
             // Default "Recent" sync: Start of current month
+            params.set("type", "all");
             const now = new Date();
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
             params.set("date", startOfMonth.toISOString());
-            params.set("order_mode", "rapid"); // Or 'days' if we implemented it, but passing 'date' overrides
+            params.set("order_mode", "rapid");
             params.set("mode", "incremental");
-            params.set("limit", "1000"); // Safe high limit for month
+            params.set("limit", "1000");
         } else if (type === 'full') {
+            params.set("type", "all");
             params.set("limit", "10000");
             params.set("order_mode", "full");
             params.set("mode", "full");
         }
 
-
-
         const eventSource = new EventSource(`/api/woocommerce/sync/stream?${params.toString()}`);
-        setupSSE(eventSource);
+        setupSSE(eventSource, type);
     };
 
     // Custom date sync
@@ -282,95 +331,85 @@ export function WooDashboard() {
                 />
             )}
 
-            {/* Header / Stats */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm border">
-                <div>
-                    <h2 className="text-lg font-bold text-gray-900">Dashboard Eventi</h2>
-                    <p className="text-sm text-gray-500">
-                        {syncStats
-                            ? `📦 ${syncStats.orderCount} ordini dal ${syncStats.dateFrom} al ${syncStats.dateTo}`
-                            : lastUpdated
-                                ? `Ultimo caricamento: ${lastUpdated.toLocaleTimeString()}`
-                                : "In attesa di dati..."}
-                    </p>
-                </div>
-                <div className="flex items-center gap-3">
-                    {/* Settings Button */}
-                    <button
-                        onClick={() => setShowSettings(true)}
-                        className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200"
-                        title="Configura Sincronizzazione"
-                    >
-                        <Settings className="h-5 w-5" />
-                    </button>
-
-                    <div className="relative z-50">
-                        <div className="flex rounded-md shadow-sm">
-                            <button
-                                onClick={() => triggerSync('smart')}
-                                disabled={loading}
-                                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-l-lg text-sm font-medium transition-colors border-r border-blue-700"
-                            >
-                                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                                {loading ? progressMsg || 'Sincronizzazione...' : 'Sincronizza'}
-                            </button>
-                            <button
-                                onClick={() => setIsSyncMenuOpen(!isSyncMenuOpen)}
-                                disabled={loading}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-2 rounded-r-lg disabled:opacity-50 transition-colors"
-                            >
-                                <ChevronDown className={`h-4 w-4 transition-transform ${isSyncMenuOpen ? 'rotate-180' : ''}`} />
-                            </button>
+            {/* Header / Stats - Unified Single Row */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    {/* LEFT: Title + Sync Timestamps */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div>
+                            <h2 className="text-lg font-bold text-gray-900">Dashboard Eventi</h2>
+                            <p className="text-sm text-gray-500">
+                                {syncStats
+                                    ? `📦 ${syncStats.orderCount} ordini dal ${syncStats.dateFrom} al ${syncStats.dateTo}`
+                                    : "Monitora eventi e prenotazioni"}
+                            </p>
                         </div>
 
-                        {/* Simplified Dropdown Menu */}
-                        {isSyncMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-                                <div className="p-3 bg-gray-50 border-b border-gray-100">
-                                    <p className="text-xs text-gray-500 uppercase font-semibold">Altre Opzioni</p>
-                                </div>
-
-                                <button
-                                    onClick={() => { triggerSync('rapid'); setIsSyncMenuOpen(false); }}
-                                    className="w-full text-left px-4 py-3 hover:bg-blue-50 text-sm text-gray-700 border-b transition-colors"
-                                >
-                                    <span className="font-bold block text-blue-700">📅 Mese Corrente</span>
-                                    <span className="text-xs text-gray-500">Ordini dal 1° del mese ad oggi.</span>
-                                </button>
-
-                                <div className="px-4 py-3 border-b bg-gray-50">
-                                    <p className="text-xs font-semibold text-gray-600 mb-2">📆 Da una data specifica:</p>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="date"
-                                            value={customSyncDate}
-                                            onChange={(e) => setCustomSyncDate(e.target.value)}
-                                            className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                                        />
-                                        <button
-                                            onClick={() => {
-                                                if (customSyncDate) {
-                                                    triggerSyncFromDate(customSyncDate);
-                                                    setIsSyncMenuOpen(false);
-                                                }
-                                            }}
-                                            disabled={!customSyncDate}
-                                            className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-                                        >
-                                            Sync
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={() => { triggerSync('full'); setIsSyncMenuOpen(false); }}
-                                    className="w-full text-left px-4 py-3 hover:bg-red-50 text-sm text-gray-700 transition-colors"
-                                >
-                                    <span className="font-bold block text-red-600">⚡ Completa (Tutto)</span>
-                                    <span className="text-xs text-gray-500">Scarica l'intero storico. Solo se problemi.</span>
-                                </button>
+                        {/* Sync Timestamps */}
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-xs sm:text-sm border-l-2 border-gray-200 pl-4">
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-gray-400">📦</span>
+                                <span className="text-gray-500">Ordini:</span>
+                                <span className="font-medium text-gray-700">
+                                    {syncTimes.orders
+                                        ? syncTimes.orders.toLocaleString('it-IT', {
+                                            day: '2-digit', month: '2-digit', year: 'numeric',
+                                            hour: '2-digit', minute: '2-digit'
+                                        })
+                                        : 'Mai'}
+                                </span>
                             </div>
-                        )}
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-gray-400">🛍️</span>
+                                <span className="text-gray-500">Prodotti:</span>
+                                <span className="font-medium text-gray-700">
+                                    {syncTimes.products
+                                        ? syncTimes.products.toLocaleString('it-IT', {
+                                            day: '2-digit', month: '2-digit', year: 'numeric',
+                                            hour: '2-digit', minute: '2-digit'
+                                        })
+                                        : 'Mai'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* RIGHT: Settings + Sync Buttons */}
+                    <div className="flex items-center gap-2">
+                        {/* Settings Button */}
+                        <button
+                            onClick={() => setShowSettings(true)}
+                            className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200"
+                            title="Configura Sincronizzazione"
+                        >
+                            <Settings className="h-5 w-5" />
+                        </button>
+
+                        {/* Sync Buttons */}
+                        <button
+                            onClick={() => triggerSync('orders')}
+                            disabled={loading}
+                            className="flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 disabled:opacity-50 text-blue-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors border border-blue-200"
+                        >
+                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                            Ordini
+                        </button>
+                        <button
+                            onClick={() => triggerSync('products')}
+                            disabled={loading}
+                            className="flex items-center gap-1.5 bg-green-50 hover:bg-green-100 disabled:opacity-50 text-green-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors border border-green-200"
+                        >
+                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                            Prodotti
+                        </button>
+                        <button
+                            onClick={() => triggerSync('all')}
+                            disabled={loading}
+                            className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                        >
+                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                            {loading ? progressMsg || 'Sync...' : 'Tutto'}
+                        </button>
                     </div>
                 </div>
             </div>

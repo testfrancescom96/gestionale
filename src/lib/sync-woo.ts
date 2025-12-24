@@ -344,6 +344,7 @@ export async function syncOrders(
                         productName: item.name,
                         quantity: quantity,
                         total: total,
+                        totalTax: parseFloat(item.total_tax || "0"),
                         metaData: JSON.stringify(item.meta_data || [])
                     }
                 });
@@ -357,6 +358,7 @@ export async function syncOrders(
                         productName: item.name,
                         quantity: quantity,
                         total: total,
+                        totalTax: parseFloat(item.total_tax || "0"),
                         metaData: JSON.stringify(item.meta_data || [])
                     }
                 });

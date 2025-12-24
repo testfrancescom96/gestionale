@@ -276,3 +276,144 @@ export async function getWooCommerceRevenue(year: number) {
         count: allOrders.length
     };
 }
+
+// ==================== COUPON API ====================
+
+export interface WooCoupon {
+    id: number;
+    code: string;
+    amount: string;
+    discount_type: 'percent' | 'fixed_cart' | 'fixed_product';
+    description: string;
+    date_expires: string | null;
+    date_expires_gmt: string | null;
+    usage_count: number;
+    usage_limit: number | null;
+    usage_limit_per_user: number | null;
+    individual_use: boolean;
+    minimum_amount: string;
+    maximum_amount: string;
+    free_shipping: boolean;
+    product_ids: number[];
+    excluded_product_ids: number[];
+    email_restrictions: string[];
+}
+
+export async function fetchWooCoupons(params?: URLSearchParams): Promise<{ coupons: WooCoupon[], total: string | null, totalPages: string | null }> {
+    const queryParams = new URLSearchParams(params || {});
+    queryParams.set("consumer_key", WOO_CK);
+    queryParams.set("consumer_secret", WOO_CS);
+    queryParams.set("per_page", "100");
+
+    const response = await fetch(`${WOO_URL}/wp-json/wc/v3/coupons?${queryParams.toString()}`, {
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+    });
+
+    if (!response.ok) {
+        throw new Error(`WooCommerce Coupons API Error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return {
+        coupons: data,
+        total: response.headers.get("x-wp-total"),
+        totalPages: response.headers.get("x-wp-totalpages")
+    };
+}
+
+export async function fetchWooCoupon(id: number): Promise<WooCoupon> {
+    const queryParams = new URLSearchParams();
+    queryParams.set("consumer_key", WOO_CK);
+    queryParams.set("consumer_secret", WOO_CS);
+
+    const response = await fetch(`${WOO_URL}/wp-json/wc/v3/coupons/${id}?${queryParams.toString()}`, {
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+    });
+
+    if (!response.ok) {
+        throw new Error(`WooCommerce Coupon API Error: ${response.statusText}`);
+    }
+
+    return await response.json();
+}
+
+export async function createWooCoupon(data: Partial<WooCoupon>): Promise<WooCoupon> {
+    const queryParams = new URLSearchParams();
+    queryParams.set("consumer_key", WOO_CK);
+    queryParams.set("consumer_secret", WOO_CS);
+
+    const response = await fetch(`${WOO_URL}/wp-json/wc/v3/coupons?${queryParams.toString()}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        cache: "no-store",
+    });
+
+    if (!response.ok) {
+        let details = "";
+        try {
+            const json = await response.json();
+            details = json.message || JSON.stringify(json);
+        } catch {
+            details = await response.text();
+        }
+        throw new Error(`WooCommerce Create Coupon Error (${response.status}): ${details || response.statusText}`);
+    }
+
+    return await response.json();
+}
+
+export async function updateWooCoupon(id: number, data: Partial<WooCoupon>): Promise<WooCoupon> {
+    const queryParams = new URLSearchParams();
+    queryParams.set("consumer_key", WOO_CK);
+    queryParams.set("consumer_secret", WOO_CS);
+
+    const response = await fetch(`${WOO_URL}/wp-json/wc/v3/coupons/${id}?${queryParams.toString()}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        cache: "no-store",
+    });
+
+    if (!response.ok) {
+        let details = "";
+        try {
+            const json = await response.json();
+            details = json.message || JSON.stringify(json);
+        } catch {
+            details = await response.text();
+        }
+        throw new Error(`WooCommerce Update Coupon Error (${response.status}): ${details || response.statusText}`);
+    }
+
+    return await response.json();
+}
+
+export async function deleteWooCoupon(id: number, force: boolean = true): Promise<WooCoupon> {
+    const queryParams = new URLSearchParams();
+    queryParams.set("consumer_key", WOO_CK);
+    queryParams.set("consumer_secret", WOO_CS);
+    if (force) queryParams.set("force", "true");
+
+    const response = await fetch(`${WOO_URL}/wp-json/wc/v3/coupons/${id}?${queryParams.toString()}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+    });
+
+    if (!response.ok) {
+        let details = "";
+        try {
+            const json = await response.json();
+            details = json.message || JSON.stringify(json);
+        } catch {
+            details = await response.text();
+        }
+        throw new Error(`WooCommerce Delete Coupon Error (${response.status}): ${details || response.statusText}`);
+    }
+
+    return await response.json();
+}
+

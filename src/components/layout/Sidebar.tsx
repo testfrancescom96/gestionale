@@ -13,7 +13,8 @@ import {
     ShoppingBag,
     Megaphone,
     Wallet,
-    Bus
+    Bus,
+    Tag
 } from "lucide-react";
 import { logout } from "@/app/login/actions";
 
@@ -34,6 +35,7 @@ const navSections = [
         title: "VIAGGI DI GRUPPO",
         items: [
             { name: "Prodotti / Ordini", href: "/woocommerce", icon: ShoppingBag },
+            { name: "Coupon", href: "/woocommerce/coupons", icon: Tag },
             { name: "Capigruppo / Guide", href: "/capigruppo", icon: Users },
         ]
     },

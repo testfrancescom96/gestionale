@@ -35,11 +35,21 @@ export async function GET() {
 export async function PATCH(request: NextRequest) {
     try {
         const body = await request.json();
-        const { type } = body; // 'orders' | 'products' | 'both'
+        // Support both old format (type) and new format (updateOrders/updateProducts)
+        const { type, updateOrders, updateProducts } = body;
 
         const now = new Date();
         const updateData: { lastOrderSyncAt?: Date; lastProductSyncAt?: Date } = {};
 
+        // New format
+        if (updateOrders) {
+            updateData.lastOrderSyncAt = now;
+        }
+        if (updateProducts) {
+            updateData.lastProductSyncAt = now;
+        }
+
+        // Old format (backwards compatibility)
         if (type === 'orders' || type === 'both') {
             updateData.lastOrderSyncAt = now;
         }

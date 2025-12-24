@@ -18,6 +18,7 @@ interface PassengerRow {
     puntoPartenza?: string;
     importo?: number;
     pax?: number;
+    orderId?: number;
     [key: string]: string | number | boolean | undefined;
 }
 
@@ -112,6 +113,19 @@ function generatePDF(
     const body = rows.map(row => columnsToUse.map(c => c.getter(row)));
 
     // Generate table
+    // Build order group index for row coloring
+    const orderGroups: Map<number, number> = new Map();
+    let groupIndex = 0;
+    let lastOrderId: number | undefined = undefined;
+    rows.forEach((row, idx) => {
+        const oid = row.orderId as number | undefined;
+        if (oid !== undefined && oid !== lastOrderId) {
+            groupIndex++;
+            lastOrderId = oid;
+        }
+        orderGroups.set(idx, groupIndex);
+    });
+
     autoTable(doc, {
         startY: 35,
         head: [headers],
@@ -131,8 +145,17 @@ function generatePDF(
         columnStyles: {
             0: { cellWidth: 10, halign: 'center' },
         },
-        alternateRowStyles: {
-            fillColor: [249, 250, 251]
+        // Alternate colors based on order groups
+        willDrawCell: (data) => {
+            if (data.section === 'body') {
+                const groupIdx = orderGroups.get(data.row.index) || 0;
+                // Alternate between white and light gray based on order group
+                if (groupIdx % 2 === 0) {
+                    data.cell.styles.fillColor = [255, 255, 255]; // White
+                } else {
+                    data.cell.styles.fillColor = [240, 245, 255]; // Very light blue
+                }
+            }
         },
         margin: { left: 10, right: 10 },
         didDrawPage: () => {

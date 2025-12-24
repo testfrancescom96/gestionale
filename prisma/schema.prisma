@@ -831,6 +831,7 @@ model WooOrderItem {
   productName     String
   quantity        Int
   total           Float
+  totalTax        Float    @default(0) // Tax amount from WooCommerce (line_items.total_tax)
   metaData        String? // JSON string per attributi extra (es. fermata bus)
   
   @@index([wooOrderId])
