@@ -37,6 +37,9 @@ export function WooDashboard() {
     const [previewTargetId, setPreviewTargetId] = useState<number | null>(null);
     const [isSyncMenuOpen, setIsSyncMenuOpen] = useState(false);
 
+    // Dropdown state for sync buttons
+    const [openDropdown, setOpenDropdown] = useState<'orders' | 'products' | 'all' | null>(null);
+
     // Product Params Editor State
     const [editingParamsProduct, setEditingParamsProduct] = useState<{ id: number; name: string } | null>(null);
 
@@ -226,42 +229,59 @@ export function WooDashboard() {
         };
     };
 
-    const triggerSync = async (type: 'smart' | 'rapid' | 'full' | 'days30' | 'custom_limit' | 'orders' | 'products' | 'all') => {
+    const triggerSync = async (
+        type: 'orders' | 'products' | 'all',
+        option?: string
+    ) => {
         setLoading(true);
         setProgressMsg("Avvio connessione...");
         setUpdatedOrderIds([]);
+        setOpenDropdown(null);
 
         const params = new URLSearchParams();
 
-        // Handle new sync types
         if (type === 'orders') {
             params.set("type", "orders");
-            params.set("order_mode", "smart");
+            if (option === 'last100') {
+                params.set("order_mode", "rapid");
+                params.set("limit", "100");
+            } else if (option === 'month') {
+                const now = new Date();
+                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                params.set("order_mode", "days");
+                params.set("after", startOfMonth.toISOString());
+            } else {
+                params.set("order_mode", "full");
+            }
         } else if (type === 'products') {
             params.set("type", "products");
-            params.set("mode", "full");
+            if (option === 'last10') {
+                params.set("mode", "incremental");
+                params.set("limit", "10");
+            } else if (option === 'last100') {
+                params.set("mode", "incremental");
+                params.set("limit", "100");
+            } else {
+                params.set("mode", "full");
+            }
         } else if (type === 'all') {
             params.set("type", "all");
-            params.set("order_mode", "smart");
-            params.set("mode", "full");
-        } else if (type === 'smart') {
-            params.set("type", "all");
-            params.set("order_mode", "smart");
-            params.set("mode", "incremental");
-        } else if (type === 'rapid') {
-            // Default "Recent" sync: Start of current month
-            params.set("type", "all");
-            const now = new Date();
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            params.set("date", startOfMonth.toISOString());
-            params.set("order_mode", "rapid");
-            params.set("mode", "incremental");
-            params.set("limit", "1000");
-        } else if (type === 'full') {
-            params.set("type", "all");
-            params.set("limit", "10000");
-            params.set("order_mode", "full");
-            params.set("mode", "full");
+            if (option === '24h') {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                params.set("after", yesterday.toISOString());
+                params.set("order_mode", "days");
+                params.set("mode", "incremental");
+            } else if (option === '10days') {
+                const tenDaysAgo = new Date();
+                tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+                params.set("after", tenDaysAgo.toISOString());
+                params.set("order_mode", "days");
+                params.set("mode", "incremental");
+            } else {
+                params.set("order_mode", "full");
+                params.set("mode", "full");
+            }
         }
 
         const eventSource = new EventSource(`/api/woocommerce/sync/stream?${params.toString()}`);
@@ -331,6 +351,14 @@ export function WooDashboard() {
                 />
             )}
 
+            {/* Backdrop for closing sync option dropdowns */}
+            {openDropdown && (
+                <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setOpenDropdown(null)}
+                />
+            )}
+
             {/* Header / Stats - Unified Single Row */}
             <div className="bg-white p-4 rounded-lg shadow-sm border">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -385,31 +413,61 @@ export function WooDashboard() {
                             <Settings className="h-5 w-5" />
                         </button>
 
-                        {/* Sync Buttons */}
-                        <button
-                            onClick={() => triggerSync('orders')}
-                            disabled={loading}
-                            className="flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 disabled:opacity-50 text-blue-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors border border-blue-200"
-                        >
-                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                            Ordini
-                        </button>
-                        <button
-                            onClick={() => triggerSync('products')}
-                            disabled={loading}
-                            className="flex items-center gap-1.5 bg-green-50 hover:bg-green-100 disabled:opacity-50 text-green-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors border border-green-200"
-                        >
-                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                            Prodotti
-                        </button>
-                        <button
-                            onClick={() => triggerSync('all')}
-                            disabled={loading}
-                            className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
-                        >
-                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                            {loading ? progressMsg || 'Sync...' : 'Tutto'}
-                        </button>
+                        {/* Sync Buttons with Dropdowns */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setOpenDropdown(openDropdown === 'orders' ? null : 'orders')}
+                                disabled={loading}
+                                className="flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 disabled:opacity-50 text-blue-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors border border-blue-200"
+                            >
+                                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                                Ordini
+                                <ChevronDown className="h-3 w-3" />
+                            </button>
+                            {openDropdown === 'orders' && (
+                                <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border py-1 z-50 min-w-[150px]">
+                                    <button onClick={() => triggerSync('orders', 'last100')} className="w-full text-left px-4 py-2 text-sm hover:bg-blue-50 text-gray-700">Ultimi 100</button>
+                                    <button onClick={() => triggerSync('orders', 'month')} className="w-full text-left px-4 py-2 text-sm hover:bg-blue-50 text-gray-700">Da Inizio Mese</button>
+                                    <button onClick={() => triggerSync('orders', 'full')} className="w-full text-left px-4 py-2 text-sm hover:bg-blue-50 text-gray-700 border-t">Completa</button>
+                                </div>
+                            )}
+                        </div>
+                        <div className="relative">
+                            <button
+                                onClick={() => setOpenDropdown(openDropdown === 'products' ? null : 'products')}
+                                disabled={loading}
+                                className="flex items-center gap-1.5 bg-green-50 hover:bg-green-100 disabled:opacity-50 text-green-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors border border-green-200"
+                            >
+                                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                                Prodotti
+                                <ChevronDown className="h-3 w-3" />
+                            </button>
+                            {openDropdown === 'products' && (
+                                <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border py-1 z-50 min-w-[150px]">
+                                    <button onClick={() => triggerSync('products', 'last10')} className="w-full text-left px-4 py-2 text-sm hover:bg-green-50 text-gray-700">Ultimi 10</button>
+                                    <button onClick={() => triggerSync('products', 'last100')} className="w-full text-left px-4 py-2 text-sm hover:bg-green-50 text-gray-700">Ultimi 100</button>
+                                    <button onClick={() => triggerSync('products', 'full')} className="w-full text-left px-4 py-2 text-sm hover:bg-green-50 text-gray-700 border-t">Tutti</button>
+                                </div>
+                            )}
+                        </div>
+                        <div className="relative">
+                            <button
+                                onClick={() => setOpenDropdown(openDropdown === 'all' ? null : 'all')}
+                                disabled={loading}
+                                className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                            >
+                                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                                {loading ? progressMsg || 'Sync...' : 'Tutto'}
+                                <ChevronDown className="h-3 w-3" />
+                            </button>
+                            {openDropdown === 'all' && (
+                                <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border py-1 z-50 min-w-[150px]">
+                                    <button onClick={() => triggerSync('all', '24h')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 text-gray-700">Ultime 24 ore</button>
+                                    <button onClick={() => triggerSync('all', '10days')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 text-gray-700">Ultimi 10 giorni</button>
+                                    <button onClick={() => triggerSync('all', 'full')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 text-gray-700 border-t">Completa</button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
