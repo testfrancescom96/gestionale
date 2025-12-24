@@ -27,6 +27,9 @@ export default function CouponsPage() {
     const [error, setError] = useState<string | null>(null);
     const [filter, setFilter] = useState<'all' | 'active' | 'expired'>('all');
 
+    // Multi-select state
+    const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+
     // Modal state
     const [modalOpen, setModalOpen] = useState(false);
     const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
@@ -58,8 +61,58 @@ export default function CouponsPage() {
             const data = await res.json();
             if (data.error) throw new Error(data.error);
             setCoupons(prev => prev.filter(c => c.id !== id));
+            setSelectedIds(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(id);
+                return newSet;
+            });
         } catch (e) {
             alert(e instanceof Error ? e.message : 'Errore nell\'eliminazione');
+        }
+    };
+
+    // Batch delete
+    const handleBatchDelete = async () => {
+        if (selectedIds.size === 0) return;
+        if (!confirm(`Sei sicuro di voler eliminare ${selectedIds.size} coupon selezionati?`)) return;
+
+        const idsToDelete = Array.from(selectedIds);
+        let successCount = 0;
+
+        for (const id of idsToDelete) {
+            try {
+                const res = await fetch(`/api/woocommerce/coupons/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (!data.error) successCount++;
+            } catch {
+                // Continue with other deletions
+            }
+        }
+
+        setCoupons(prev => prev.filter(c => !selectedIds.has(c.id)));
+        setSelectedIds(new Set());
+        alert(`Eliminati ${successCount} di ${idsToDelete.length} coupon.`);
+    };
+
+    // Toggle selection
+    const toggleSelect = (id: number) => {
+        setSelectedIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(id)) {
+                newSet.delete(id);
+            } else {
+                newSet.add(id);
+            }
+            return newSet;
+        });
+    };
+
+    // Select all visible
+    const toggleSelectAll = () => {
+        if (selectedIds.size === filteredCoupons.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(filteredCoupons.map(c => c.id)));
         }
     };
 
@@ -149,8 +202,8 @@ export default function CouponsPage() {
                         key={f}
                         onClick={() => setFilter(f)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === f
-                                ? 'bg-purple-100 text-purple-700 border border-purple-200'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                     >
                         {f === 'all' ? 'Tutti' : f === 'active' ? 'Attivi' : 'Scaduti'}
@@ -183,10 +236,42 @@ export default function CouponsPage() {
             {/* Coupons Table */}
             {!loading && filteredCoupons.length > 0 && (
                 <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    {/* Batch Action Bar */}
+                    {selectedIds.size > 0 && (
+                        <div className="bg-purple-50 border-b border-purple-200 px-4 py-3 flex items-center justify-between">
+                            <span className="text-sm font-medium text-purple-700">
+                                {selectedIds.size} coupon selezionati
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={handleBatchDelete}
+                                    className="flex items-center gap-1 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-md text-sm font-medium transition-colors"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                    Elimina Selezionati
+                                </button>
+                                <button
+                                    onClick={() => setSelectedIds(new Set())}
+                                    className="px-3 py-1.5 bg-white hover:bg-gray-100 text-gray-600 rounded-md text-sm font-medium border transition-colors"
+                                >
+                                    Annulla
+                                </button>
+                            </div>
+                        </div>
+                    )}
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead className="bg-gray-50 border-b">
                                 <tr>
+                                    <th className="text-left px-4 py-3 w-10">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedIds.size === filteredCoupons.length && filteredCoupons.length > 0}
+                                            onChange={toggleSelectAll}
+                                            className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                                            title="Seleziona tutti"
+                                        />
+                                    </th>
                                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Codice</th>
                                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Sconto</th>
                                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase">Tipo</th>
@@ -198,7 +283,16 @@ export default function CouponsPage() {
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {filteredCoupons.map((coupon) => (
-                                    <tr key={coupon.id} className="hover:bg-gray-50 transition-colors">
+                                    <tr key={coupon.id} className={`hover:bg-gray-50 transition-colors ${selectedIds.has(coupon.id) ? 'bg-purple-50' : ''}`}>
+                                        <td className="px-4 py-3">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedIds.has(coupon.id)}
+                                                onChange={() => toggleSelect(coupon.id)}
+                                                className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                                                title={`Seleziona ${coupon.code}`}
+                                            />
+                                        </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2">
                                                 <Tag className="h-4 w-4 text-purple-500" />

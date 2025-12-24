@@ -149,6 +149,54 @@ export default function MarketingPage() {
                                 </div>
                             </div>
 
+                            {/* Nuove Metriche Avanzate */}
+                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-4">
+                                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="p-2 bg-indigo-100 rounded-full">
+                                            <Users className="h-5 w-5 text-indigo-600" />
+                                        </div>
+                                        <span className="text-xs font-medium text-gray-500">Reach</span>
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-500">Utenti Raggiunti</p>
+                                    <h3 className="text-2xl font-bold text-gray-900">{new Intl.NumberFormat('it-IT').format(data.insights.reach || 0)}</h3>
+                                </div>
+                                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="p-2 bg-cyan-100 rounded-full">
+                                            <RefreshCw className="h-5 w-5 text-cyan-600" />
+                                        </div>
+                                        <span className="text-xs font-medium text-gray-500">Frequency</span>
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-500">Media Visualizzazioni/Utente</p>
+                                    <h3 className="text-2xl font-bold text-gray-900">{(data.insights.frequency || 0).toFixed(2)}</h3>
+                                </div>
+                                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="p-2 bg-teal-100 rounded-full">
+                                            <MousePointer2 className="h-5 w-5 text-teal-600" />
+                                        </div>
+                                        <span className="text-xs font-medium text-gray-500">Actions</span>
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-500">Link Click</p>
+                                    <h3 className="text-2xl font-bold text-gray-900">
+                                        {data.insights.actions?.find((a: { action_type: string; value: string }) => a.action_type === 'link_click')?.value || 0}
+                                    </h3>
+                                </div>
+                                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="p-2 bg-rose-100 rounded-full">
+                                            <Target className="h-5 w-5 text-rose-600" />
+                                        </div>
+                                        <span className="text-xs font-medium text-gray-500">Totale</span>
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-500">Azioni Totali</p>
+                                    <h3 className="text-2xl font-bold text-gray-900">
+                                        {data.insights.actions?.reduce((sum: number, a: { action_type: string; value: string }) => sum + parseInt(a.value || '0'), 0) || 0}
+                                    </h3>
+                                </div>
+                            </div>
+
                             {/* Business Stats Section */}
                             {businessData && (
                                 <>

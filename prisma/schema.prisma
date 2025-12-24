@@ -952,3 +952,56 @@ model SharedPassengerList {
   @@index([wooProductId])
   @@index([token])
 }
+
+// ==================== COUPON CREDITS ====================
+// Sistema per tracciare credito residuo sui coupon/buoni
+model CouponCredit {
+  id              String    @id @default(uuid())
+  
+  couponCode      String    // Codice del coupon WooCommerce  
+  customerEmail   String    // Email del cliente che ha il credito
+  customerName    String?   // Nome cliente (opzionale)
+  
+  // Importi
+  originalAmount  Float     // Valore originale del buono (es: 100€)
+  usedAmount      Float     @default(0) // Totale già speso (es: 60€)
+  remainingCredit Float     // Credito residuo (es: 40€)
+  
+  // Ultimo utilizzo
+  lastUsedAt      DateTime?
+  lastOrderId     Int?      // ID ordine WooCommerce ultimo utilizzo
+  
+  // Metadata
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Transazioni di utilizzo
+  transactions    CouponCreditTransaction[]
+  
+  @@unique([couponCode, customerEmail])
+  @@index([couponCode])
+  @@index([customerEmail])
+}
+
+// Storico transazioni credito
+model CouponCreditTransaction {
+  id              String    @id @default(uuid())
+  
+  creditId        String
+  credit          CouponCredit @relation(fields: [creditId], references: [id], onDelete: Cascade)
+  
+  amount          Float     // Importo utilizzato in questa transazione
+  orderId         Int?      // ID ordine WooCommerce associato
+  orderTotal      Float?    // Totale ordine
+  productName     String?   // Nome prodotto acquistato
+  
+  // Saldi
+  balanceBefore   Float     // Credito prima della transazione
+  balanceAfter    Float     // Credito dopo la transazione
+  
+  createdAt       DateTime  @default(now())
+  
+  @@index([creditId])
+  @@index([orderId])
+}

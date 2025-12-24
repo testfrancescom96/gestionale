@@ -64,7 +64,12 @@ export default async function SharePage({ params }: PageProps) {
             telefono: order.billingPhone || '',
             email: order.billingEmail || '',
             pax: item.quantity,
-            importo: item.total || 0,
+            // Calculate gross amount with IVA fallback (10% if totalTax not available)
+            importo: (() => {
+                const netTotal = item.total || 0;
+                const tax = (item.totalTax && item.totalTax > 0) ? item.totalTax : netTotal * 0.10;
+                return Math.round((netTotal + tax) * 100) / 100;
+            })(),
             acconto: 0, // Orders are usually paid in full
             saldo: 0,
             isConfirmed,

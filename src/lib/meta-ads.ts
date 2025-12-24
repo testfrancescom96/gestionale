@@ -12,12 +12,21 @@ export interface MetaCampaign {
     ui_status?: 'ACTIVE' | 'PAUSED' | 'ARCHIVED' | 'UNKNOWN';
 }
 
+export interface MetaAction {
+    action_type: string;
+    value: string;
+}
+
 export interface MetaInsight {
     spend: number;
     impressions: number;
     clicks: number;
     cpc: number;
     ctr: number;
+    reach: number;
+    frequency: number;
+    actions: MetaAction[];
+    cost_per_action_type: MetaAction[];
     date_start: string;
     date_stop: string;
 }
@@ -32,7 +41,7 @@ export interface MetaAdsData {
  * Fetch insights for the Ad Account
  */
 async function getAccountInsights(timeRange: string = 'last_30d'): Promise<MetaInsight> {
-    const fields = "spend,impressions,clicks,cpc,ctr,date_start,date_stop";
+    const fields = "spend,impressions,clicks,cpc,ctr,reach,frequency,actions,cost_per_action_type,date_start,date_stop";
     const url = `https://graph.facebook.com/v18.0/${META_AD_ACCOUNT_ID}/insights?fields=${fields}&date_preset=${timeRange}&access_token=${META_ACCESS_TOKEN}`;
 
     try {
@@ -41,7 +50,7 @@ async function getAccountInsights(timeRange: string = 'last_30d'): Promise<MetaI
 
         if (data.error) {
             console.error("Meta Ads API Error (Account Insights):", data.error);
-            return { spend: 0, impressions: 0, clicks: 0, cpc: 0, ctr: 0, date_start: '', date_stop: '' };
+            return { spend: 0, impressions: 0, clicks: 0, cpc: 0, ctr: 0, reach: 0, frequency: 0, actions: [], cost_per_action_type: [], date_start: '', date_stop: '' };
         }
 
         if (data.data && data.data.length > 0) {
@@ -52,15 +61,19 @@ async function getAccountInsights(timeRange: string = 'last_30d'): Promise<MetaI
                 clicks: parseInt(i.clicks || 0),
                 cpc: parseFloat(i.cpc || 0),
                 ctr: parseFloat(i.ctr || 0),
+                reach: parseInt(i.reach || 0),
+                frequency: parseFloat(i.frequency || 0),
+                actions: i.actions || [],
+                cost_per_action_type: i.cost_per_action_type || [],
                 date_start: i.date_start,
                 date_stop: i.date_stop
             };
         }
 
-        return { spend: 0, impressions: 0, clicks: 0, cpc: 0, ctr: 0, date_start: '', date_stop: '' };
+        return { spend: 0, impressions: 0, clicks: 0, cpc: 0, ctr: 0, reach: 0, frequency: 0, actions: [], cost_per_action_type: [], date_start: '', date_stop: '' };
     } catch (error) {
         console.error("Meta Ads API Fetch Error:", error);
-        return { spend: 0, impressions: 0, clicks: 0, cpc: 0, ctr: 0, date_start: '', date_stop: '' };
+        return { spend: 0, impressions: 0, clicks: 0, cpc: 0, ctr: 0, reach: 0, frequency: 0, actions: [], cost_per_action_type: [], date_start: '', date_stop: '' };
     }
 }
 
@@ -99,7 +112,7 @@ async function getActiveCampaigns(): Promise<MetaCampaign[]> {
  * Fetch insights for a specific campaign
  */
 async function getCampaignInsights(campaignId: string, timeRange: string = 'last_30d'): Promise<MetaInsight | null> {
-    const fields = "spend,impressions,clicks,cpc,ctr";
+    const fields = "spend,impressions,clicks,cpc,ctr,reach,frequency,actions,cost_per_action_type";
     const url = `https://graph.facebook.com/v18.0/${campaignId}/insights?fields=${fields}&date_preset=${timeRange}&access_token=${META_ACCESS_TOKEN}`;
 
     try {
@@ -114,12 +127,16 @@ async function getCampaignInsights(campaignId: string, timeRange: string = 'last
                 clicks: parseInt(i.clicks || 0),
                 cpc: parseFloat(i.cpc || 0),
                 ctr: parseFloat(i.ctr || 0),
+                reach: parseInt(i.reach || 0),
+                frequency: parseFloat(i.frequency || 0),
+                actions: i.actions || [],
+                cost_per_action_type: i.cost_per_action_type || [],
                 date_start: i.date_start,
                 date_stop: i.date_stop
             };
         }
         return null;
-    } catch (error) {
+    } catch {
         return null;
     }
 }

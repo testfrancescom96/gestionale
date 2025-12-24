@@ -274,7 +274,10 @@ export async function GET(
                 if (multiPassengers.length > 0) {
                     // Multi-passenger mode: one row per person
                     // Calculate gross amount: net + tax (dynamic IVA from WooCommerce)
-                    const importoLordo = (item.total || 0) + (item.totalTax || 0);
+                    // Fallback: if totalTax is 0 (old synced data), assume 10% IVA
+                    const netTotal = item.total || 0;
+                    const tax = (item.totalTax && item.totalTax > 0) ? item.totalTax : netTotal * 0.10;
+                    const importoLordo = netTotal + tax;
                     const importoPerPerson = Math.round((importoLordo / multiPassengers.length) * 100) / 100;
 
                     // Extract Tipologia camera from metaData to pass to all passengers
@@ -327,7 +330,12 @@ export async function GET(
                         email: order.billingEmail || '',
                         puntoPartenza: findPartenza(item.metaData),
                         // Calculate gross amount: net + tax (dynamic IVA from WooCommerce)
-                        importo: Math.round(((item.total || 0) + (item.totalTax || 0)) * 100) / 100,
+                        // Fallback: if totalTax is 0 (old synced data), assume 10% IVA
+                        importo: (() => {
+                            const netTotal = item.total || 0;
+                            const tax = (item.totalTax && item.totalTax > 0) ? item.totalTax : netTotal * 0.10;
+                            return Math.round((netTotal + tax) * 100) / 100;
+                        })(),
                         source: 'order',
                         orderId: order.id,
                         orderStatus: order.status,
