@@ -14,7 +14,8 @@ import {
     Megaphone,
     Wallet,
     Bus,
-    Tag
+    Tag,
+    Share2
 } from "lucide-react";
 import { logout } from "@/app/login/actions";
 
@@ -55,6 +56,7 @@ const navSections = [
             { name: "Contabilità", href: "/contabilita", icon: Wallet },
             { name: "Report", href: "/report", icon: DollarSign },
             { name: "Marketing", href: "/marketing", icon: Megaphone },
+            { name: "Referral", href: "/referrals", icon: Share2 },
         ]
     }
 ];
