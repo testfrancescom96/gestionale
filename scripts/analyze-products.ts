@@ -20,7 +20,7 @@ async function main() {
         console.log("---------------------------------------------------");
 
         for (const item of items) {
-            console.log(`\nProd: ${item.productName} (Order #${item.orderId})`);
+            console.log(`\nProd: ${item.productName} (Order #${item.wooOrderId})`);
             console.log(`Total: ${item.total} | Tax: ${item.totalTax}`);
 
             if (item.metaData) {
