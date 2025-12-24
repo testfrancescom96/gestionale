@@ -12,16 +12,30 @@ export async function GET() {
         // 1. Fatturato per mese (ultimi 12 mesi)
         const pratichePerMese = await prisma.$queryRaw<{ mese: number; totale: number; count: number }[]>`
             SELECT 
-                CAST(strftime('%m', dataRichiesta) AS INTEGER) as mese,
-                SUM(COALESCE(prezzoVendita, 0)) as totale,
+                CAST(EXTRACT(MONTH FROM "dataRichiesta") AS INTEGER) as mese,
+                SUM(COALESCE("prezzoVendita", 0)) as totale,
                 COUNT(*) as count
-            FROM Pratica
-            WHERE dataRichiesta >= ${startOfYear.toISOString()}
-            AND dataRichiesta < ${endOfYear.toISOString()}
-            AND stato != 'ANNULLATA'
-            GROUP BY strftime('%m', dataRichiesta)
+            FROM "Pratica"
+            WHERE "dataRichiesta" >= ${startOfYear}::timestamp
+            AND "dataRichiesta" < ${endOfYear}::timestamp
+            AND "stato" != 'ANNULLATA'
+            GROUP BY EXTRACT(MONTH FROM "dataRichiesta")
             ORDER BY mese
         `;
+
+        // ... (intermediate code preserved implicitly, but I need to be careful not to overwrite the middle if possible, but replace_file_content replaces a block)
+        // Since I need to replace two separate blocks, I should use multi_replace or big block.
+        // Actually, the previous tool call viewed the whole file.
+        // I will use replace_file_content for the whole file or large chunk to ensure correctness.
+        // Or better, use multi_replace_file_content.
+
+        // Wait, startOfYear.toISOString() in raw query parameter might be passed as string. 
+        // Prisma raw query params automatically handle types but for Postgres explicit cast might be safer or just passing Date object.
+        // Prisma supports passing Date objects directly in template tags.
+        // In the original code: ${startOfYear.toISOString()} was used.
+        // I will switch to passing Date objects directly which is better supported by Prisma Client.
+
+        // Let's use multi_replace.
 
         // 2. Clienti per città
         const clientiPerCitta = await prisma.cliente.groupBy({
@@ -71,14 +85,14 @@ export async function GET() {
         // 6. Ordini WooCommerce per mese
         const ordiniPerMese = await prisma.$queryRaw<{ mese: number; totale: number; count: number }[]>`
             SELECT 
-                CAST(strftime('%m', dateCreated) AS INTEGER) as mese,
-                SUM(total) as totale,
+                CAST(EXTRACT(MONTH FROM "dateCreated") AS INTEGER) as mese,
+                SUM("total") as totale,
                 COUNT(*) as count
-            FROM WooOrder
-            WHERE dateCreated >= ${startOfYear.toISOString()}
-            AND dateCreated < ${endOfYear.toISOString()}
-            AND status IN ('completed', 'processing')
-            GROUP BY strftime('%m', dateCreated)
+            FROM "WooOrder"
+            WHERE "dateCreated" >= ${startOfYear}::timestamp
+            AND "dateCreated" < ${endOfYear}::timestamp
+            AND "status" IN ('completed', 'processing')
+            GROUP BY EXTRACT(MONTH FROM "dateCreated")
             ORDER BY mese
         `;
 

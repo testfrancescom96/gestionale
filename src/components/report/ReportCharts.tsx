@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BarChart2, PieChart, Users, MapPin, Loader2, TrendingUp } from "lucide-react";
+import { BarChart2, PieChart, Users, MapPin, Loader2, TrendingUp, AlertCircle } from "lucide-react";
 
 interface Stats {
     fatturatoMensile: { mese: string; agenzia: number; online: number; praticheCount: number; ordiniCount: number }[];
@@ -31,7 +31,14 @@ export function ReportCharts() {
         );
     }
 
-    if (!stats) return null;
+    if (!stats || (stats as any).error || !stats.fatturatoMensile) {
+        return (
+            <div className="p-4 bg-red-50 text-red-600 rounded-lg flex items-center gap-2">
+                <AlertCircle className="h-5 w-5" />
+                <p>Impossibile caricare i grafici: {(stats as any)?.error || "Dati mancanti"}</p>
+            </div>
+        );
+    }
 
     // Calcola max per scaling barre
     const maxFatturato = Math.max(...stats.fatturatoMensile.map(m => m.agenzia + m.online), 1);

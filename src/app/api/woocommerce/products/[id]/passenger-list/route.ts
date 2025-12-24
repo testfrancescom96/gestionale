@@ -21,7 +21,8 @@ export async function GET(
             where: { id: productId },
             include: {
                 manualBookings: true,
-                orderItems: { include: { order: true } }
+                orderItems: { include: { order: true } },
+                pricingRules: true
             }
         });
 
@@ -109,6 +110,56 @@ export async function GET(
                 }
             } catch (e) { }
             return '-';
+        };
+
+        // Helper to extract clean variation key
+        const extractVariationKey = (metaDataStr: string | null): string | null => {
+            if (!metaDataStr) return null;
+            try {
+                const meta = JSON.parse(metaDataStr);
+                if (Array.isArray(meta)) {
+                    // 1. Ticket Event style
+                    const serviceType = meta.find((m: any) => m.key === '_service_Tipologia biglietto');
+                    if (serviceType) {
+                        const val = serviceType.value || "";
+                        return val.split('•')[0].trim();
+                    }
+                    // 2. WCPA style
+                    const wcpaType = meta.find((m: any) => m.key === 'Tipologia biglietto');
+                    if (wcpaType) {
+                        let val = wcpaType.value || "";
+                        val = val.replace(/\s*\([\d,.]+\s*€\)/g, '').trim();
+                        const pipeParts = val.split('|');
+                        return pipeParts[0].trim();
+                    }
+                    // 3. Native variation (pa_*)
+                    // Find keys starting with pa_
+                    const paKey = meta.find((m: any) => m.key.startsWith('pa_'));
+                    if (paKey) return paKey.value;
+                }
+            } catch (e) { }
+            return null;
+        };
+
+        const calculateBalance = (variationKey: string | null, paidAmount: number) => {
+            if (!variationKey) return { balance: 0, type: 'Standard', isUnknown: true };
+
+            // Find rule
+            // Flexible match: exact or case-insensitive
+            const rule = product.pricingRules.find(r => r.identifier === variationKey || r.identifier.toLowerCase() === variationKey.toLowerCase());
+
+            if (!rule) return { balance: 0, type: variationKey, isUnknown: true };
+
+            const due = rule.fullPrice - paidAmount;
+            // Round to 2 decimals
+            const balance = Math.round(due * 100) / 100;
+
+            return {
+                balance: balance > 0.05 ? balance : 0, // Tolerance for float errors
+                type: rule.nome || rule.type || rule.identifier,
+                fullPrice: rule.fullPrice,
+                isUnknown: false
+            };
         };
 
         // Convert date from American (MM/DD/YYYY) to Italian (DD/MM/YYYY) format
@@ -280,9 +331,15 @@ export async function GET(
                     const importoLordo = netTotal + tax;
                     const importoPerPerson = Math.round((importoLordo / multiPassengers.length) * 100) / 100;
 
-                    // Extract Tipologia camera from metaData to pass to all passengers
                     const tipologiaCamera = getMetaValue(item.metaData, 'Tipologia camera') ||
                         getMetaValue(item.metaData, '_field_Tipologia camera') || '';
+
+                    // Calculate Pricing for this item (shared across passengers/room)
+                    const variationKey = extractVariationKey(item.metaData);
+                    const pricingInfo = calculateBalance(variationKey, importoPerPerson);
+
+                    // If "Acconto" type is detected via string analysis but no rule exists, assume specific logic could go here
+                    // but generally we rely on the rule. 
 
                     for (const passenger of multiPassengers) {
                         const row: any = {
@@ -292,6 +349,8 @@ export async function GET(
                             email: passenger.email || order.billingEmail || '',
                             puntoPartenza: findPartenza(item.metaData),
                             importo: importoPerPerson,
+                            ticketType: pricingInfo.type,
+                            saldo: pricingInfo.balance,
                             source: 'order',
                             orderId: order.id,
                             orderStatus: order.status,
@@ -311,6 +370,7 @@ export async function GET(
                         if (tipologiaCamera) row.dynamic['Tipologia camera'] = tipologiaCamera;
 
                         let noteContent = `Ordine #${order.id} - Camera ${passenger.roomIndex + 1}`;
+                        if (pricingInfo.balance > 0) noteContent = `⚠️ SALDO: ${pricingInfo.balance}€ | ${noteContent}`;
                         if (!isConfirmed) {
                             noteContent = `⚠️ ${order.status.toUpperCase()} | ${noteContent}`;
                         }
@@ -345,6 +405,20 @@ export async function GET(
                         note: '',
                         dynamic: {}
                     };
+
+                    // Single passenger pricing
+                    const variationKey = extractVariationKey(item.metaData);
+                    // Divide total by quantity for unit price logic if needed, but usually single line is unit price * qty
+                    // We treat the row as the aggregate for that line item (which might be multiple pax). 
+                    // Actually, if pax > 1 on a single line (quantity > 1), "importo" is total.
+                    // We need unit paid amount to check vs unit full price.
+                    const unitPaid = row.importo / (item.quantity || 1);
+                    const pricingInfo = calculateBalance(variationKey, unitPaid);
+
+                    row.ticketType = pricingInfo.type;
+                    // Total balance = unit balance * quantity
+                    row.saldo = pricingInfo.balance * (item.quantity || 1);
+
                     if (cfConfig) row.cf = getMetaValue(item.metaData, cfConfig.fieldKey) || '';
                     if (addressConfig) row.address = getMetaValue(item.metaData, addressConfig.fieldKey) || '';
                     if (capConfig) row.cap = getMetaValue(item.metaData, capConfig.fieldKey) || '';
@@ -355,6 +429,8 @@ export async function GET(
                     }
 
                     let noteContent = `Ordine #${order.id}`;
+                    if (row.saldo > 0) noteContent = `⚠️ SALDO: ${row.saldo}€ | ${noteContent}`;
+
                     if (!isConfirmed) {
                         noteContent = `⚠️ ${order.status.toUpperCase()} | ${noteContent}`;
                     }
@@ -380,6 +456,15 @@ export async function GET(
                 source: 'manual',
                 pax: booking.numPartecipanti,
                 note: booking.note || 'Manuale',
+                ticketType: 'Manuale',
+                // Manual bookings logic for balance:
+                // importo = total price (expected) from DB? No, DB has 'importo' and 'acconto'.
+                // The ManualBooking model has `importo` (Total Price) and `acconto` (Paid).
+                // Wait, looking at schema: 
+                // importo Float? // Prezzo totale
+                // acconto Float? // Acconto versato
+                // pagato Boolean // Saldato completamente
+                saldo: booking.pagato ? 0 : ((booking.importo || 0) - (booking.acconto || 0)),
                 dynamic: {}
             };
             if (cfConfig) row.cf = '';
@@ -489,6 +574,11 @@ export async function GET(
                 columns.push({ header: 'Pax', key: 'pax' });
             if (colSelected('importo') || colSelected('Importo') || colSelected('totale') || colSelected('pagato'))
                 columns.push({ header: 'Pagato €', key: 'importo' });
+            if (colSelected('ticketType') || colSelected('Tipo') || colSelected('tipologia'))
+                columns.push({ header: 'Tipo', key: 'ticketType' });
+            if (colSelected('saldo') || colSelected('Saldo') || colSelected('da saldare'))
+                columns.push({ header: 'Saldo €', key: 'saldo' });
+
             if (colSelected('_order_id') || colSelected('orderId') || colSelected('N° Ordine'))
                 columns.push({ header: 'N° Ordine', key: 'orderId' });
             if (colSelected('note'))
@@ -540,6 +630,8 @@ export async function GET(
         }
 
         headerCols.push({ header: 'Pax', key: 'pax', width: 6 });
+        headerCols.push({ header: 'Tipo', key: 'ticketType', width: 15 });
+        headerCols.push({ header: 'Saldo', key: 'saldo', width: 10 });
         headerCols.push({ header: 'Note', key: 'note', width: 25 });
 
         worksheet.columns = headerCols.map(c => ({ width: c.width }));
@@ -557,6 +649,8 @@ export async function GET(
                 rowValues.push(d.dynamic[label] || '');
             }
             rowValues.push(d.pax);
+            rowValues.push(d.ticketType || '-');
+            rowValues.push(d.saldo && d.saldo > 0 ? `${d.saldo}€` : '-');
             rowValues.push(d.note);
 
             const row = worksheet.addRow(rowValues);

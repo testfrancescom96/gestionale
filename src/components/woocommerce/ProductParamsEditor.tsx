@@ -6,6 +6,8 @@ import {
     AlertTriangle, ExternalLink, RefreshCw
 } from "lucide-react";
 
+import ProductPricingManager from "./ProductPricingManager";
+
 interface Props {
     productId: number;
     productName: string;
@@ -46,16 +48,16 @@ export default function ProductParamsEditor({ productId, productName, isOpen, on
     const [showConfirm, setShowConfirm] = useState(false);
     const [saveResult, setSaveResult] = useState<{ success: boolean; message: string } | null>(null);
 
-    // Pricing state
-    const [pricing, setPricing] = useState<{ id: number; nome: string; prezzo: number; ordine: number; attivo: boolean }[]>([]);
-    const [newTariffa, setNewTariffa] = useState({ nome: '', prezzo: '' });
-    const [savingPricing, setSavingPricing] = useState(false);
+
+
+    // Pricing state removed - handled by ProductPricingManager
 
     useEffect(() => {
         if (isOpen && productId) {
             loadProduct();
             loadHistory();
-            loadPricing();
+            loadProduct();
+            loadHistory();
         }
     }, [isOpen, productId]);
 
@@ -83,45 +85,9 @@ export default function ProductParamsEditor({ productId, productName, isOpen, on
         }
     };
 
-    const loadPricing = async () => {
-        try {
-            const res = await fetch(`/api/woocommerce/products/${productId}/pricing`);
-            const data = await res.json();
-            setPricing(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error("Error loading pricing:", error);
-        }
-    };
 
-    const addTariffa = async () => {
-        if (!newTariffa.nome || !newTariffa.prezzo) return;
-        setSavingPricing(true);
-        try {
-            const res = await fetch(`/api/woocommerce/products/${productId}/pricing`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome: newTariffa.nome, prezzo: parseFloat(newTariffa.prezzo) })
-            });
-            if (res.ok) {
-                setNewTariffa({ nome: '', prezzo: '' });
-                loadPricing();
-            }
-        } catch (error) {
-            console.error("Error adding tariff:", error);
-        } finally {
-            setSavingPricing(false);
-        }
-    };
 
-    const deleteTariffa = async (pricingId: number) => {
-        if (!confirm('Eliminare questa tariffa?')) return;
-        try {
-            await fetch(`/api/woocommerce/products/${productId}/pricing?pricingId=${pricingId}`, { method: 'DELETE' });
-            loadPricing();
-        } catch (error) {
-            console.error("Error deleting tariff:", error);
-        }
-    };
+
 
     const hasChanges = () => {
         if (!product || !editedProduct) return false;
@@ -397,61 +363,9 @@ export default function ProductParamsEditor({ productId, productName, isOpen, on
                                 </div>
                             </div>
 
-                            {/* Tariffe (Pricing) Section */}
+                            {/* Tariffe (Pricing) Section - Replaced by Manager */}
                             <div className="bg-green-50 rounded-lg p-4 border border-green-100">
-                                <h3 className="text-sm font-semibold text-green-800 mb-3 flex items-center gap-2">
-                                    💰 Tariffe Prodotto
-                                </h3>
-                                <p className="text-xs text-gray-500 mb-3">
-                                    Definisci le tariffe per questo prodotto (es. Adulto, Bambino, Under 12)
-                                </p>
-
-                                {/* Existing Tariffs */}
-                                {pricing.length > 0 && (
-                                    <div className="space-y-2 mb-4">
-                                        {pricing.map(t => (
-                                            <div key={t.id} className="flex items-center justify-between bg-white rounded-lg p-3 border">
-                                                <div>
-                                                    <span className="font-medium text-gray-800">{t.nome}</span>
-                                                    <span className="text-green-600 font-bold ml-2">€{t.prezzo}</span>
-                                                </div>
-                                                <button
-                                                    onClick={() => deleteTariffa(t.id)}
-                                                    className="text-red-500 hover:text-red-700 text-sm"
-                                                >
-                                                    ✕
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {/* Add New Tariff */}
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        placeholder="Nome (es. Adulto)"
-                                        value={newTariffa.nome}
-                                        onChange={e => setNewTariffa({ ...newTariffa, nome: e.target.value })}
-                                        className="flex-1 px-3 py-2 border rounded-lg text-sm"
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Prezzo €"
-                                        value={newTariffa.prezzo}
-                                        onChange={e => setNewTariffa({ ...newTariffa, prezzo: e.target.value })}
-                                        className="w-24 px-3 py-2 border rounded-lg text-sm"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={addTariffa}
-                                        disabled={savingPricing || !newTariffa.nome || !newTariffa.prezzo}
-                                        className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50"
-                                    >
-                                        +
-                                    </button>
-                                </div>
-                                <p className="text-xs text-gray-400 mt-2">Prezzo base WooCommerce: €{product?.price || 0}</p>
+                                <ProductPricingManager productId={productId} />
                             </div>
 
                             {/* Info */}

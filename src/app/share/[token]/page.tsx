@@ -20,7 +20,7 @@ export default async function SharePage({ params }: PageProps) {
                         include: { order: true }
                     },
                     manualBookings: true,
-                    pricingOptions: true
+                    pricingRules: true
                 }
             }
         }
@@ -51,6 +51,54 @@ export default async function SharePage({ params }: PageProps) {
 
     const rows: any[] = [];
 
+    // Helpers
+    const getMetaValue = (metaDataStr: string | null, key: string | undefined): string | null => {
+        if (!metaDataStr || !key) return null;
+        try {
+            const meta = JSON.parse(metaDataStr);
+            if (Array.isArray(meta)) {
+                let match = meta.find((m: any) => (m.key === key) || (m.display_key === key));
+                return match ? match.value || match.display_value : null;
+            }
+        } catch (e) { }
+        return null;
+    };
+
+    const extractVariationKey = (metaDataStr: string | null): string | null => {
+        if (!metaDataStr) return null;
+        try {
+            const meta = JSON.parse(metaDataStr);
+            if (Array.isArray(meta)) {
+                const serviceType = meta.find((m: any) => m.key === '_service_Tipologia biglietto');
+                if (serviceType) return (serviceType.value || "").split('•')[0].trim();
+
+                const wcpaType = meta.find((m: any) => m.key === 'Tipologia biglietto');
+                if (wcpaType) {
+                    let val = wcpaType.value || "";
+                    val = val.replace(/\s*\([\d,.]+\s*€\)/g, '').trim();
+                    return val.split('|')[0].trim();
+                }
+
+                const paKey = meta.find((m: any) => m.key.startsWith('pa_'));
+                if (paKey) return paKey.value;
+            }
+        } catch (e) { }
+        return null;
+    };
+
+    const calculateBalance = (variationKey: string | null, paidAmount: number) => {
+        if (!variationKey) return { balance: 0, type: 'Standard' };
+        // Flexible match
+        const rule = product.pricingRules.find(r => r.identifier === variationKey || r.identifier.toLowerCase() === variationKey.toLowerCase());
+        if (!rule) return { balance: 0, type: variationKey };
+        const due = rule.fullPrice - paidAmount;
+        const balance = Math.round(due * 100) / 100;
+        return {
+            balance: balance > 0.05 ? balance : 0,
+            type: rule.nome || rule.type || rule.identifier
+        };
+    };
+
     // From orders
     for (const item of product.orderItems) {
         const order = item.order;
@@ -58,20 +106,30 @@ export default async function SharePage({ params }: PageProps) {
 
         const isConfirmed = confirmedStatuses.includes(order.status);
 
+        // Calculate gross amount
+        const importo = (() => {
+            const netTotal = item.total || 0;
+            const tax = (item.totalTax && item.totalTax > 0) ? item.totalTax : netTotal * 0.10;
+            return Math.round((netTotal + tax) * 100) / 100;
+        })();
+
+        // Pricing Logic
+        // For accurate per-pax balance, we need unit paid amount.
+        // Usually item.quantity is the number of pax.
+        const unitPaid = importo / (item.quantity || 1);
+        const variationKey = extractVariationKey(item.metaData);
+        const pricingInfo = calculateBalance(variationKey, unitPaid);
+
         rows.push({
             cognome: order.billingLastName || '',
             nome: order.billingFirstName || '',
             telefono: order.billingPhone || '',
             email: order.billingEmail || '',
             pax: item.quantity,
-            // Calculate gross amount with IVA fallback (10% if totalTax not available)
-            importo: (() => {
-                const netTotal = item.total || 0;
-                const tax = (item.totalTax && item.totalTax > 0) ? item.totalTax : netTotal * 0.10;
-                return Math.round((netTotal + tax) * 100) / 100;
-            })(),
-            acconto: 0, // Orders are usually paid in full
-            saldo: 0,
+            importo: importo,
+            acconto: 0,
+            saldo: pricingInfo.balance * (item.quantity || 1), // Total balance
+            ticketType: pricingInfo.type,
             isConfirmed,
             source: 'order'
         });
@@ -94,7 +152,8 @@ export default async function SharePage({ params }: PageProps) {
             acconto,
             saldo,
             isConfirmed: true,
-            source: 'manual'
+            source: 'manual',
+            ticketType: 'Manuale'
         });
     }
 
@@ -112,6 +171,7 @@ export default async function SharePage({ params }: PageProps) {
         importo: { header: 'Importo', renderFn: (r) => `€${r.importo || 0}` },
         acconto: { header: 'Acconto', renderFn: (r) => `€${r.acconto || 0}` },
         saldo: { header: 'Saldo', renderFn: (r) => `€${r.saldo || 0}` },
+        ticketType: { header: 'Tipo' },
     };
 
     // Filter columns based on selection and options
@@ -119,6 +179,14 @@ export default async function SharePage({ params }: PageProps) {
     if (share.showSaldo && !visibleColumns.includes('saldo')) {
         visibleColumns.push('saldo');
     }
+    // Auto-add type if saldo is shown or if useful? Let's just allow it via config, but maybe default it ON if not excluded?
+    // Users select columns in admin. For now, if "ticketType" is in selectedColumns (from admin URL param logic which saves to DB), it shows.
+    // But we might want to force show if needed.
+    // Let's assume the user selects it. But wait, existing shares won't have 'ticketType' in JSON.
+    // We should probably add it to the default set if they have "saldo" enabled?
+    // Or just leave it as opt-in via the "columns" UI (which we need to check if supports dynamic keys).
+    // The previous implementation used dynamic keys. Here we have a fixed set `columnDefs`.
+    // I added `ticketType` to `columnDefs` so it's supported if selected.
     if (share.showAcconto && !visibleColumns.includes('acconto')) {
         visibleColumns.push('acconto');
     }

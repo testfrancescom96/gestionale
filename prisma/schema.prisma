@@ -742,7 +742,7 @@ model WooProduct {
   manualBookings    ManualBooking[]
   variations        WooProductVariation[]
   modificationLogs  ProductModificationLog[]
-  pricingOptions    ProductPricing[] // Tariffe (Adulto, Bambino, etc.)
+  pricingRules      WooProductPricing[] // Tariffe (Adulto, Bambino, etc.)
   sharedLists       SharedPassengerList[] // Link condivisione capogruppo
   
   updatedAt   DateTime @updatedAt
@@ -907,20 +907,36 @@ model SystemSettings {
 }
 
 // ==================== PRODUCT PRICING/TARIFFS ====================
-model ProductPricing {
-  id              Int       @id @default(autoincrement())
+// ==================== PRODUCT PRICING/TARIFFS ====================
+model WooProductPricing {
+  id              String    @id @default(uuid())
   
   wooProductId    Int
   product         WooProduct @relation(fields: [wooProductId], references: [id], onDelete: Cascade)
   
-  nome            String    // Es: "Adulto", "Bambino 3-12", "Under 12", "Posto Singolo"
-  prezzo          Float     // Prezzo di questa tariffa
-  ordine          Int       @default(0) // Per ordinare le tariffe
+  // Identificativo della variazione/opzione su WooCommerce
+  // Es: "Acconto Adulto", "Intero", "Ridotto"
+  // Corrisponde alla stringa pulita trovata nei metadata (es. da "Acconto Adulti • 20€")
+  identifier      String    
+  
+  // Tipo di tariffa
+  type            String    @default("STANDARD") // STANDARD, ACCONTO, GRATUITO, SUPPLEMENTO
+  
+  // Valori economici
+  fullPrice       Float     // Prezzo pieno (per calcolo saldo)
+  depositPrice    Float?    // Prezzo acconto (se applicabile, o se diverso dal prezzo variation)
+  
+  // Info aggiuntive
+  nome            String?   // Label leggibile nel gestionale (es. "Tariffa Adulto Standard")
+  description     String?   
+  
+  ordine          Int       @default(0) 
   attivo          Boolean   @default(true)
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   
+  @@unique([wooProductId, identifier])
   @@index([wooProductId])
 }
 
