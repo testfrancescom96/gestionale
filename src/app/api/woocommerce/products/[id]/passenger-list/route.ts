@@ -5,6 +5,16 @@ import ExcelJS from 'exceljs';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
+// Smart round: round to integer if decimal is negligible (< 0.05 or > 0.95)
+const smartRound = (value: number): number => {
+    const rounded = Math.round(value * 100) / 100;
+    const decimal = rounded % 1;
+    if (decimal < 0.05 || decimal > 0.95) {
+        return Math.round(rounded);
+    }
+    return rounded;
+};
+
 export async function GET(
     request: NextRequest,
     context: { params: Promise<{ id: string }> }
@@ -328,8 +338,8 @@ export async function GET(
                     // Fallback: if totalTax is 0 (old synced data), assume 10% IVA
                     const netTotal = item.total || 0;
                     const tax = (item.totalTax && item.totalTax > 0) ? item.totalTax : netTotal * 0.10;
-                    const importoLordo = netTotal + tax;
-                    const importoPerPerson = Math.round((importoLordo / multiPassengers.length) * 100) / 100;
+                    const importoLordo = smartRound(netTotal + tax);
+                    const importoPerPerson = smartRound(importoLordo / multiPassengers.length);
 
                     const tipologiaCamera = getMetaValue(item.metaData, 'Tipologia camera') ||
                         getMetaValue(item.metaData, '_field_Tipologia camera') || '';
@@ -394,7 +404,7 @@ export async function GET(
                         importo: (() => {
                             const netTotal = item.total || 0;
                             const tax = (item.totalTax && item.totalTax > 0) ? item.totalTax : netTotal * 0.10;
-                            return Math.round((netTotal + tax) * 100) / 100;
+                            return smartRound(netTotal + tax);
                         })(),
                         source: 'order',
                         orderId: order.id,

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><?xml-stylesheet type='text/xsl' href='https://www.app.fattura24.com/stampe/xslt_pa/fe-1.7.1.xsl'?><p:FatturaElettronica xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" versione="FPR12">
+  <FatturaElettronicaHeader>
+    <DatiTrasmissione>
+      <IdTrasmittente>
+        <IdPaese>IT</IdPaese>
+        <IdCodice>11359591002</IdCodice>
+      </IdTrasmittente>
+      <ProgressivoInvio>1qwFY</ProgressivoInvio>
+      <FormatoTrasmissione>FPR12</FormatoTrasmissione>
+      <CodiceDestinatario>0000000</CodiceDestinatario>
+      <ContattiTrasmittente>
+        <Telefono>0640402261</Telefono>
+        <Email>info@fattura24.com</Email>
+      </ContattiTrasmittente>
+    </DatiTrasmissione>
+    <CedentePrestatore>
+      <DatiAnagrafici>
+        <IdFiscaleIVA>
+          <IdPaese>IT</IdPaese>
+          <IdCodice><![CDATA[02244120685]]></IdCodice>
+        </IdFiscaleIVA>
+        <CodiceFiscale>MNRFNC96C20H926Q</CodiceFiscale>
+        <Anagrafica>
+          <Denominazione><![CDATA[Francesco Pio Minerva]]></Denominazione>
+        </Anagrafica>
+        <RegimeFiscale>RF01</RegimeFiscale>
+      </DatiAnagrafici>
+      <Sede>
+        <Indirizzo><![CDATA[Via F.F. D'avalos,107]]></Indirizzo>
+        <CAP>65126</CAP>
+        <Comune>pescara</Comune>
+        <Provincia>PE</Provincia>
+        <Nazione>IT</Nazione>
+      </Sede>
+      <IscrizioneREA>
+        <Ufficio>PE</Ufficio>
+        <NumeroREA>406681</NumeroREA>
+        <SocioUnico>SU</SocioUnico>
+        <StatoLiquidazione>LN</StatoLiquidazione>
+      </IscrizioneREA>
+    </CedentePrestatore>
+    <CessionarioCommittente>
+      <DatiAnagrafici>
+        <CodiceFiscale><![CDATA[FRRPFR54P16E435S]]></CodiceFiscale>
+        <Anagrafica>
+          <Nome><![CDATA[Pierfranco]]></Nome>
+          <Cognome><![CDATA[Ferrara]]></Cognome>
+        </Anagrafica>
+      </DatiAnagrafici>
+      <Sede>
+        <Indirizzo><![CDATA[Via del mare, 104/o]]></Indirizzo>
+        <CAP>66034</CAP>
+        <Comune><![CDATA[Lanciano]]></Comune>
+        <Provincia>CH</Provincia>
+        <Nazione>IT</Nazione>
+      </Sede>
+    </CessionarioCommittente>
+    <TerzoIntermediarioOSoggettoEmittente>
+      <DatiAnagrafici>
+        <IdFiscaleIVA>
+          <IdPaese>IT</IdPaese>
+          <IdCodice>11359591002</IdCodice> 
+        </IdFiscaleIVA>
+        <CodiceFiscale>11359591002</CodiceFiscale>
+        <Anagrafica>
+          <Denominazione><![CDATA[Fattura24 S.r.L.]]></Denominazione>
+        </Anagrafica>
+      </DatiAnagrafici>
+    </TerzoIntermediarioOSoggettoEmittente>
+    <SoggettoEmittente><![CDATA[TZ]]></SoggettoEmittente>
+  </FatturaElettronicaHeader>
+  <FatturaElettronicaBody>
+    <DatiGenerali>
+      <DatiGeneraliDocumento>
+        <TipoDocumento>TD01</TipoDocumento>
+        <Divisa>EUR</Divisa>
+        <Data>2025-02-06</Data>
+        <Numero>46-2025-FE</Numero>
+        <ImportoTotaleDocumento>798.00</ImportoTotaleDocumento>
+      </DatiGeneraliDocumento>
+    </DatiGenerali>
+    <DatiBeniServizi>
+      <DettaglioLinee>
+        <NumeroLinea>1</NumeroLinea>
+        <Descrizione><![CDATA[Pacchetto viaggio Settimana bianca a Madonna di Campiglio dal 18/01/25 al 25/01/25 presso hotel 3* Regina Elena situato a Caderzone.
+Il pacchetto comprende:
+7 notti/8 giorni in mezza pensione in camera doppia con servizi privati
+Assicurazione medico-bagaglio
+Accompagnatore e assistenza
+Skipass skiarea cCmpiglio dolomiti di Brenta]]></Descrizione>
+        <Quantita>2.00</Quantita>
+        <UnitaMisura>pz</UnitaMisura>
+        <PrezzoUnitario>399.00</PrezzoUnitario>
+        <PrezzoTotale>798.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N5</Natura>
+      </DettaglioLinee>
+      <DatiRiepilogo>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N5</Natura>
+        <ImponibileImporto>798.00</ImponibileImporto>
+        <Imposta>0.00</Imposta>
+        <RiferimentoNormativo><![CDATA[0% - Regime del margine / IVA non esposta in fattura]]></RiferimentoNormativo>
+      </DatiRiepilogo>
+    </DatiBeniServizi>
+    <DatiPagamento>
+      <CondizioniPagamento>TP02</CondizioniPagamento>
+      <DettaglioPagamento>
+        <ModalitaPagamento>MP01</ModalitaPagamento>
+        <ImportoPagamento>798.00</ImportoPagamento>
+      </DettaglioPagamento>
+    </DatiPagamento>
+  </FatturaElettronicaBody>
+<ds:Signature Id="Signer-T-1738839825047"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2006/12/xml-c14n11#WithComments"/><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><ds:Reference Id="r-doc-Signer-T-1738839825047" URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2002/06/xmldsig-filter2"><XPath xmlns="http://www.w3.org/2002/06/xmldsig-filter2" Filter="subtract">/descendant::ds:Signature</XPath></ds:Transform></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>PubbqRIGOzysCdx11gESe2jUU7Oa1Y+e36kYT87Udjs=</ds:DigestValue></ds:Reference><ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#SignedProperties-Signer-T-1738839825047"><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>FAmnP9l4UR4MHGWkagZl1D2SJhId0ajMTscZ6d5XPQQ=</ds:DigestValue></ds:Reference><ds:Reference Id="r-keyinfo-Signer-T-1738839825047" URI="#KeyInfo-Signer-T-1738839825047"><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>7PJuZNOC3RPPqeaAIulVrNnmBZzcwZ6s+CZ4vtClCpg=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue Id="SignatureValue-Signer-T-1738839825047">c0nDahonUG8vSJD9zIDAoooaU2RzAr3VxJfbQs4j18fclrCO8EFuQjCQvH3jlS/p4GtiCTocc3IL&#13;
+pITXH9H/nRKbRTxgrntibQkLjZdnc2whnJdoWwfCzWv23rlW1cyylrM0W7HtSA1IjMxO091995yt&#13;
+8ZY3b3GpAJeaeXXNwHnjQvetVLSJDkErza2MpeKTb4lajdp5RLslSA+pEK9wuWlgXWCG7ixQye8Y&#13;
+T8A6bsYV2g1Z49ca/MsdrVFO49//Z9imaUFxAGcBpIoEf9uWOSThbUNiGHvdwjq8xmqSqzNYAfYN&#13;
+KUCART2HVGpRR1tSOacCrZnmszeYzJKDrGxIFw==</ds:SignatureValue><ds:KeyInfo Id="KeyInfo-Signer-T-1738839825047"><ds:X509Data><ds:X509Certificate>MIIIUjCCBjqgAwIBAgIQPGuIff7+XxUKdkTV3yW4QjANBgkqhkiG9w0BAQsFADCBujELMAkGA1UE&#13;
+BhMCSVQxGTAXBgNVBAcMEFBvbnRlIFNhbiBQaWV0cm8xFzAVBgNVBAoMDkFjdGFsaXMgUy5wLkEu&#13;
+MRowGAYDVQRhDBFWQVRJVC0wMzM1ODUyMDk2NzEpMCcGA1UECwwgUXVhbGlmaWVkIFRydXN0IFNl&#13;
+cnZpY2UgUHJvdmlkZXIxMDAuBgNVBAMMJ0FjdGFsaXMgRVUgUXVhbGlmaWVkIENlcnRpZmljYXRl&#13;
+cyBDQSBHMTAeFw0yNDA0MjcwMDUwNTVaFw0yNzA0MjcwMDUwNTVaMIHdMQswCQYDVQQGEwJJVDEZ&#13;
+MBcGA1UECgwQRkFUVFVSQTI0IFMuUi5MLjEaMBgGA1UEYQwRVkFUSVQtMTEzNTk1OTEwMDIxHTAb&#13;
+BgNVBAwMFEFNTUlOSVNUUkFUT1JFIFVOSUNPMRAwDgYDVQQEDAdDQU1VU1NPMQ4wDAYDVQQqDAVD&#13;
+QVJMTzEfMB0GA1UEBRMWVElOSVQtQ01TQ1JMNzVSMjFBMzkwVjEWMBQGA1UEAwwNQ0FSTE8gQ0FN&#13;
+VVNTTzEdMBsGA1UELhMUV1NSRUYtNDMwMTk0NTk0NTI3ODkwggEiMA0GCSqGSIb3DQEBAQUAA4IB&#13;
+DwAwggEKAoIBAQDF98XhYX1h/TbCX/F2B9Jk+2rGV1o3R+4/CAcx8MPS/H6e6cEtMgvifsTiB+Pj&#13;
+kj7rMoaB4zTyIvnsk+xnoHQGKQLFNEed08qK5S/ABF8t27PrJK7i5y9pOCVE1k4xtYSMHFkl3p1B&#13;
+Q15v7hkH5zctgPv5UpNRuILU47uLGn0hQK4nZMuE8g/B9MLR5oSYqX9gFCqiWIfPzEiUiaFgPA49&#13;
+R4C8wrReH+rCA7vxJNeZrD3ku9e0QbTlXwSlIbEAmOPifVq14AUbcGhigtbw1Z+1L0j0YA8m46Ia&#13;
+1IuzpzjYIsolouQmA2DWqylqnA935F5HsFIk/UKbTO1F6vR3E1ndAgMBAAGjggMtMIIDKTAfBgNV&#13;
+HSMEGDAWgBTYtwHxlnOW0mk6QTwuRTkfboH+njCBhQYIKwYBBQUHAQEEeTB3MDsGCCsGAQUFBzAC&#13;
+hi9odHRwOi8vY2FjZXJ0LmFjdGFsaXMuaXQvY2VydHMvYWN0YWxpcy1laWRhcy1nMTA4BggrBgEF&#13;
+BQcwAYYsaHR0cDovL29jc3AwOC5hY3RhbGlzLml0L3ZhL2FjdGFsaXMtZWlkYXMtZzEwGgYDVR0S&#13;
+BBMwEYEPaW5mb0BhY3RhbGlzLml0MIIBJwYDVR0gBIIBHjCCARowCQYHBACL7EABAjCCAQMGBiuB&#13;
+HwoCATCB+DBEBggrBgEFBQcCARY4aHR0cHM6Ly93d3cuYWN0YWxpcy5pdC9yZXBvc2l0b3J5L2Fj&#13;
+dGFsaXMtcXVhbGlmLWNwcy5wZGYwga8GCCsGAQUFBwICMIGiDIGfSWwgcHJlc2VudGUgY2VydGlm&#13;
+aWNhdG8gw6ggdmFsaWRvIHNvbG8gcGVyIGZpcm1lIGFwcG9zdGUgY29uIHByb2NlZHVyYSBhdXRv&#13;
+bWF0aWNhLiBUaGUgY2VydGlmaWNhdGUgbWF5IG9ubHkgYmUgdXNlZCBmb3IgdW5hdHRlbmRlZC9h&#13;
+dXRvbWF0aWMgZGlnaXRhbCBzaWduYXR1cmUuMAYGBCtMEAYwgcUGCCsGAQUFBwEDBIG4MIG1MAgG&#13;
+BgQAjkYBATALBgYEAI5GAQMCARQwCAYGBACORgEEMIGRBgYEAI5GAQUwgYYwQRY7aHR0cHM6Ly93&#13;
+d3cuYWN0YWxpcy5pdC9yZXBvc2l0b3J5L2FjdGFsaXMtcXVhbGlmLXBkcy1pdC5wZGYTAml0MEEW&#13;
+O2h0dHBzOi8vd3d3LmFjdGFsaXMuaXQvcmVwb3NpdG9yeS9hY3RhbGlzLXF1YWxpZi1wZHMtZW4u&#13;
+cGRmEwJlbjBABgNVHR8EOTA3MDWgM6Axhi9odHRwOi8vY3JsMDguYWN0YWxpcy5pdC92YS9hY3Rh&#13;
+bGlzLWVpZGFzLWcxL2NybDAdBgNVHQ4EFgQUAzl51pDFOVPQiaDbmh9tpTU/zDswDgYDVR0PAQH/&#13;
+BAQDAgZAMA0GCSqGSIb3DQEBCwUAA4ICAQBSGRWSWOW6iWrV9msv3KoeJk1TXuRHC45ert90czTH&#13;
+2dx/CyLohVfFnZCgFv14QO9bDwG7v2lVXGMF5IUYYalO8OjXoEqeYZJrF/daqRfWZ/8Baa6iNufJ&#13;
+7GIlpWlv4QGtH5Sqmpfmmm3EzKbMBs8jpNOzASEY26qNIJSoX+fvNuvrAWQ0InYM5hJtnlKv3N4K&#13;
+rVAfO/qO/QSmQVgUXjDdgyAtXQJA3fzay7NPD51XOoGpLz75J0qLKFxwsPDWxH/aXr7VPuLtB064&#13;
+8BcZDPSfg6nWHvUVhYzbCD05WHvY+190LQcktygwrR/z6IaULeQA9JGPv59PXAB7f/rgfEHIIuOf&#13;
+55tTDdl3BkQ9vuy9QaGFgca+d6WJtJPAR8cgdvHC0ZWQ7AkTDfg6l5LP09Xm8E3UeVCiqt4c7ed4&#13;
+rmOEc0frIfgTg6SA5fnk2eBiFY5t2GoDXn9NIVIkXen1+z4ZUmyochqCEw/r9Y6VOQPzBBPQVk1/&#13;
+yWTc2cZ+w/BexWH5xZdDF6xDHBIUE2+t0i1ikRPyHroKtTeWRnZ0eWOoHuto//6vBCURH9ATv3jT&#13;
+wuZ85jJfqnzS3FrApPjRJoZVQkGh/gGDVr7CNVJIs4VkbOV6pDpm7osFbmakPsn6x6hzg3Ug3Vc/&#13;
+kIaHYfcLhsAg7ik6iymDhYD9FZGSDfAnzw==</ds:X509Certificate></ds:X509Data></ds:KeyInfo><ds:Object><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Target="#Signer-T-1738839825047">
+		<xades:SignedProperties Id="SignedProperties-Signer-T-1738839825047">
+			<xades:SignedSignatureProperties>
+				<xades:SigningTime>2025-02-06T12:03:45+01:00</xades:SigningTime>
+				<xades:SigningCertificate>
+					<xades:Cert>
+						<xades:CertDigest>
+							<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+							<ds:DigestValue>2MRS4QQ0nHaN+5B6vWTK5XvS8uRzHY7wcJJuZwWmJaw=</ds:DigestValue>
+						</xades:CertDigest>
+						<xades:IssuerSerial><ds:X509IssuerName>CN=Actalis EU Qualified Certificates CA G1,OU=Qualified Trust Service Provider,2.5.4.97=#0c1156415449542d3033333538353230393637,O=Actalis S.p.A.,L=Ponte San Pietro,C=IT</ds:X509IssuerName><ds:X509SerialNumber>80312023901101298506456169846875207746</ds:X509SerialNumber></xades:IssuerSerial>
+					</xades:Cert>
+				</xades:SigningCertificate>
+			</xades:SignedSignatureProperties>
+		
+			<xades:SignedDataObjectProperties>
+				<xades:DataObjectFormat ObjectReference="#r-doc-Signer-T-1738839825047">
+					<xades:MimeType>text/xml</xades:MimeType>
+				</xades:DataObjectFormat>
+			
+				<xades:DataObjectFormat ObjectReference="#r-keyinfo-Signer-T-1738839825047">
+					<xades:MimeType>text/xml</xades:MimeType>
+				</xades:DataObjectFormat>
+			</xades:SignedDataObjectProperties>
+		</xades:SignedProperties>
+	</xades:QualifyingProperties></ds:Object></ds:Signature></p:FatturaElettronica>

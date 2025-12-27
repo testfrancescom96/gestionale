@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
             }
 
             return {
-                orderId: item.orderId,
+                orderId: item.wooOrderId,
                 productName: item.productName,
                 total: item.total,
                 metaDataKeys: Array.isArray(meta) ? meta.map((m: any) => ({

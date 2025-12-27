@@ -18,7 +18,16 @@ export async function POST(request: NextRequest) {
 
         if (type === 'orders' || type === 'all') {
             const limit = options?.limit || 50;
-            const res = await syncOrders(limit);
+            const afterDate = options?.since ? new Date(options.since) : undefined;
+
+            // Default to 'rapid' mode if no explicit mode provided, but use provided options
+            const syncOptions: any = {
+                mode: options?.mode || 'rapid',
+                limit: limit,
+                after: afterDate
+            };
+
+            const res = await syncOrders(syncOptions);
             result = { ...result, orders: res.count };
         }
 

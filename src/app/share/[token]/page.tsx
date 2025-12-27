@@ -3,6 +3,15 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { notFound } from "next/navigation";
 
+// Smart round: round to integer if decimal is negligible (< 0.05 or > 0.95)
+const smartRound = (value: number): number => {
+    const rounded = Math.round(value * 100) / 100;
+    const decimal = rounded % 1;
+    if (decimal < 0.05 || decimal > 0.95) {
+        return Math.round(rounded);
+    }
+    return rounded;
+};
 interface PageProps {
     params: Promise<{ token: string }>;
 }
@@ -110,7 +119,7 @@ export default async function SharePage({ params }: PageProps) {
         const importo = (() => {
             const netTotal = item.total || 0;
             const tax = (item.totalTax && item.totalTax > 0) ? item.totalTax : netTotal * 0.10;
-            return Math.round((netTotal + tax) * 100) / 100;
+            return smartRound(netTotal + tax);
         })();
 
         // Pricing Logic

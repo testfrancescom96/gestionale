@@ -339,6 +339,51 @@ export function WooDashboard() {
         }
     };
 
+    // Invoice Import State
+    const [importingInvoices, setImportingInvoices] = useState(false);
+
+    const handleImportInvoices = async () => {
+        if (!confirm("Vuoi scansionare la cartella FATTURE per importare nuovi XML?")) return;
+
+        try {
+            setImportingInvoices(true);
+            // 1. Scan
+            const scanRes = await fetch('/api/invoices/import', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'scan' })
+            });
+            const scanData = await scanRes.json();
+
+            if (!scanData.success) {
+                alert("Errore scansione: " + scanData.error);
+                return;
+            }
+
+            if (scanData.count === 0) {
+                alert("Nessun file XML trovato in: " + scanData.path);
+                return;
+            }
+
+            // 2. Confirm Import
+            if (!confirm(`Trovati ${scanData.count} file XML. Procedere con l'importazione nel database?`)) return;
+
+            // 3. Import
+            const importRes = await fetch('/api/invoices/import', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'import' })
+            });
+            const importData = await importRes.json();
+
+            alert(`Importazione completata!\nImportati: ${importData.imported}\nErrori: ${importData.errors?.length || 0}`);
+
+        } catch (error) {
+            console.error("Import error:", error);
+            alert("Errore durante l'importazione");
+        } finally {
+            setImportingInvoices(false);
+        }
+    };
+
     return (
         <div className="space-y-6 relative">
             <ExportSettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
@@ -404,6 +449,20 @@ export function WooDashboard() {
 
                     {/* RIGHT: Settings + Sync Buttons */}
                     <div className="flex items-center gap-2">
+                        {/* Import Invoices Button */}
+                        <button
+                            onClick={handleImportInvoices}
+                            disabled={importingInvoices}
+                            className="p-2 text-gray-500 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors border border-transparent hover:border-orange-200 mr-2"
+                            title="Importa Fatture XML"
+                        >
+                            {importingInvoices ? (
+                                <Loader2 className="h-5 w-5 animate-spin text-orange-500" />
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-input"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4" /><polyline points="14 2 14 8 20 8" /><path d="M2 15h10" /><path d="m9 18 3-3-3-3" /></svg>
+                            )}
+                        </button>
+
                         {/* Settings Button */}
                         <button
                             onClick={() => setShowSettings(true)}
@@ -461,10 +520,30 @@ export function WooDashboard() {
                                 <ChevronDown className="h-3 w-3" />
                             </button>
                             {openDropdown === 'all' && (
-                                <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border py-1 z-50 min-w-[150px]">
+                                <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border py-1 z-50 min-w-[200px]">
                                     <button onClick={() => triggerSync('all', '24h')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 text-gray-700">Ultime 24 ore</button>
                                     <button onClick={() => triggerSync('all', '10days')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 text-gray-700">Ultimi 10 giorni</button>
-                                    <button onClick={() => triggerSync('all', 'full')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 text-gray-700 border-t">Completa</button>
+                                    <button onClick={() => triggerSync('all', 'full')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 text-gray-700">Completa</button>
+
+                                    <div className="border-t mt-1 pt-2 px-3 pb-2">
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">Da data specifica:</label>
+                                        <input
+                                            type="date"
+                                            className="w-full text-xs border rounded px-2 py-1.5 mb-2 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                            value={customSyncDate}
+                                            onChange={(e) => setCustomSyncDate(e.target.value)}
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                if (customSyncDate) triggerSyncFromDate(customSyncDate);
+                                                setOpenDropdown(null);
+                                            }}
+                                            disabled={!customSyncDate || loading}
+                                            className="w-full bg-purple-100 hover:bg-purple-200 text-purple-700 text-xs font-bold py-1.5 rounded transition-colors disabled:opacity-50"
+                                        >
+                                            Avvia Sync
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
