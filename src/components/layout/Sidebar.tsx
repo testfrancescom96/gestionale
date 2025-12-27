@@ -36,6 +36,7 @@ const navSections = [
         title: "VIAGGI DI GRUPPO",
         items: [
             { name: "Prodotti / Ordini", href: "/woocommerce", icon: ShoppingBag },
+            { name: "Clienti", href: "/clienti/gruppi", icon: Users },
             { name: "Coupon", href: "/woocommerce/coupons", icon: Tag },
             { name: "Capigruppo / Guide", href: "/capigruppo", icon: Users },
         ]
@@ -73,15 +74,7 @@ interface SidebarProps {
 export function Sidebar({ user }: SidebarProps) {
     const pathname = usePathname();
 
-    const handleLogout = async () => {
-        // Call server action logout
-        // Since logout is a server action, we can't call it directly from onClick if it redirects?
-        // Actually we can using a form or transition.
-        // Or simpler: fetch api route or just window.location.href to logout endpoint? 
-        // Best approach in Next.js App Router for logout button in client component:
-        // Use a form with action={logout} or calling it.
-        // Importing server action into client component works.
-    };
+
 
     return (
         <div className="flex w-64 flex-col bg-gradient-to-b from-blue-900 to-blue-800 text-white h-screen overflow-y-auto">

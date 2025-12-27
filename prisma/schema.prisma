@@ -1045,7 +1045,13 @@ model Invoice {
   xmlFileName     String?  // Nome file origine
   importedAt      DateTime @default(now())
 
-  @@unique([number, date]) // Evita duplicati
+  // New Fields
+  type            String   @default("SENT") // SENT | RECEIVED
+  status          String   @default("UNPAID") // PAID | UNPAID
+  
+  // Update constraint: For received invoices, number+date is not unique enough (multiple suppliers can have invoice #1)
+  // We include customerVac (Supplier VAT for received) to disambiguate
+  @@unique([number, date, customerVat, type])
 }
 
 model InvoiceItem {

@@ -5,8 +5,8 @@ import fs from "fs/promises";
 import path from "path";
 import { prisma } from "@/lib/db";
 
-// Base Path for Invoices
-const BASE_INVOICE_PATH = path.join(process.cwd(), "FATTURE", "FATTURE EMESSE");
+// Base Path for Invoices (Root of user's structure)
+const BASE_INVOICE_PATH = path.join(process.cwd(), "FATTURE");
 
 interface InvoiceData {
     number: string;
@@ -30,6 +30,13 @@ interface InvoiceData {
     }[];
 }
 
+// Helper to determine type from path
+function determineTypeFromPath(filePath: string): "SENT" | "RECEIVED" {
+    const upper = filePath.toUpperCase();
+    if (upper.includes("FATTURE RICEVUTE")) return "RECEIVED";
+    return "SENT"; // Default to SENT (Fatture Emesse)
+}
+
 async function findXmlFiles(dir: string): Promise<string[]> {
     const dirents = await fs.readdir(dir, { withFileTypes: true });
     let files: string[] = [];
@@ -47,7 +54,7 @@ async function findXmlFiles(dir: string): Promise<string[]> {
     return files;
 }
 
-function parseInvoiceXML(xmlContent: string): InvoiceData | null {
+function parseInvoiceXML(xmlContent: string, type: "SENT" | "RECEIVED"): InvoiceData | null {
     const parser = new XMLParser({
         ignoreAttributes: false,
         removeNSPrefix: true, // Remove namespace prefixes like p: or ns1:
@@ -59,47 +66,63 @@ function parseInvoiceXML(xmlContent: string): InvoiceData | null {
     if (!root) return null; // Not valid Invoice
 
     const header = root.FatturaElettronicaHeader;
-    const body = root.FatturaElettronicaBody;
+    const body = Array.isArray(root.FatturaElettronicaBody) ? root.FatturaElettronicaBody[0] : root.FatturaElettronicaBody;
 
     // 1. Data Documento
-    const datiGenerali = Array.isArray(body) ? body[0].DatiGenerali : body.DatiGenerali; // Sometimes Body is array inside root?
+    const datiGenerali = body.DatiGenerali;
     const docData = datiGenerali.DatiGeneraliDocumento;
 
     const number = docData.Numero;
     const dateStr = docData.Data;
     const total = parseFloat(docData.ImportoTotaleDocumento || "0");
 
-    // 2. Cliente
-    const cessionario = header.CessionarioCommittente;
-    const anagrafica = cessionario.DatiAnagrafici.Anagrafica;
-    const sede = cessionario.Sede;
+    // 2. Identify Counterparty (Partner)
+    // If SENT (We are Sender) -> Partner is Cessionario (Customer)
+    // If RECEIVED (We are Receiver) -> Partner is Cedente (Supplier)
+
+    let partnerNode;
+    if (type === 'SENT') {
+        partnerNode = header.CessionarioCommittente;
+    } else {
+        partnerNode = header.CedentePrestatore;
+    }
+
+    if (!partnerNode) return null;
+
+    const anagrafica = partnerNode.DatiAnagrafici.Anagrafica;
+    const sede = partnerNode.Sede;
 
     const name = anagrafica.Denominazione || `${anagrafica.Nome || ''} ${anagrafica.Cognome || ''}`.trim();
-    const fiscalCode = cessionario.DatiAnagrafici.CodiceFiscale;
-    const vat = cessionario.DatiAnagrafici.IdFiscaleIVA ? cessionario.DatiAnagrafici.IdFiscaleIVA.IdCodice : null;
+    const fiscalCode = partnerNode.DatiAnagrafici.CodiceFiscale;
+    let vat = null;
+    if (partnerNode.DatiAnagrafici.IdFiscaleIVA) {
+        vat = partnerNode.DatiAnagrafici.IdFiscaleIVA.IdCodice;
+    }
 
-    const address = sede.Indirizzo;
-    const city = sede.Comune;
-    const zip = sede.CAP;
-    const province = sede.Provincia;
+    const address = sede?.Indirizzo || "";
+    const city = sede?.Comune || "";
+    const zip = sede?.CAP || "";
+    const province = sede?.Provincia || "";
 
     // 3. Righe
     const items: any[] = [];
-    const datiBeni = Array.isArray(body) ? body[0].DatiBeniServizi : body.DatiBeniServizi;
-    let linee = datiBeni.DettaglioLinee;
+    const datiBeni = body.DatiBeniServizi;
 
-    if (!Array.isArray(linee)) {
-        linee = [linee];
-    }
+    if (datiBeni) {
+        let linee = datiBeni.DettaglioLinee;
+        if (!Array.isArray(linee)) {
+            linee = [linee];
+        }
 
-    for (const line of linee) {
-        items.push({
-            description: line.Descrizione,
-            quantity: parseFloat(line.Quantita || "1"),
-            unitPrice: parseFloat(line.PrezzoUnitario || "0"),
-            totalPrice: parseFloat(line.PrezzoTotale || "0"),
-            vatRate: parseFloat(line.AliquotaIVA || "0")
-        });
+        for (const line of linee) {
+            items.push({
+                description: line.Descrizione || "Articolo",
+                quantity: parseFloat(line.Quantita || "1"),
+                unitPrice: parseFloat(line.PrezzoUnitario || "0"),
+                totalPrice: parseFloat(line.PrezzoTotale || "0"),
+                vatRate: parseFloat(line.AliquotaIVA || "0")
+            });
+        }
     }
 
     return {
@@ -125,13 +148,11 @@ export async function POST(request: NextRequest) {
 
         if (action === 'scan') {
             const files = await findXmlFiles(BASE_INVOICE_PATH);
-            // Exclude p7m for now if simple xml exists? Or just list all.
-            // Simple filter: return count and list of filenames
             return NextResponse.json({
                 success: true,
                 count: files.length,
-                files: files.map(f => path.basename(f)),
-                path: BASE_INVOICE_PATH
+                files: files.map(f => path.relative(process.cwd(), f)),
+                path: "FATTURE (Recursive)"
             });
         }
 
@@ -146,24 +167,30 @@ export async function POST(request: NextRequest) {
 
                 try {
                     const content = await fs.readFile(file, 'utf-8');
-                    // Check if it's already imported?
                     const fileName = path.basename(file);
 
+                    // Determine Type
+                    const type = determineTypeFromPath(file);
+
                     // Parse
-                    const data = parseInvoiceXML(content);
+                    const data = parseInvoiceXML(content, type);
                     if (!data) continue;
 
                     // Idempotency check 
                     // @ts-ignore: Prisma types lag
                     const exists = await prisma.invoice.findFirst({
-                        where: { number: data.number, date: data.date }
+                        where: {
+                            number: data.number,
+                            date: data.date,
+                            type: type
+                        }
                     });
 
                     if (exists) continue; // Skip duplicates
 
-                    // Try to link customer
+                    // Try to link customer (only if SENT)
                     let customerId = null;
-                    if (data.customer.fiscalCode) {
+                    if (type === 'SENT' && data.customer.fiscalCode) {
                         const existingCustomer = await prisma.cliente.findFirst({
                             where: { codiceFiscale: data.customer.fiscalCode }
                         });
@@ -176,11 +203,16 @@ export async function POST(request: NextRequest) {
                         data: {
                             number: data.number,
                             date: data.date,
+                            type: type,
+                            status: "UNPAID",
                             totalAmount: data.total,
+
+                            // Partner Info
                             customerName: data.customer.name,
                             customerFiscalCode: data.customer.fiscalCode,
                             customerVat: data.customer.vat,
                             customerAddress: data.customer.address,
+
                             customerId: customerId,
                             xmlFileName: fileName,
                             items: {
