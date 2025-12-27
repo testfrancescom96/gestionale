@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><FatturaElettronica xmlns="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" versione="FPR12">
+<FatturaElettronicaHeader xmlns="">
+<DatiTrasmissione>
+<IdTrasmittente>
+<IdPaese>IT</IdPaese>
+<IdCodice>07945211006</IdCodice>
+</IdTrasmittente>
+<ProgressivoInvio>0010031770</ProgressivoInvio>
+<FormatoTrasmissione>FPR12</FormatoTrasmissione>
+<CodiceDestinatario>SZLUBAI</CodiceDestinatario>
+<ContattiTrasmittente>
+    <Email xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">hotelbiondi@soluzionecassa.com</Email>
+   </ContattiTrasmittente>
+</DatiTrasmissione>
+<CedentePrestatore>
+   <DatiAnagrafici xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <IdFiscaleIVA>
+     <IdPaese>IT</IdPaese>
+     <IdCodice>01810710473</IdCodice>
+    </IdFiscaleIVA>
+    <CodiceFiscale>01810710473</CodiceFiscale>
+    <Anagrafica>
+     <Denominazione>NUOVA GESTIONE HOTEL BIONDI SRL</Denominazione>
+    </Anagrafica>
+    <RegimeFiscale>RF01</RegimeFiscale>
+   </DatiAnagrafici>
+   <Sede xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Indirizzo>VIALE IV NOVEMBRE N. 83</Indirizzo>
+    <CAP>51016</CAP>
+    <Comune>MONTECATINI TERME</Comune>
+    <Provincia>PT</Provincia>
+    <Nazione>IT</Nazione>
+   </Sede>
+  </CedentePrestatore>
+<CessionarioCommittente>
+   <DatiAnagrafici xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <IdFiscaleIVA>
+     <IdPaese>IT</IdPaese>
+     <IdCodice>02244120685</IdCodice>
+    </IdFiscaleIVA>
+    <Anagrafica>
+     <Denominazione>MINERVA FRANCESCO PIO</Denominazione>
+    </Anagrafica>
+   </DatiAnagrafici>
+   <Sede xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Indirizzo>VIA TEOFILO D'ANNUNZIO 21</Indirizzo>
+    <CAP>65126</CAP>
+    <Comune>PESCARA</Comune>
+    <Provincia>PE</Provincia>
+    <Nazione>IT</Nazione>
+   </Sede>
+  </CessionarioCommittente>
+<TerzoIntermediarioOSoggettoEmittente>
+<DatiAnagrafici>
+<IdFiscaleIVA>
+<IdPaese>IT</IdPaese>
+<IdCodice>07945211006</IdCodice>
+</IdFiscaleIVA>
+<Anagrafica>
+<Denominazione>InfoCert S.p.A.</Denominazione>
+</Anagrafica>
+</DatiAnagrafici>
+</TerzoIntermediarioOSoggettoEmittente>
+<SoggettoEmittente>TZ</SoggettoEmittente>
+</FatturaElettronicaHeader>
+<FatturaElettronicaBody xmlns="">
+  <DatiGenerali xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <DatiGeneraliDocumento>
+    <TipoDocumento>TD01</TipoDocumento>
+    <Divisa>EUR</Divisa>
+    <Data>2025-11-03</Data>
+    <Numero>00125000454</Numero>
+    <ImportoTotaleDocumento>4338.00</ImportoTotaleDocumento>
+    <Causale>grp Comics 31.10/02.11.25 35-1 free pax</Causale>
+   </DatiGeneraliDocumento>
+  </DatiGenerali>
+  <DatiBeniServizi xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <DettaglioLinee>
+    <NumeroLinea>1</NumeroLinea>
+    <Descrizione>MEZZA PENSIONE</Descrizione>
+    <Quantita>68.00</Quantita>
+    <UnitaMisura>pz</UnitaMisura>
+    <PrezzoUnitario>50.00</PrezzoUnitario>
+    <PrezzoTotale>3400.00</PrezzoTotale>
+    <AliquotaIVA>10.00</AliquotaIVA>
+   </DettaglioLinee>
+   <DettaglioLinee>
+    <NumeroLinea>2</NumeroLinea>
+    <Descrizione>SUPPL. SINGOLA</Descrizione>
+    <Quantita>8.00</Quantita>
+    <UnitaMisura>pz</UnitaMisura>
+    <PrezzoUnitario>18.18</PrezzoUnitario>
+    <PrezzoTotale>145.44</PrezzoTotale>
+    <AliquotaIVA>10.00</AliquotaIVA>
+   </DettaglioLinee>
+   <DettaglioLinee>
+    <NumeroLinea>3</NumeroLinea>
+    <Descrizione>PERNOTTAMENTO e COLAZIONE</Descrizione>
+    <Quantita>5.00</Quantita>
+    <UnitaMisura>pz</UnitaMisura>
+    <PrezzoUnitario>40.91</PrezzoUnitario>
+    <PrezzoTotale>204.55</PrezzoTotale>
+    <AliquotaIVA>10.00</AliquotaIVA>
+   </DettaglioLinee>
+   <DettaglioLinee>
+    <NumeroLinea>4</NumeroLinea>
+    <Descrizione>GRATUITA'</Descrizione>
+    <Quantita>1.00</Quantita>
+    <UnitaMisura>pz</UnitaMisura>
+    <PrezzoUnitario>0.00</PrezzoUnitario>
+    <PrezzoTotale>0.00</PrezzoTotale>
+    <AliquotaIVA>0.00</AliquotaIVA>
+    <Natura>N4</Natura>
+   </DettaglioLinee>
+   <DettaglioLinee>
+    <NumeroLinea>5</NumeroLinea>
+    <Descrizione>TASSA DI SOGGIORNO - CITY TAX</Descrizione>
+    <Quantita>71.00</Quantita>
+    <UnitaMisura>pz</UnitaMisura>
+    <PrezzoUnitario>3.00</PrezzoUnitario>
+    <PrezzoTotale>213.00</PrezzoTotale>
+    <AliquotaIVA>0.00</AliquotaIVA>
+    <Natura>N1</Natura>
+   </DettaglioLinee>
+   <DatiRiepilogo>
+    <AliquotaIVA>0.00</AliquotaIVA>
+    <Natura>N1</Natura>
+    <ImponibileImporto>213.00</ImponibileImporto>
+    <Imposta>0.00</Imposta>
+    <EsigibilitaIVA>I</EsigibilitaIVA>
+    <RiferimentoNormativo>Escluso dalla base imponibile art.15</RiferimentoNormativo>
+   </DatiRiepilogo>
+   <DatiRiepilogo>
+    <AliquotaIVA>0.00</AliquotaIVA>
+    <Natura>N4</Natura>
+    <ImponibileImporto>0.00</ImponibileImporto>
+    <Imposta>0.00</Imposta>
+    <EsigibilitaIVA>I</EsigibilitaIVA>
+    <RiferimentoNormativo>Esente art.10 (op.abituali, occasionali  pro rata)</RiferimentoNormativo>
+   </DatiRiepilogo>
+   <DatiRiepilogo>
+    <AliquotaIVA>10.00</AliquotaIVA>
+    <Arrotondamento>0.01</Arrotondamento>
+    <ImponibileImporto>3750.00</ImponibileImporto>
+    <Imposta>375.00</Imposta>
+    <EsigibilitaIVA>I</EsigibilitaIVA>
+   </DatiRiepilogo>
+  </DatiBeniServizi>
+ </FatturaElettronicaBody>
+<ds:Signature Id="id-a3b1be9876a46edd7c82af1c447f71c0"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><ds:Reference Id="r-id-a3b1be9876a46edd7c82af1c447f71c0-1" URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2002/06/xmldsig-filter2"><dsig-filter2:XPath xmlns:dsig-filter2="http://www.w3.org/2002/06/xmldsig-filter2" Filter="subtract">/descendant::ds:Signature</dsig-filter2:XPath></ds:Transform><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>xceAfoYKoISodE6UlJ3fp0ua04lC+oaYzXZHillVagk=</ds:DigestValue></ds:Reference><ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#xades-id-a3b1be9876a46edd7c82af1c447f71c0"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>3+NTYNivjAOeTMteaQaGkzBihgM3UI3CW4r6PQKLcAQ=</ds:DigestValue></ds:Reference><ds:Reference URI="#keyInfo-id-a3b1be9876a46edd7c82af1c447f71c0"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>hsm5WDtRj4uI+ObnyKfUlA1OZl4BwB3wL2eUfKiYt6M=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue Id="value-id-a3b1be9876a46edd7c82af1c447f71c0">ZuzdvZTby7pQAY7XNe06SQxsfQf550xC+XHreQlzGzF9sRYoM+X2fVRb3wisCELJKdSJ3mswD+03SbvcRJXvG9stj7GQUqurO/XT8CE3TaIxpKYkfb+/J2b8vou9YC6O6O1ZKmIRXE7/0TtFHRYv/efW0quhKQJx0MTZxhFoEAyaIBnGZBpeyDQJPnFXuyWlBolYKwWyKwHwqygHzvaPxXdWKV+rReWln7XGvxUtSxhm/zmxDgww239DfPKOw4UHVeVc6MtFiuHVSzhZ1rkjMDgcNbwbbpTbKMIYvXqlVv/9V/0qg6di1F46/PlePJ19FS5R8zrJc9Lp82OFDnPAtA==</ds:SignatureValue><ds:KeyInfo Id="keyInfo-id-a3b1be9876a46edd7c82af1c447f71c0"><ds:X509Data><ds:X509Certificate>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</ds:X509Certificate></ds:X509Data></ds:KeyInfo><ds:Object><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Target="#id-a3b1be9876a46edd7c82af1c447f71c0"><xades:SignedProperties Id="xades-id-a3b1be9876a46edd7c82af1c447f71c0"><xades:SignedSignatureProperties><xades:SigningTime>2025-11-03T13:57:06Z</xades:SigningTime><xades:SigningCertificateV2><xades:Cert><xades:CertDigest><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>p4F3VxnJdJInPzKa6Xa2WuhdwiKHqNirv4vJbQt/21s=</ds:DigestValue></xades:CertDigest><xades:IssuerSerialV2>MIG0MIGrpIGoMIGlMQswCQYDVQQGEwJJVDEYMBYGA1UECgwPSW5mb0NlcnQgUy5wLkEuMSkwJwYDVQQLDCBRdWFsaWZpZWQgVHJ1c3QgU2VydmljZSBQcm92aWRlcjEaMBgGA1UEYQwRVkFUSVQtMDc5NDUyMTEwMDYxNTAzBgNVBAMMLEluZm9DZXJ0IFF1YWxpZmllZCBFbGVjdHJvbmljIFNpZ25hdHVyZSBDQSAzAgQB6D9b</xades:IssuerSerialV2></xades:Cert></xades:SigningCertificateV2></xades:SignedSignatureProperties><xades:SignedDataObjectProperties><xades:DataObjectFormat ObjectReference="#r-id-a3b1be9876a46edd7c82af1c447f71c0-1"><xades:MimeType>application/octet-stream</xades:MimeType></xades:DataObjectFormat></xades:SignedDataObjectProperties></xades:SignedProperties></xades:QualifyingProperties></ds:Object></ds:Signature></FatturaElettronica>

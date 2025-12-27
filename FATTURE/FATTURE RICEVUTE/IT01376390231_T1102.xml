@@ -1,0 +1,668 @@
+<?xml version="1.0" standalone="yes"?>
+<ns2:FatturaElettronica xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:ns2="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" versione="FPR12">
+  <FatturaElettronicaHeader>
+    <DatiTrasmissione>
+      <IdTrasmittente>
+        <IdPaese>IT</IdPaese>
+        <IdCodice>01376390231</IdCodice>
+      </IdTrasmittente>
+      <ProgressivoInvio>0000225864</ProgressivoInvio>
+      <FormatoTrasmissione>FPR12</FormatoTrasmissione>
+      <CodiceDestinatario>0000000</CodiceDestinatario>
+      <ContattiTrasmittente>
+        <Telefono>0457610233</Telefono>
+        <Email>info@soavehotel.it</Email>
+      </ContattiTrasmittente>
+      <PECDestinatario>minervafrancescopio@pec.it</PECDestinatario>
+    </DatiTrasmissione>
+    <CedentePrestatore>
+      <DatiAnagrafici>
+        <IdFiscaleIVA>
+          <IdPaese>IT</IdPaese>
+          <IdCodice>01376390231</IdCodice>
+        </IdFiscaleIVA>
+        <Anagrafica>
+          <Denominazione>SHR S.r.l.</Denominazione>
+          <CodEORI>IT01376390231</CodEORI>
+        </Anagrafica>
+        <RegimeFiscale>RF01</RegimeFiscale>
+      </DatiAnagrafici>
+      <Sede>
+        <Indirizzo>Località Ritonda, 82</Indirizzo>
+        <CAP>37047</CAP>
+        <Comune>San Bonifacio</Comune>
+        <Provincia>VR</Provincia>
+        <Nazione>IT</Nazione>
+      </Sede>
+      <IscrizioneREA>
+        <Ufficio>VR</Ufficio>
+        <NumeroREA>VR177903</NumeroREA>
+        <CapitaleSociale>10400.00</CapitaleSociale>
+        <SocioUnico>SM</SocioUnico>
+        <StatoLiquidazione>LN</StatoLiquidazione>
+      </IscrizioneREA>
+      <Contatti>
+        <Telefono>0457610233</Telefono>
+        <Fax>0457613733</Fax>
+        <Email>info@soavehotel.it</Email>
+      </Contatti>
+    </CedentePrestatore>
+    <CessionarioCommittente>
+      <DatiAnagrafici>
+        <IdFiscaleIVA>
+          <IdPaese>IT</IdPaese>
+          <IdCodice>02244120685</IdCodice>
+        </IdFiscaleIVA>
+        <CodiceFiscale>MNRFNC96C20H926Q</CodiceFiscale>
+        <Anagrafica>
+          <Denominazione>FRANCESCO PIO MINERVA</Denominazione>
+        </Anagrafica>
+      </DatiAnagrafici>
+      <Sede>
+        <Indirizzo>VIA BENEDETTO CROCE, 252</Indirizzo>
+        <CAP>65126</CAP>
+        <Comune>PESCARA</Comune>
+        <Provincia>PE</Provincia>
+        <Nazione>IT</Nazione>
+      </Sede>
+    </CessionarioCommittente>
+<TerzoIntermediarioOSoggettoEmittente>
+<DatiAnagrafici>
+<IdFiscaleIVA>
+<IdPaese>IT</IdPaese>
+<IdCodice>01171870122</IdCodice>
+</IdFiscaleIVA>
+<Anagrafica>
+<Denominazione>GRUPPO SIGES S.R.L.</Denominazione>
+</Anagrafica>
+</DatiAnagrafici>
+</TerzoIntermediarioOSoggettoEmittente>
+<SoggettoEmittente>TZ</SoggettoEmittente>
+</FatturaElettronicaHeader>
+  <FatturaElettronicaBody>
+    <DatiGenerali>
+      <DatiGeneraliDocumento>
+        <TipoDocumento>TD01</TipoDocumento>
+        <Divisa>EUR</Divisa>
+        <Data>2025-10-27</Data>
+        <Numero>SOAVEH          4744</Numero>
+        <ImportoTotaleDocumento>1595.00</ImportoTotaleDocumento>
+        <Causale>FATTURA4744</Causale>
+      </DatiGeneraliDocumento>
+    </DatiGenerali>
+    <DatiBeniServizi>
+      <DettaglioLinee>
+        <NumeroLinea>1</NumeroLinea>
+        <Descrizione>Letizia Di Donato Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>2</NumeroLinea>
+        <Descrizione>Letizia Di Donato City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>3</NumeroLinea>
+        <Descrizione>Letizia Di Donato Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>4</NumeroLinea>
+        <Descrizione>Ombretta Catalusci Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>62.72727273</PrezzoUnitario>
+        <PrezzoTotale>62.72727273</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>5</NumeroLinea>
+        <Descrizione>Ombretta Catalusci City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>3.00</PrezzoUnitario>
+        <PrezzoTotale>3.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>6</NumeroLinea>
+        <Descrizione>Ombretta Catalusci Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>0.90909091</PrezzoUnitario>
+        <PrezzoTotale>0.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>7</NumeroLinea>
+        <Descrizione>Maria Andreina Luongo Ruggiero Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>8</NumeroLinea>
+        <Descrizione>Maria Andreina Luongo Ruggiero City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>9</NumeroLinea>
+        <Descrizione>Maria Andreina Luongo Ruggiero Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>10</NumeroLinea>
+        <Descrizione>Fabrizio Marinelli Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>-0.90909091</PrezzoUnitario>
+        <PrezzoTotale>-0.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>11</NumeroLinea>
+        <Descrizione>Fabrizio Marinelli Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>0.90909091</PrezzoUnitario>
+        <PrezzoTotale>0.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>12</NumeroLinea>
+        <Descrizione>Grazia Prosperi Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>62.72727273</PrezzoUnitario>
+        <PrezzoTotale>62.72727273</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>13</NumeroLinea>
+        <Descrizione>Grazia Prosperi City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>3.00</PrezzoUnitario>
+        <PrezzoTotale>3.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>14</NumeroLinea>
+        <Descrizione>Grazia Prosperi Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>0.90909091</PrezzoUnitario>
+        <PrezzoTotale>0.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>15</NumeroLinea>
+        <Descrizione>Giulia Ciabarra Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>16</NumeroLinea>
+        <Descrizione>Giulia Ciabarra City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>17</NumeroLinea>
+        <Descrizione>Giulia Ciabarra Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>18</NumeroLinea>
+        <Descrizione>Daniele Di Rino Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>19</NumeroLinea>
+        <Descrizione>Daniele Di Rino City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>20</NumeroLinea>
+        <Descrizione>Daniele Di Rino Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>21</NumeroLinea>
+        <Descrizione>Daniele Lerza Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>22</NumeroLinea>
+        <Descrizione>Daniele Lerza City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>23</NumeroLinea>
+        <Descrizione>Daniele Lerza Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>24</NumeroLinea>
+        <Descrizione>Noemi Piccirelli Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>25</NumeroLinea>
+        <Descrizione>Noemi Piccirelli City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>26</NumeroLinea>
+        <Descrizione>Noemi Piccirelli Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>27</NumeroLinea>
+        <Descrizione>Lucrezia Civitavese Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>28</NumeroLinea>
+        <Descrizione>Lucrezia Civitavese City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>29</NumeroLinea>
+        <Descrizione>Lucrezia Civitavese Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>30</NumeroLinea>
+        <Descrizione>Simone D&apos;Andreamatteo Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>31</NumeroLinea>
+        <Descrizione>Simone D&apos;Andreamatteo City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>32</NumeroLinea>
+        <Descrizione>Simone D&apos;Andreamatteo Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>33</NumeroLinea>
+        <Descrizione>Chiara Bellisario Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>34</NumeroLinea>
+        <Descrizione>Chiara Bellisario City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>35</NumeroLinea>
+        <Descrizione>Chiara Bellisario Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>36</NumeroLinea>
+        <Descrizione>Benedetta Bernabeo Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>37</NumeroLinea>
+        <Descrizione>Benedetta Bernabeo City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>38</NumeroLinea>
+        <Descrizione>Benedetta Bernabeo Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>39</NumeroLinea>
+        <Descrizione>Veronica Di Natale Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>40</NumeroLinea>
+        <Descrizione>Veronica Di Natale City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>41</NumeroLinea>
+        <Descrizione>Veronica Di Natale Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>42</NumeroLinea>
+        <Descrizione>Annarita Pellegrini Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>43</NumeroLinea>
+        <Descrizione>Annarita Pellegrini City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>44</NumeroLinea>
+        <Descrizione>Annarita Pellegrini Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>45</NumeroLinea>
+        <Descrizione>Concettina Volpicella Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>46</NumeroLinea>
+        <Descrizione>Concettina Volpicella City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>47</NumeroLinea>
+        <Descrizione>Concettina Volpicella Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>48</NumeroLinea>
+        <Descrizione>Fabrizio Bernabeo Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>49</NumeroLinea>
+        <Descrizione>Fabrizio Bernabeo City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>50</NumeroLinea>
+        <Descrizione>Fabrizio Bernabeo Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>51</NumeroLinea>
+        <Descrizione>Antonella Sorino Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>52</NumeroLinea>
+        <Descrizione>Antonella Sorino City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>53</NumeroLinea>
+        <Descrizione>Antonella Sorino Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>54</NumeroLinea>
+        <Descrizione>Simone Pettine Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>70.90909091</PrezzoUnitario>
+        <PrezzoTotale>70.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>55</NumeroLinea>
+        <Descrizione>Simone Pettine City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>6.00</PrezzoUnitario>
+        <PrezzoTotale>6.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>56</NumeroLinea>
+        <Descrizione>Simone Pettine Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>1.81818182</PrezzoUnitario>
+        <PrezzoTotale>1.81818182</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>57</NumeroLinea>
+        <Descrizione>Nadia Di Pasquale Accomodation  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>62.72727273</PrezzoUnitario>
+        <PrezzoTotale>62.72727273</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>58</NumeroLinea>
+        <Descrizione>Nadia Di Pasquale City Tax  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>3.00</PrezzoUnitario>
+        <PrezzoTotale>3.00</PrezzoTotale>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>59</NumeroLinea>
+        <Descrizione>Nadia Di Pasquale Colazione Inclusa  GO ON THE ROAD</Descrizione>
+        <Quantita>1.00</Quantita>
+        <UnitaMisura>Unit</UnitaMisura>
+        <PrezzoUnitario>0.90909091</PrezzoUnitario>
+        <PrezzoTotale>0.90909091</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DatiRiepilogo>
+        <AliquotaIVA>10.00</AliquotaIVA>
+        <ImponibileImporto>1354.55</ImponibileImporto>
+        <Imposta>135.45</Imposta>
+        <EsigibilitaIVA>I</EsigibilitaIVA>
+      </DatiRiepilogo>
+      <DatiRiepilogo>
+        <AliquotaIVA>0.00</AliquotaIVA>
+        <Natura>N1</Natura>
+        <ImponibileImporto>105.00</ImponibileImporto>
+        <Imposta>0.00</Imposta>
+        <EsigibilitaIVA>I</EsigibilitaIVA>
+        <RiferimentoNormativo>Escluse ex Art.15</RiferimentoNormativo>
+      </DatiRiepilogo>
+    </DatiBeniServizi>
+    <DatiPagamento>
+      <CondizioniPagamento>TP02</CondizioniPagamento>
+      <DettaglioPagamento>
+        <ModalitaPagamento>MP05</ModalitaPagamento>
+        <DataRiferimentoTerminiPagamento>2025-10-26</DataRiferimentoTerminiPagamento>
+        <ImportoPagamento>1595.00</ImportoPagamento>
+      </DettaglioPagamento>
+    </DatiPagamento>
+  </FatturaElettronicaBody>
+</ns2:FatturaElettronica>

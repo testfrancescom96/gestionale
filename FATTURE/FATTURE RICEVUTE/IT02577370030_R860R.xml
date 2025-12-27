@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="fatturapa_v1.2.xsl"?><ns3:FatturaElettronica xmlns:ns3="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" versione="FPR12" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#">
+    <FatturaElettronicaHeader>
+        <DatiTrasmissione>
+            <IdTrasmittente>
+                <IdPaese>IT</IdPaese>
+                <IdCodice>02577370030</IdCodice>
+            </IdTrasmittente>
+            <ProgressivoInvio>R860R</ProgressivoInvio>
+            <FormatoTrasmissione>FPR12</FormatoTrasmissione>
+            <CodiceDestinatario>0000000</CodiceDestinatario>
+        </DatiTrasmissione>
+        <CedentePrestatore>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>12471480157</IdCodice>
+                </IdFiscaleIVA>
+                <CodiceFiscale>12471480157</CodiceFiscale>
+                <Anagrafica>
+                    <Denominazione>TicketOne S.p.A.</Denominazione>
+                </Anagrafica>
+                <RegimeFiscale>RF01</RegimeFiscale>
+            </DatiAnagrafici>
+            <Sede>
+                <Indirizzo>Via Fabio Filzi 29</Indirizzo>
+                <CAP>20124</CAP>
+                <Comune>MILANO</Comune>
+                <Provincia>MI</Provincia>
+                <Nazione>IT</Nazione>
+            </Sede>
+        </CedentePrestatore>
+        <CessionarioCommittente>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>02244120685</IdCodice>
+                </IdFiscaleIVA>
+                <CodiceFiscale>MNRFNC96C20H926Q</CodiceFiscale>
+                <Anagrafica>
+                    <Denominazione>FRANCESCO PIO MINERVA</Denominazione>
+                </Anagrafica>
+            </DatiAnagrafici>
+            <Sede>
+                <Indirizzo>Via Benedetto Croce 252</Indirizzo>
+                <CAP>65126</CAP>
+                <Comune>Pescara</Comune>
+                <Provincia>PE</Provincia>
+                <Nazione>IT</Nazione>
+            </Sede>
+        </CessionarioCommittente>
+        <TerzoIntermediarioOSoggettoEmittente>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>09622260017</IdCodice>
+                </IdFiscaleIVA>
+                <Anagrafica>
+                    <Denominazione>Giotto Srl</Denominazione>
+                </Anagrafica>
+            </DatiAnagrafici>
+        </TerzoIntermediarioOSoggettoEmittente>
+        <SoggettoEmittente>TZ</SoggettoEmittente>
+    </FatturaElettronicaHeader>
+    <FatturaElettronicaBody>
+        <DatiGenerali>
+            <DatiGeneraliDocumento>
+                <TipoDocumento>TD01</TipoDocumento>
+                <Divisa>EUR</Divisa>
+                <Data>2025-11-19</Data>
+                <Numero>ES07702971</Numero>
+                <ImportoTotaleDocumento>8.86</ImportoTotaleDocumento>
+                <Causale>Ordine N.229207362(1282542678) del 19/11/2025</Causale>
+            </DatiGeneraliDocumento>
+            <DatiOrdineAcquisto>
+                <IdDocumento>ES07702971</IdDocumento>
+                <NumItem>2</NumItem>
+                <CodiceCommessaConvenzione>126.50</CodiceCommessaConvenzione>
+            </DatiOrdineAcquisto>
+            <DatiContratto>
+                <IdDocumento>ES07702971</IdDocumento>
+                <NumItem>0</NumItem>
+                <CodiceCommessaConvenzione>0.00</CodiceCommessaConvenzione>
+            </DatiContratto>
+        </DatiGenerali>
+        <DatiBeniServizi>
+            <DettaglioLinee>
+                <NumeroLinea>1</NumeroLinea>
+                <Descrizione>Commissione di servizio   Ordine</Descrizione>
+                <Quantita>1.00</Quantita>
+                <PrezzoUnitario>7.260</PrezzoUnitario>
+                <PrezzoTotale>7.260</PrezzoTotale>
+                <AliquotaIVA>22.00</AliquotaIVA>
+            </DettaglioLinee>
+            <DatiRiepilogo>
+                <AliquotaIVA>22.00</AliquotaIVA>
+                <ImponibileImporto>7.26</ImponibileImporto>
+                <Imposta>1.60</Imposta>
+            </DatiRiepilogo>
+        </DatiBeniServizi>
+        <DatiPagamento>
+            <CondizioniPagamento>TP02</CondizioniPagamento>
+            <DettaglioPagamento>
+                <Beneficiario>TicketOne S.p.A.</Beneficiario>
+                <ModalitaPagamento>MP08</ModalitaPagamento>
+                <ImportoPagamento>0.00</ImportoPagamento>
+            </DettaglioPagamento>
+        </DatiPagamento>
+    </FatturaElettronicaBody>
+<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="id-420e6f2fd1d111283dfe073b9e6a90b1"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><ds:Reference Id="r-id-420e6f2fd1d111283dfe073b9e6a90b1-1" URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2002/06/xmldsig-filter2"><dsig-filter2:XPath xmlns:dsig-filter2="http://www.w3.org/2002/06/xmldsig-filter2" Filter="subtract" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">/descendant::ds:Signature</dsig-filter2:XPath></ds:Transform><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>E6Gf1GS8EclursigWr8hnHES1qxI/XC+tmesksReq60=</ds:DigestValue></ds:Reference><ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#xades-id-420e6f2fd1d111283dfe073b9e6a90b1"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>lL9aer80u1bvnTIsHcMgmeuGxbfeE/Gh6tcfjMwS/IM=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue Id="value-id-420e6f2fd1d111283dfe073b9e6a90b1">P4mbRZoptWCSgIX9TjKug7E2xpQjhLN7sREW7LbpgSO9xUSp2brkfNa1ZOkHDfbxgVo9nBqhjszItVQnRIn7UTDpFQGHO6nLd1Cwi2Pi1x6rJScJIwuFtXrp6pQK7woRVNc0X+aFdUEWoataqncE7hgfOyzsQLEsgXwJZ6OJZULlHszL55KB5Z83wlJUk0O16E19h6L4KBxeaaMghKlDFyAVcECD6JaWn4qqsyEKSrTGKt1RkUU3MjcJNbmX4J3xi+PZgvAGMmUHmBPaKWV3FxnRDGzkeGPeeRZLNYdGeePjb4KPCThGFCen7YB2yeB42g42znBIIBMS2w8JxeKxaQ==</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>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</ds:X509Certificate></ds:X509Data></ds:KeyInfo><ds:Object><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Target="#id-420e6f2fd1d111283dfe073b9e6a90b1"><xades:SignedProperties Id="xades-id-420e6f2fd1d111283dfe073b9e6a90b1"><xades:SignedSignatureProperties><xades:SigningTime>2025-11-22T17:46:34Z</xades:SigningTime><xades:SigningCertificate><xades:Cert><xades:CertDigest><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>PSSPL/PrTMI0iDfKNL8jnkKl/ybAER/jaBfa8lpepM4=</ds:DigestValue></xades:CertDigest><xades:IssuerSerial><ds:X509IssuerName>CN=Namirial CA Firma Qualificata,OU=Certification Authority,O=Namirial S.p.A./02046570426,C=IT</ds:X509IssuerName><ds:X509SerialNumber>7588954922083434561</ds:X509SerialNumber></xades:IssuerSerial></xades:Cert></xades:SigningCertificate></xades:SignedSignatureProperties><xades:SignedDataObjectProperties><xades:DataObjectFormat ObjectReference="#r-id-420e6f2fd1d111283dfe073b9e6a90b1-1"><xades:MimeType>application/octet-stream</xades:MimeType></xades:DataObjectFormat></xades:SignedDataObjectProperties></xades:SignedProperties></xades:QualifyingProperties></ds:Object></ds:Signature></ns3:FatturaElettronica>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="fatturapa_v1.2.xsl"?>
+<p:FatturaElettronica versione="FPR12" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<FatturaElettronicaHeader>
+<DatiTrasmissione>
+<IdTrasmittente>
+<IdPaese>IT</IdPaese>
+<IdCodice>05262890014</IdCodice>
+</IdTrasmittente>
+<ProgressivoInvio>E25V884062</ProgressivoInvio>
+<FormatoTrasmissione>FPR12</FormatoTrasmissione>
+<CodiceDestinatario>BA6ET11</CodiceDestinatario>
+<ContattiTrasmittente>
+</ContattiTrasmittente>
+</DatiTrasmissione>
+<CedentePrestatore>
+<DatiAnagrafici>
+<IdFiscaleIVA>
+<IdPaese>IT</IdPaese>
+<IdCodice>09429840151</IdCodice>
+</IdFiscaleIVA>
+<CodiceFiscale>01014660417</CodiceFiscale>
+<Anagrafica>
+<Denominazione>EDENRED ITALIA Srl</Denominazione>
+</Anagrafica>
+<RegimeFiscale>RF01</RegimeFiscale>
+</DatiAnagrafici>
+<Sede>
+<Indirizzo>VIA PIRELLI 18</Indirizzo>
+<CAP>20124</CAP>
+<Comune>MILANO</Comune>
+<Provincia>MI</Provincia>
+<Nazione>IT</Nazione>
+</Sede>
+<Contatti>
+</Contatti>
+
+</CedentePrestatore>
+<CessionarioCommittente>
+<DatiAnagrafici>
+<IdFiscaleIVA><IdPaese>IT</IdPaese><IdCodice>02244120685</IdCodice></IdFiscaleIVA>
+<Anagrafica>
+<Denominazione>MINERVA FRANCESCO PIO</Denominazione>
+</Anagrafica>
+</DatiAnagrafici>
+<Sede>
+<Indirizzo>VIA FRANCESCO FERDINANDO D'AVALOS 107</Indirizzo>
+<CAP>65126</CAP>
+<Comune>PESCARA</Comune>
+<Nazione>IT</Nazione>
+</Sede>
+</CessionarioCommittente>
+</FatturaElettronicaHeader>
+<FatturaElettronicaBody>
+<DatiGenerali>
+<DatiGeneraliDocumento>
+<TipoDocumento>TD01</TipoDocumento>
+<Divisa>EUR</Divisa>
+<Data>2025-12-02</Data>
+<Numero>V884062</Numero>
+<ImportoTotaleDocumento>45.46</ImportoTotaleDocumento>
+
+</DatiGeneraliDocumento>
+<DatiContratto>
+<RiferimentoNumeroLinea>1</RiferimentoNumeroLinea>
+<IdDocumento>408202/09092024</IdDocumento>
+<Data>2024-09-09</Data>
+</DatiContratto>
+</DatiGenerali>
+<DatiBeniServizi>
+<DettaglioLinee>
+<NumeroLinea>1</NumeroLinea>
+<TipoCessionePrestazione>AC</TipoCessionePrestazione>
+<Descrizione>In riferimento al Vostro Documento n.408202/0004 del 02/12/2025: Commissione Ticket Welfare          6.00% su              621.00</Descrizione>
+<PrezzoUnitario>37.26</PrezzoUnitario>
+<PrezzoTotale>37.26</PrezzoTotale>
+<AliquotaIVA>22.00</AliquotaIVA>
+</DettaglioLinee>
+
+<DatiRiepilogo>
+<AliquotaIVA>22.00</AliquotaIVA>
+<ImponibileImporto>37.26</ImponibileImporto>
+<Imposta>8.20</Imposta>
+<EsigibilitaIVA>I</EsigibilitaIVA>
+</DatiRiepilogo>
+</DatiBeniServizi>
+<DatiPagamento>
+<CondizioniPagamento>TP02</CondizioniPagamento>
+<DettaglioPagamento>
+<ModalitaPagamento>MP22</ModalitaPagamento>
+<ImportoPagamento>45.46</ImportoPagamento>
+</DettaglioPagamento>
+</DatiPagamento>
+</FatturaElettronicaBody>
+</p:FatturaElettronica>

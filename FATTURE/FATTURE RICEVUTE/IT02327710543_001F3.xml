@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<p:FatturaElettronica xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" versione="FPR12">
+	<FatturaElettronicaHeader>
+		<DatiTrasmissione>
+			<IdTrasmittente>
+				<IdPaese>IT</IdPaese>
+				<IdCodice>02327710543</IdCodice>
+			</IdTrasmittente>
+			<ProgressivoInvio>110444</ProgressivoInvio>
+			<FormatoTrasmissione>FPR12</FormatoTrasmissione>
+			<CodiceDestinatario>BA6ET11</CodiceDestinatario>
+			<ContattiTrasmittente>
+				<Telefono>075/5058753</Telefono>
+				<Email>segreteria@minimetrospa.it</Email>
+			</ContattiTrasmittente>
+		</DatiTrasmissione>
+		<CedentePrestatore>
+			<DatiAnagrafici>
+				<IdFiscaleIVA>
+					<IdPaese>IT</IdPaese>
+					<IdCodice>02327710543</IdCodice>
+				</IdFiscaleIVA>
+				<CodiceFiscale>02327710543</CodiceFiscale>
+				<Anagrafica>
+					<Denominazione>MINIMETRO&apos; S.P.A.</Denominazione>
+				</Anagrafica>
+				<RegimeFiscale>RF01</RegimeFiscale>
+			</DatiAnagrafici>
+			<Sede>
+				<Indirizzo>PIAZZA UMBRIA JAZZ 1 LOC. PIAN DI MASSIANO</Indirizzo>
+				<CAP>06125</CAP>
+				<Comune>PERUGIA</Comune>
+				<Provincia>PG</Provincia>
+				<Nazione>IT</Nazione>
+			</Sede>
+			<Contatti>
+				<Telefono>075/5058753</Telefono>
+				<Email>segreteria@minimetrospa.it</Email>
+			</Contatti>
+		</CedentePrestatore>
+		<CessionarioCommittente>
+			<DatiAnagrafici>
+				<IdFiscaleIVA>
+					<IdPaese>IT</IdPaese>
+					<IdCodice>02244120685</IdCodice>
+				</IdFiscaleIVA>
+				<CodiceFiscale>MNRFNC96C20H926Q</CodiceFiscale>
+				<Anagrafica>
+					<Nome>FRANCESCO PIO</Nome>
+					<Cognome>MINERVA</Cognome>
+				</Anagrafica>
+			</DatiAnagrafici>
+			<Sede>
+				<Indirizzo>VIA BENEDETTO CROCE 252</Indirizzo>
+				<CAP>65126</CAP>
+				<Comune>PESCARA</Comune>
+				<Provincia>PE</Provincia>
+				<Nazione>IT</Nazione>
+			</Sede>
+		</CessionarioCommittente>
+	</FatturaElettronicaHeader>
+	<FatturaElettronicaBody>
+		<DatiGenerali>
+			<DatiGeneraliDocumento>
+				<TipoDocumento>TD01</TipoDocumento>
+				<Divisa>EUR</Divisa>
+				<Data>2025-11-14</Data>
+				<Numero>143</Numero>
+				<ImportoTotaleDocumento>240.00</ImportoTotaleDocumento>
+				<Causale>FATTURA</Causale>
+				<Causale>Vendita titoli di viaggio</Causale>
+			</DatiGeneraliDocumento>
+			<DatiTrasporto>
+				<IndirizzoResa>
+					<Indirizzo>VIA BENEDETTO CROCE 252</Indirizzo>
+					<CAP>65126</CAP>
+					<Comune>PESCARA</Comune>
+					<Provincia>PE</Provincia>
+					<Nazione>IT</Nazione>
+				</IndirizzoResa>
+			</DatiTrasporto>
+		</DatiGenerali>
+		<DatiBeniServizi>
+			<DettaglioLinee>
+				<NumeroLinea>1</NumeroLinea>
+				<Descrizione>Titoli di viaggio Corsa Singola UP Seriali dal n. 3118335 al n. 3118494 - pagamento avvenuto tramite bonifico bancario anticipato</Descrizione>
+				<Quantita>160.00</Quantita>
+				<UnitaMisura>N.</UnitaMisura>
+				<PrezzoUnitario>1.363625</PrezzoUnitario>
+				<PrezzoTotale>218.18</PrezzoTotale>
+				<AliquotaIVA>10.00</AliquotaIVA>
+			</DettaglioLinee>
+			<DatiRiepilogo>
+				<AliquotaIVA>10.00</AliquotaIVA>
+				<ImponibileImporto>218.18</ImponibileImporto>
+				<Imposta>21.82</Imposta>
+				<EsigibilitaIVA>I</EsigibilitaIVA>
+				<RiferimentoNormativo>10% - GENERICO</RiferimentoNormativo>
+			</DatiRiepilogo>
+		</DatiBeniServizi>
+		<DatiPagamento>
+			<CondizioniPagamento>TP02</CondizioniPagamento>
+			<DettaglioPagamento>
+				<ModalitaPagamento>MP05</ModalitaPagamento>
+				<DataRiferimentoTerminiPagamento>2025-11-14</DataRiferimentoTerminiPagamento>
+				<DataScadenzaPagamento>2025-11-14</DataScadenzaPagamento>
+				<ImportoPagamento>240.00</ImportoPagamento>
+			</DettaglioPagamento>
+		</DatiPagamento>
+	</FatturaElettronicaBody>
+</p:FatturaElettronica>
+

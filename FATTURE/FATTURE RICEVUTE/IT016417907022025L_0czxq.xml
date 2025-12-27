@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><ns3:FatturaElettronica xmlns:ns3="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" versione="FPR12">
+    <FatturaElettronicaHeader>
+        <DatiTrasmissione>
+            <IdTrasmittente>
+                <IdPaese>IT</IdPaese>
+                <IdCodice>01641790702</IdCodice>
+            </IdTrasmittente>
+            <ProgressivoInvio>00004vmc9e</ProgressivoInvio>
+            <FormatoTrasmissione>FPR12</FormatoTrasmissione>
+            <CodiceDestinatario>0000000</CodiceDestinatario>
+            <ContattiTrasmittente>
+                <Telefono>0874-60561</Telefono>
+            </ContattiTrasmittente>
+        </DatiTrasmissione>
+        <CedentePrestatore>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>02824850693</IdCodice>
+                </IdFiscaleIVA>
+                <CodiceFiscale>02824850693</CodiceFiscale>
+                <Anagrafica>
+                    <Denominazione>FRENTANIA BUS SRLS</Denominazione>
+                </Anagrafica>
+                <RegimeFiscale>RF01</RegimeFiscale>
+            </DatiAnagrafici>
+            <Sede>
+                <Indirizzo>VIA LENTESCO 6</Indirizzo>
+                <CAP>66032</CAP>
+                <Comune>CASTEL FRENTANO</Comune>
+                <Provincia>CH</Provincia>
+                <Nazione>IT</Nazione>
+            </Sede>
+        </CedentePrestatore>
+        <CessionarioCommittente>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>02244120685</IdCodice>
+                </IdFiscaleIVA>
+                <CodiceFiscale>MNRFNC96C20H926Q</CodiceFiscale>
+                <Anagrafica>
+                    <Denominazione>MINERVA FRANCESCO PIO</Denominazione>
+                </Anagrafica>
+            </DatiAnagrafici>
+            <Sede>
+                <Indirizzo>VIA FRANCESCO FERDINANDO D'AVALOS 107</Indirizzo>
+                <CAP>65126</CAP>
+                <Comune>PESCARA</Comune>
+                <Provincia>PE</Provincia>
+                <Nazione>IT</Nazione>
+            </Sede>
+        </CessionarioCommittente>
+        <TerzoIntermediarioOSoggettoEmittente>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>01641790702</IdCodice>
+                </IdFiscaleIVA>
+                <CodiceFiscale>01641790702</CodiceFiscale>
+                <Anagrafica>
+                    <Denominazione>TEAMSYSTEM SERVICE SRL</Denominazione>
+                </Anagrafica>
+            </DatiAnagrafici>
+        </TerzoIntermediarioOSoggettoEmittente>
+        <SoggettoEmittente>TZ</SoggettoEmittente>
+    </FatturaElettronicaHeader>
+    <FatturaElettronicaBody>
+        <DatiGenerali>
+            <DatiGeneraliDocumento>
+                <TipoDocumento>TD01</TipoDocumento>
+                <Divisa>EUR</Divisa>
+                <Data>2025-12-09</Data>
+                <Numero>74</Numero>
+                <ImportoTotaleDocumento>3050.00</ImportoTotaleDocumento>
+                <Causale>Vi rimettiamo fattura per n. 3 viaggi</Causale>
+            </DatiGeneraliDocumento>
+        </DatiGenerali>
+        <DatiBeniServizi>
+            <DettaglioLinee>
+                <NumeroLinea>1</NumeroLinea>
+                <Descrizione>Fattura noleggio bus // -2.12.2025 : Registrazioni televisive Roma :950,00Euro ;  -8.12.2025 : Visita città di Roma:1.150,00 Euro ;  -9.12.2025 :Registrazioni televisive Roma :950,00 Euro .</Descrizione>
+                <Quantita>1.00</Quantita>
+                <PrezzoUnitario>2772.73</PrezzoUnitario>
+                <PrezzoTotale>2772.73</PrezzoTotale>
+                <AliquotaIVA>10.00</AliquotaIVA>
+            </DettaglioLinee>
+            <DatiRiepilogo>
+                <AliquotaIVA>10.00</AliquotaIVA>
+                <ImponibileImporto>2772.73</ImponibileImporto>
+                <Imposta>277.27</Imposta>
+                <EsigibilitaIVA>I</EsigibilitaIVA>
+            </DatiRiepilogo>
+        </DatiBeniServizi>
+        <DatiPagamento>
+            <CondizioniPagamento>TP02</CondizioniPagamento>
+            <DettaglioPagamento>
+                <ModalitaPagamento>MP05</ModalitaPagamento>
+                <DataScadenzaPagamento>2025-12-09</DataScadenzaPagamento>
+                <ImportoPagamento>3050.00</ImportoPagamento>
+            </DettaglioPagamento>
+        </DatiPagamento>
+    </FatturaElettronicaBody>
+<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="id-84354ec6cd488386640fa58770e6ebb7"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><ds:Reference URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2002/06/xmldsig-filter2"><dsig-xpath:XPath xmlns:dsig-xpath="http://www.w3.org/2002/06/xmldsig-filter2" Filter="subtract">/descendant::ds:Signature</dsig-xpath:XPath></ds:Transform><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>8fyleq2+UoDkqIYo+k1Se8q+Ls05/hWGMZ2ZU+9HSDE=</ds:DigestValue></ds:Reference><ds:Reference URI="#keyinfo-id-84354ec6cd488386640fa58770e6ebb7"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>fWycRHIzxYU6TV2LNCYm+5megHNe+jWWzMHf2WoAZeU=</ds:DigestValue></ds:Reference><ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#xades-id-84354ec6cd488386640fa58770e6ebb7"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>n69ZGqCJ5s73u8rUSRDszaSh9kBCEqtOP6HV4HNhWNI=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue Id="value-id-84354ec6cd488386640fa58770e6ebb7">g1Mb5n0W3zgf50b++qaEow0XglQ7W+FYA6NkFdvA8Ns/dBqqWnkIQ8IIaG/MjMBcS311nvcpkUEdzB+cAUUXjQsBbkdXz1XxSUEHvn8MZlL37aTn6Riz9HHs8yomwlehlTq/XFOEzcxFj/T4s/tUO0oe2dIhm/VzPCJFxr2kyC0/ffnfJQ4xYvrKks4l4/JuYFr2v+KygO61x+fQ86vYZWLyAtxgM8HrWoL4105hC4EagWc5vGLTtmfyjTfvraZ0Ffxzlwsx1aZYsUTmKcMb1DyE91M/LvBCicOdE2m2Y+UB/+mcjFkSZzaV6p87tPLS7uSC9wwCbcY43ZKRkkfSBA==</ds:SignatureValue><ds:KeyInfo Id="keyinfo-id-84354ec6cd488386640fa58770e6ebb7"><ds:X509Data><ds:X509Certificate>MIIIkDCCB3igAwIBAgIICxdy4KvP5IgwDQYJKoZIhvcNAQELBQAwfTELMAkGA1UEBhMCSVQxJDAiBgNVBAoMG05hbWlyaWFsIFMucC5BLi8wMjA0NjU3MDQyNjEgMB4GA1UECwwXQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkxJjAkBgNVBAMMHU5hbWlyaWFsIENBIEZpcm1hIFF1YWxpZmljYXRhMB4XDTI1MDUyOTA5NDMwMFoXDTI4MDUyNzIyMDAwMFowgY8xCzAJBgNVBAYTAklUMRIwEAYDVQQEDAlESSBSSUVOWk8xEDAOBgNVBCoMB01JQ0hFTEUxHzAdBgNVBAUTFlRJTklULURSTk1ITDY2RTMwWjQwMVcxGjAYBgNVBAMMEURJIFJJRU5aTyBNSUNIRUxFMR0wGwYDVQQuExRBVURNMjAyNTA1MjkxNjg2NjQyNTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANwm8MFhChQOkuoFqT7piK85179+djWpH8/L60ul7IrgEfHA2DZA0Ikhf66BSvRizm+b/qd9WzMrPaM+j8ipBC0F4FnaE0MLWIbPphyjp5ih+DtEMZtfjnMQtToB69TIVasWtGBdKr9L8PEwS/3cGvVNJEHwIsyQOdNzI+SLPXVF/F1owX03dfaaQdr8REsIRAt+ScTopZOGjba5GBPsMJ9zsfcRVvJsVh7hT+jMI6fT6SMTul4Uk6J6jlYX4pQo/Un8T0m5WpmI2/OZ5aSljlZbXCK3Wd/9kYmwHXatVIIeBqgb+nD3HaQip3kme2JELakbxXlIyTDCbU4viSM0HfcCAwEAAaOCBP8wggT7MIGcBggrBgEFBQcBAQSBjzCBjDBRBggrBgEFBQcwAoZFaHR0cHM6Ly9kb2NzLm5hbWlyaWFsdHNwLmNvbS9kb2N1bWVudHMvTmFtaXJpYWxDQUZpcm1hUXVhbGlmaWNhdGEuY3J0MDcGCCsGAQUFBzABhitodHRwOi8vb2NzcC5uYW1pcmlhbHRzcC5jb20vb2NzcC9jZXJ0c3RhdHVzMB0GA1UdDgQWBBRIVk2H1V+IX2yZRHpI1UgWjYt8lTAfBgNVHSMEGDAWgBRj/e3mjGJHSM/qCUFzdhHiZGJ7EDCBzQYIKwYBBQUHAQMEgcAwgb0wCAYGBACORgEBMAsGBgQAjkYBAwIBFDAIBgYEAI5GAQQwEwYGBACORgEGMAkGBwQAjkYBBgEwgYQGBgQAjkYBBTB6MDsWNWh0dHBzOi8vZG9jcy5uYW1pcmlhbHRzcC5jb20vZG9jdW1lbnRzL1BEUy9QRFNfZW4ucGRmEwJlbjA7FjVodHRwczovL2RvY3MubmFtaXJpYWx0c3AuY29tL2RvY3VtZW50cy9QRFMvUERTX2l0LnBkZhMCaXQwggLwBgNVHSAEggLnMIIC4zCCATQGBCtMEAUwggEqMIIBJgYIKwYBBQUHAgIwggEYHoIBFABDAGUAcgB0AGkAZgBpAGMAYQB0AGUAIABpAHMAcwB1AGUAZAAgAHQAaAByAG8AdQBnAGgAIABTAGkAcwB0AGUAbQBhACAAUAB1AGIAYgBsAGkAYwBvACAAZABpACAASQBkAGUAbgB0AGkAdADgACAARABpAGcAaQB0AGEAbABlACAAKABTAFAASQBEACkAIABkAGkAZwBpAHQAYQBsACAAaQBkAGUAbgB0AGkAdAB5ACwAbgBvAHQAIAB1AHMAYQBiAGwAZQAgAHQAbwAgAHIAZQBxAHUAaQByAGUAIABvAHQAaABlAHIAIABTAFAASQBEACAAZABpAGcAaQB0AGEAbAAgAGkAZABlAG4AdABpAHQAeTAJBgcEAIvsQAECMAgGBgQAj3oBAjCCAZIGCysGAQQBgpprAQEDMIIBgTApBggrBgEFBQcCARYdaHR0cHM6Ly9kb2NzLm5hbWlyaWFsdHNwLmNvbS8wggFSBggrBgEFBQcCAjCCAUQeggFAAEkAbAAgAHAAcgBlAHMAZQBuAHQAZQAgAGMAZQByAHQAaQBmAGkAYwBhAHQAbwAgAOgAIAB2AGEAbABpAGQAbwAgAHMAbwBsAG8AIABwAGUAcgAgAGYAaQByAG0AZQAgAGEAcABwAG8AcwB0AGUAIABjAG8AbgAgAHAAcgBvAGMAZQBkAHUAcgBhACAAYQB1AHQAbwBtAGEAdABpAGMAYQAuAC8AVABoAGkAcwAgAGMAZQByAHQAaQBmAGkAYwBhAHQAZQAgAG0AYQB5ACAAbwBuAGwAeQAgAGIAZQAgAHUAcwBlAGQAIABmAG8AcgAgAHUAbgBhAHQAdABlAG4AZABlAGQALwBhAHUAdABvAG0AYQB0AGUAZAAgAGQAaQBnAGkAdABhAGwAIABzAGkAZwBuAGEAdAB1AHIAZQBzAC4wRgYDVR0fBD8wPTA7oDmgN4Y1aHR0cDovL2NybC5uYW1pcmlhbHRzcC5jb20vRmlybWFDZXJ0YVF1YWxpZmljYXRhMS5jcmwwDgYDVR0PAQH/BAQDAgZAMA0GCSqGSIb3DQEBCwUAA4IBAQC4+4LGF54dL5n0PAvtoou2OeY0XWd9S6GrLTMpf8SOkkObHbZZKm6h4nvR/ml1gyGsw8Q5E+uECqZGrWD5bXxuK0Y2mOeFonAMASnzu0huxJkqrFw2DxzcMuo4MB2v4IlvuMwDbVYbDNAnE2GB1DvKty96prJws2KzTjY2zanQp5s4EFHNqROy8ZNJNNOeCIwHr/XaPdgxVrHvkN7EJeSBlsGT1VwbK3QOp0Rme5v3eKbbtUl7NpJ05JPUCeNzC9hHSRAQoWtxk2dBPFg0dO/Q5tXMWR6CJZcbjaiHyBwgzygLGm/xaNaw2g2cx5w9mBopA+O5zAbi6JjfPoDrCQae</ds:X509Certificate></ds:X509Data></ds:KeyInfo><ds:Object><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Target="#id-84354ec6cd488386640fa58770e6ebb7"><xades:SignedProperties Id="xades-id-84354ec6cd488386640fa58770e6ebb7"><xades:SignedSignatureProperties><xades:SigningTime>2025-12-09T10:21:21Z</xades:SigningTime><xades:SigningCertificateV2><xades:Cert><xades:CertDigest><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>fNYNZlCVU2qtRzfHqukckRq0Exoi6dLAvTj6dSNR0ZE=</ds:DigestValue></xades:CertDigest><xades:IssuerSerialV2>MIGOMIGBpH8wfTELMAkGA1UEBhMCSVQxJDAiBgNVBAoMG05hbWlyaWFsIFMucC5BLi8wMjA0NjU3MDQyNjEgMB4GA1UECwwXQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkxJjAkBgNVBAMMHU5hbWlyaWFsIENBIEZpcm1hIFF1YWxpZmljYXRhAggLF3Lgq8/kiA==</xades:IssuerSerialV2></xades:Cert></xades:SigningCertificateV2></xades:SignedSignatureProperties><xades:SignedDataObjectProperties><xades:DataObjectFormat ObjectReference="#null"><xades:MimeType>application/octet-stream</xades:MimeType></xades:DataObjectFormat></xades:SignedDataObjectProperties></xades:SignedProperties></xades:QualifyingProperties></ds:Object></ds:Signature></ns3:FatturaElettronica>

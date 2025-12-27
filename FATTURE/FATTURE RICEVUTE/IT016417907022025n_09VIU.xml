@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><ns3:FatturaElettronica xmlns:ns3="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" versione="FPR12">
+    <FatturaElettronicaHeader>
+        <DatiTrasmissione>
+            <IdTrasmittente>
+                <IdPaese>IT</IdPaese>
+                <IdCodice>01641790702</IdCodice>
+            </IdTrasmittente>
+            <ProgressivoInvio>008R8</ProgressivoInvio>
+            <FormatoTrasmissione>FPR12</FormatoTrasmissione>
+            <CodiceDestinatario>BA6ET11</CodiceDestinatario>
+            <ContattiTrasmittente>
+                <Telefono>0874-60561</Telefono>
+            </ContattiTrasmittente>
+        </DatiTrasmissione>
+        <CedentePrestatore>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>02292300684</IdCodice>
+                </IdFiscaleIVA>
+                <CodiceFiscale>02292300684</CodiceFiscale>
+                <Anagrafica>
+                    <Denominazione>Aromaticafe S.r.l.</Denominazione>
+                </Anagrafica>
+                <RegimeFiscale>RF01</RegimeFiscale>
+            </DatiAnagrafici>
+            <Sede>
+                <Indirizzo>VIALE MARCONI 290</Indirizzo>
+                <CAP>65127</CAP>
+                <Comune>PESCARA</Comune>
+                <Provincia>PE</Provincia>
+                <Nazione>IT</Nazione>
+            </Sede>
+        </CedentePrestatore>
+        <CessionarioCommittente>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>02244120685</IdCodice>
+                </IdFiscaleIVA>
+                <Anagrafica>
+                    <Denominazione>FRANCESCO PIO MINERVA</Denominazione>
+                </Anagrafica>
+            </DatiAnagrafici>
+            <Sede>
+                <Indirizzo>VIA FRANCESCO FERDINANDO DAVALOS, 107</Indirizzo>
+                <CAP>65126</CAP>
+                <Comune>PESCARA</Comune>
+                <Provincia>PE</Provincia>
+                <Nazione>IT</Nazione>
+            </Sede>
+        </CessionarioCommittente>
+        <TerzoIntermediarioOSoggettoEmittente>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>01641790702</IdCodice>
+                </IdFiscaleIVA>
+                <CodiceFiscale>01641790702</CodiceFiscale>
+                <Anagrafica>
+                    <Denominazione>TEAMSYSTEM SERVICE SRL</Denominazione>
+                </Anagrafica>
+            </DatiAnagrafici>
+        </TerzoIntermediarioOSoggettoEmittente>
+        <SoggettoEmittente>TZ</SoggettoEmittente>
+    </FatturaElettronicaHeader>
+    <FatturaElettronicaBody>
+        <DatiGenerali>
+            <DatiGeneraliDocumento>
+                <TipoDocumento>TD01</TipoDocumento>
+                <Divisa>EUR</Divisa>
+                <Data>2025-10-01</Data>
+                <Numero>0000716/A1</Numero>
+                <ImportoTotaleDocumento>29.19</ImportoTotaleDocumento>
+            </DatiGeneraliDocumento>
+        </DatiGenerali>
+        <DatiBeniServizi>
+            <DettaglioLinee>
+                <NumeroLinea>1</NumeroLinea>
+                <CodiceArticolo>
+                    <CodiceTipo>Codice Art. fornitore</CodiceTipo>
+                    <CodiceValore>AC000420-100</CodiceValore>
+                </CodiceArticolo>
+                <Descrizione>NESPRESSO RESPRESSO DEK 100 CAPS</Descrizione>
+                <Quantita>1.00</Quantita>
+                <UnitaMisura>SCT</UnitaMisura>
+                <PrezzoUnitario>19.59000000</PrezzoUnitario>
+                <PrezzoTotale>19.59</PrezzoTotale>
+                <AliquotaIVA>22.00</AliquotaIVA>
+            </DettaglioLinee>
+            <DettaglioLinee>
+                <NumeroLinea>2</NumeroLinea>
+                <CodiceArticolo>
+                    <CodiceTipo>Codice Art. fornitore</CodiceTipo>
+                    <CodiceValore>AC000526</CodiceValore>
+                </CodiceArticolo>
+                <Descrizione>A MODO MIO UNALTRO DEK</Descrizione>
+                <Quantita>20.00</Quantita>
+                <UnitaMisura>PZ</UnitaMisura>
+                <PrezzoUnitario>0.21000000</PrezzoUnitario>
+                <PrezzoTotale>4.20</PrezzoTotale>
+                <AliquotaIVA>22.00</AliquotaIVA>
+            </DettaglioLinee>
+            <DettaglioLinee>
+                <NumeroLinea>3</NumeroLinea>
+                <CodiceArticolo>
+                    <CodiceTipo>Codice Art. fornitore</CodiceTipo>
+                    <CodiceValore>AC000348</CodiceValore>
+                </CodiceArticolo>
+                <Descrizione>SHOPPER BIO GRANDE</Descrizione>
+                <Quantita>1.00</Quantita>
+                <UnitaMisura>PZ</UnitaMisura>
+                <PrezzoUnitario>0.14000000</PrezzoUnitario>
+                <PrezzoTotale>0.14</PrezzoTotale>
+                <AliquotaIVA>22.00</AliquotaIVA>
+            </DettaglioLinee>
+            <DettaglioLinee>
+                <NumeroLinea>4</NumeroLinea>
+                <Descrizione>SUBT SCONTO</Descrizione>
+                <PrezzoUnitario>0.00000000</PrezzoUnitario>
+                <PrezzoTotale>0.00</PrezzoTotale>
+                <AliquotaIVA>22.00</AliquotaIVA>
+            </DettaglioLinee>
+            <DettaglioLinee>
+                <NumeroLinea>5</NumeroLinea>
+                <Descrizione>SUBTOTALE: 29,19 ?</Descrizione>
+                <PrezzoUnitario>0.00000000</PrezzoUnitario>
+                <PrezzoTotale>0.00</PrezzoTotale>
+                <AliquotaIVA>22.00</AliquotaIVA>
+            </DettaglioLinee>
+            <DettaglioLinee>
+                <NumeroLinea>6</NumeroLinea>
+                <Descrizione>T1 - CONTANTE: 30,00</Descrizione>
+                <PrezzoUnitario>0.00000000</PrezzoUnitario>
+                <PrezzoTotale>0.00</PrezzoTotale>
+                <AliquotaIVA>22.00</AliquotaIVA>
+            </DettaglioLinee>
+            <DettaglioLinee>
+                <NumeroLinea>7</NumeroLinea>
+                <Descrizione>RESTO</Descrizione>
+                <PrezzoUnitario>0.00000000</PrezzoUnitario>
+                <PrezzoTotale>0.00</PrezzoTotale>
+                <AliquotaIVA>22.00</AliquotaIVA>
+            </DettaglioLinee>
+            <DatiRiepilogo>
+                <AliquotaIVA>22.00</AliquotaIVA>
+                <ImponibileImporto>23.93</ImponibileImporto>
+                <Imposta>5.26</Imposta>
+                <EsigibilitaIVA>I</EsigibilitaIVA>
+                <RiferimentoNormativo>Iva Impon. 22%</RiferimentoNormativo>
+            </DatiRiepilogo>
+        </DatiBeniServizi>
+        <DatiPagamento>
+            <CondizioniPagamento>TP02</CondizioniPagamento>
+            <DettaglioPagamento>
+                <ModalitaPagamento>MP07</ModalitaPagamento>
+                <DataRiferimentoTerminiPagamento>2025-10-01</DataRiferimentoTerminiPagamento>
+                <GiorniTerminiPagamento>0</GiorniTerminiPagamento>
+                <DataScadenzaPagamento>2025-10-01</DataScadenzaPagamento>
+                <ImportoPagamento>29.19</ImportoPagamento>
+            </DettaglioPagamento>
+        </DatiPagamento>
+    </FatturaElettronicaBody>
+<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="id-f8db1ef0448e71bbceb7000c4bee7e24"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><ds:Reference URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2002/06/xmldsig-filter2"><dsig-xpath:XPath xmlns:dsig-xpath="http://www.w3.org/2002/06/xmldsig-filter2" Filter="subtract">/descendant::ds:Signature</dsig-xpath:XPath></ds:Transform><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>7Z6qzNuNQzxBALHSb/Hc9/is/uCFsjCBdYL9GzDtWOw=</ds:DigestValue></ds:Reference><ds:Reference URI="#keyinfo-id-f8db1ef0448e71bbceb7000c4bee7e24"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>/gXGrincfau25nrF1QfjVgRiZDhPOpuFgdBFa+U5vYM=</ds:DigestValue></ds:Reference><ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#xades-id-f8db1ef0448e71bbceb7000c4bee7e24"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>SDL7Qw5E/TDP9K6qSjbWcGZuBuugv/UqlFaGX8dPpyo=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue Id="value-id-f8db1ef0448e71bbceb7000c4bee7e24">NYDo3gQUBWWUfYYJNo81wQ2z9DVWKlsGhRBBJyokaZa/Rfv5Yr5kJ7ZEBCYg5b3xJnkBzHivFw9HhaHeUDFy4RDJJkKtJMiMyxzYr7o5Rn0r1L0fZecK8VK2HKmTVnytTTL0CHEmXcJwqEJEZREYbCl6jW/UWRenyIm/LmCYBbFAmmE6s/CCpmdDmpf9DUtNoGqEv/pfkitszSe/b9jpTmnutEhXzxN7pAibNj9NkFLz4Ao8N47OgwKkdnI5UsAlsFi5yPftxzwtqM6QL0gASknW0ug5PCiGY7HdSYRDUnfl+4PeEscTIfbIVXvdr8D1+qm6K0jfHS0BvqN/Ty3QCg==</ds:SignatureValue><ds:KeyInfo Id="keyinfo-id-f8db1ef0448e71bbceb7000c4bee7e24"><ds:X509Data><ds:X509Certificate>MIIIkDCCB3igAwIBAgIICxdy4KvP5IgwDQYJKoZIhvcNAQELBQAwfTELMAkGA1UEBhMCSVQxJDAiBgNVBAoMG05hbWlyaWFsIFMucC5BLi8wMjA0NjU3MDQyNjEgMB4GA1UECwwXQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkxJjAkBgNVBAMMHU5hbWlyaWFsIENBIEZpcm1hIFF1YWxpZmljYXRhMB4XDTI1MDUyOTA5NDMwMFoXDTI4MDUyNzIyMDAwMFowgY8xCzAJBgNVBAYTAklUMRIwEAYDVQQEDAlESSBSSUVOWk8xEDAOBgNVBCoMB01JQ0hFTEUxHzAdBgNVBAUTFlRJTklULURSTk1ITDY2RTMwWjQwMVcxGjAYBgNVBAMMEURJIFJJRU5aTyBNSUNIRUxFMR0wGwYDVQQuExRBVURNMjAyNTA1MjkxNjg2NjQyNTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANwm8MFhChQOkuoFqT7piK85179+djWpH8/L60ul7IrgEfHA2DZA0Ikhf66BSvRizm+b/qd9WzMrPaM+j8ipBC0F4FnaE0MLWIbPphyjp5ih+DtEMZtfjnMQtToB69TIVasWtGBdKr9L8PEwS/3cGvVNJEHwIsyQOdNzI+SLPXVF/F1owX03dfaaQdr8REsIRAt+ScTopZOGjba5GBPsMJ9zsfcRVvJsVh7hT+jMI6fT6SMTul4Uk6J6jlYX4pQo/Un8T0m5WpmI2/OZ5aSljlZbXCK3Wd/9kYmwHXatVIIeBqgb+nD3HaQip3kme2JELakbxXlIyTDCbU4viSM0HfcCAwEAAaOCBP8wggT7MIGcBggrBgEFBQcBAQSBjzCBjDBRBggrBgEFBQcwAoZFaHR0cHM6Ly9kb2NzLm5hbWlyaWFsdHNwLmNvbS9kb2N1bWVudHMvTmFtaXJpYWxDQUZpcm1hUXVhbGlmaWNhdGEuY3J0MDcGCCsGAQUFBzABhitodHRwOi8vb2NzcC5uYW1pcmlhbHRzcC5jb20vb2NzcC9jZXJ0c3RhdHVzMB0GA1UdDgQWBBRIVk2H1V+IX2yZRHpI1UgWjYt8lTAfBgNVHSMEGDAWgBRj/e3mjGJHSM/qCUFzdhHiZGJ7EDCBzQYIKwYBBQUHAQMEgcAwgb0wCAYGBACORgEBMAsGBgQAjkYBAwIBFDAIBgYEAI5GAQQwEwYGBACORgEGMAkGBwQAjkYBBgEwgYQGBgQAjkYBBTB6MDsWNWh0dHBzOi8vZG9jcy5uYW1pcmlhbHRzcC5jb20vZG9jdW1lbnRzL1BEUy9QRFNfZW4ucGRmEwJlbjA7FjVodHRwczovL2RvY3MubmFtaXJpYWx0c3AuY29tL2RvY3VtZW50cy9QRFMvUERTX2l0LnBkZhMCaXQwggLwBgNVHSAEggLnMIIC4zCCATQGBCtMEAUwggEqMIIBJgYIKwYBBQUHAgIwggEYHoIBFABDAGUAcgB0AGkAZgBpAGMAYQB0AGUAIABpAHMAcwB1AGUAZAAgAHQAaAByAG8AdQBnAGgAIABTAGkAcwB0AGUAbQBhACAAUAB1AGIAYgBsAGkAYwBvACAAZABpACAASQBkAGUAbgB0AGkAdADgACAARABpAGcAaQB0AGEAbABlACAAKABTAFAASQBEACkAIABkAGkAZwBpAHQAYQBsACAAaQBkAGUAbgB0AGkAdAB5ACwAbgBvAHQAIAB1AHMAYQBiAGwAZQAgAHQAbwAgAHIAZQBxAHUAaQByAGUAIABvAHQAaABlAHIAIABTAFAASQBEACAAZABpAGcAaQB0AGEAbAAgAGkAZABlAG4AdABpAHQAeTAJBgcEAIvsQAECMAgGBgQAj3oBAjCCAZIGCysGAQQBgpprAQEDMIIBgTApBggrBgEFBQcCARYdaHR0cHM6Ly9kb2NzLm5hbWlyaWFsdHNwLmNvbS8wggFSBggrBgEFBQcCAjCCAUQeggFAAEkAbAAgAHAAcgBlAHMAZQBuAHQAZQAgAGMAZQByAHQAaQBmAGkAYwBhAHQAbwAgAOgAIAB2AGEAbABpAGQAbwAgAHMAbwBsAG8AIABwAGUAcgAgAGYAaQByAG0AZQAgAGEAcABwAG8AcwB0AGUAIABjAG8AbgAgAHAAcgBvAGMAZQBkAHUAcgBhACAAYQB1AHQAbwBtAGEAdABpAGMAYQAuAC8AVABoAGkAcwAgAGMAZQByAHQAaQBmAGkAYwBhAHQAZQAgAG0AYQB5ACAAbwBuAGwAeQAgAGIAZQAgAHUAcwBlAGQAIABmAG8AcgAgAHUAbgBhAHQAdABlAG4AZABlAGQALwBhAHUAdABvAG0AYQB0AGUAZAAgAGQAaQBnAGkAdABhAGwAIABzAGkAZwBuAGEAdAB1AHIAZQBzAC4wRgYDVR0fBD8wPTA7oDmgN4Y1aHR0cDovL2NybC5uYW1pcmlhbHRzcC5jb20vRmlybWFDZXJ0YVF1YWxpZmljYXRhMS5jcmwwDgYDVR0PAQH/BAQDAgZAMA0GCSqGSIb3DQEBCwUAA4IBAQC4+4LGF54dL5n0PAvtoou2OeY0XWd9S6GrLTMpf8SOkkObHbZZKm6h4nvR/ml1gyGsw8Q5E+uECqZGrWD5bXxuK0Y2mOeFonAMASnzu0huxJkqrFw2DxzcMuo4MB2v4IlvuMwDbVYbDNAnE2GB1DvKty96prJws2KzTjY2zanQp5s4EFHNqROy8ZNJNNOeCIwHr/XaPdgxVrHvkN7EJeSBlsGT1VwbK3QOp0Rme5v3eKbbtUl7NpJ05JPUCeNzC9hHSRAQoWtxk2dBPFg0dO/Q5tXMWR6CJZcbjaiHyBwgzygLGm/xaNaw2g2cx5w9mBopA+O5zAbi6JjfPoDrCQae</ds:X509Certificate></ds:X509Data></ds:KeyInfo><ds:Object><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Target="#id-f8db1ef0448e71bbceb7000c4bee7e24"><xades:SignedProperties Id="xades-id-f8db1ef0448e71bbceb7000c4bee7e24"><xades:SignedSignatureProperties><xades:SigningTime>2025-10-02T11:46:09Z</xades:SigningTime><xades:SigningCertificateV2><xades:Cert><xades:CertDigest><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>fNYNZlCVU2qtRzfHqukckRq0Exoi6dLAvTj6dSNR0ZE=</ds:DigestValue></xades:CertDigest><xades:IssuerSerialV2>MIGOMIGBpH8wfTELMAkGA1UEBhMCSVQxJDAiBgNVBAoMG05hbWlyaWFsIFMucC5BLi8wMjA0NjU3MDQyNjEgMB4GA1UECwwXQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkxJjAkBgNVBAMMHU5hbWlyaWFsIENBIEZpcm1hIFF1YWxpZmljYXRhAggLF3Lgq8/kiA==</xades:IssuerSerialV2></xades:Cert></xades:SigningCertificateV2></xades:SignedSignatureProperties><xades:SignedDataObjectProperties><xades:DataObjectFormat ObjectReference="#null"><xades:MimeType>application/octet-stream</xades:MimeType></xades:DataObjectFormat></xades:SignedDataObjectProperties></xades:SignedProperties></xades:QualifyingProperties></ds:Object></ds:Signature></ns3:FatturaElettronica>

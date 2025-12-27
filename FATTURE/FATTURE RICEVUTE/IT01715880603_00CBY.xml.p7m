@@ -1,0 +1,170 @@
+0ÇJ	*ÜHÜ˜†ÇIı0ÇIÒ10	`ÜHe0Ç<≈	*ÜHÜ˜†Ç<∂Ç<≤<?xml version="1.0" encoding="UTF-8" standalone="no"?><p:FatturaElettronica xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" versione="FPR12">
+  <FatturaElettronicaHeader>
+    <DatiTrasmissione>
+      <IdTrasmittente><IdPaese>IT</IdPaese><IdCodice>05006900962</IdCodice></IdTrasmittente>
+      <ProgressivoInvio>ktfwc1l6eZ</ProgressivoInvio>
+      <FormatoTrasmissione>FPR12</FormatoTrasmissione>
+      <CodiceDestinatario>SZLUBAI</CodiceDestinatario>
+      
+    </DatiTrasmissione>
+    <CedentePrestatore>
+      <DatiAnagrafici>
+        <IdFiscaleIVA>
+          <IdPaese>IT</IdPaese>
+          <IdCodice>01715880603</IdCodice>
+        </IdFiscaleIVA>
+        <Anagrafica>
+          <Denominazione>Pompeo Turistica Srl</Denominazione>
+        </Anagrafica>
+        <RegimeFiscale>RF01</RegimeFiscale>
+      </DatiAnagrafici>
+      <Sede>
+        <Indirizzo>Via Casilina Km. 76</Indirizzo>
+        <CAP>03013</CAP>
+        <Comune>Ferentino</Comune>
+        <Provincia>FR</Provincia>
+        <Nazione>IT</Nazione>
+      </Sede>
+    </CedentePrestatore>
+    <CessionarioCommittente>
+      <DatiAnagrafici>
+        <IdFiscaleIVA>
+          <IdPaese>IT</IdPaese>
+          <IdCodice>02244120685</IdCodice>
+        </IdFiscaleIVA>
+        <Anagrafica>
+          <Denominazione>Minerva Francesco Pio - Ag.Viaggi "Go On The Road"</Denominazione>
+        </Anagrafica>
+      </DatiAnagrafici>
+      <Sede>
+        <Indirizzo>Via Benedetto Croce, 252</Indirizzo>
+        <CAP>65126</CAP>
+        <Comune>PESCARA</Comune>
+        <Provincia>PE</Provincia>
+        <Nazione>IT</Nazione>
+      </Sede>
+    </CessionarioCommittente>
+  </FatturaElettronicaHeader>
+  <FatturaElettronicaBody>
+    <DatiGenerali>
+      <DatiGeneraliDocumento>
+        <TipoDocumento>TD01</TipoDocumento>
+        <Divisa>EUR</Divisa>
+        <Data>2025-11-20</Data>
+        <Numero>1271</Numero>
+        <ImportoTotaleDocumento>473.00</ImportoTotaleDocumento>
+      </DatiGeneraliDocumento>
+    </DatiGenerali>
+    <DatiBeniServizi>
+      <DettaglioLinee>
+        <NumeroLinea>1</NumeroLinea>
+        <Descrizione>Soriano Angelo Antonio [Minerva Francesco Pio - Ag.Viaggi "Go On The Road" \\ Beauty Terme Pompeo]</Descrizione>
+        <Quantita>0.00</Quantita>
+        <PrezzoUnitario>0.00</PrezzoUnitario>
+        <PrezzoTotale>0.00</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>2</NumeroLinea>
+        <Descrizione>Soggiorno dal 06/12/2025 al 08/12/2025</Descrizione>
+        <Quantita>0.00</Quantita>
+        <PrezzoUnitario>0.00</PrezzoUnitario>
+        <PrezzoTotale>0.00</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>3</NumeroLinea>
+        <Descrizione> Soriano Angelo Antonio</Descrizione>
+        <Quantita>0.00</Quantita>
+        <PrezzoUnitario>0.00</PrezzoUnitario>
+        <PrezzoTotale>0.00</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>4</NumeroLinea>
+        <Descrizione> Muretta Annarita</Descrizione>
+        <Quantita>0.00</Quantita>
+        <PrezzoUnitario>0.00</PrezzoUnitario>
+        <PrezzoTotale>0.00</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>5</NumeroLinea>
+        <Descrizione>(Camera - 204)</Descrizione>
+        <Quantita>0.00</Quantita>
+        <PrezzoUnitario>0.00</PrezzoUnitario>
+        <PrezzoTotale>0.00</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>6</NumeroLinea>
+        <Descrizione>LOVE &amp; SPA FOR TWO (2 nt)</Descrizione>
+        <Quantita>2.00</Quantita>
+        <UnitaMisura>Nr.</UnitaMisura>
+        <PrezzoUnitario>215.00</PrezzoUnitario>
+        <PrezzoTotale>430.00</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>7</NumeroLinea>
+        <Descrizione>      473,00 PAGATE CON Utilizzo Deposito-Caparre</Descrizione>
+        <Quantita>0.00</Quantita>
+        <PrezzoUnitario>0.00</PrezzoUnitario>
+        <PrezzoTotale>0.00</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>8</NumeroLinea>
+        <Descrizione>             Ins. Caparra Confirmatoria Visa - MasterCard n. 3470 - 20/11/2025</Descrizione>
+        <Quantita>0.00</Quantita>
+        <PrezzoUnitario>0.00</PrezzoUnitario>
+        <PrezzoTotale>0.00</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DettaglioLinee>
+        <NumeroLinea>9</NumeroLinea>
+        <Descrizione>                Importo residuo: 0,00</Descrizione>
+        <Quantita>0.00</Quantita>
+        <PrezzoUnitario>0.00</PrezzoUnitario>
+        <PrezzoTotale>0.00</PrezzoTotale>
+        <AliquotaIVA>10.00</AliquotaIVA>
+      </DettaglioLinee>
+      <DatiRiepilogo>
+        <AliquotaIVA>10.00</AliquotaIVA>
+        <ImponibileImporto>430.00</ImponibileImporto>
+        <Imposta>43.00</Imposta>
+        <EsigibilitaIVA>I</EsigibilitaIVA>
+        <RiferimentoNormativo>10% Hotel</RiferimentoNormativo>
+      </DatiRiepilogo>
+    </DatiBeniServizi>
+    <DatiPagamento>
+      <CondizioniPagamento>TP02</CondizioniPagamento>
+      <DettaglioPagamento>
+        <ModalitaPagamento>MP05</ModalitaPagamento>
+        <ImportoPagamento>473.00</ImportoPagamento>
+      </DettaglioPagamento>
+    </DatiPagamento>
+    <Allegati>
+      <NomeAttachment>ERICDOC_BSHSX.xml.zip</NomeAttachment>
+      <AlgoritmoCompressione>zip</AlgoritmoCompressione>
+      <FormatoAttachment>zip</FormatoAttachment>
+      
+    <Attachment>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</Attachment></Allegati>
+    <Allegati>
+      <NomeAttachment>corpo_ERICDOC_BSHSX.pdf</NomeAttachment>
+      <FormatoAttachment>pdf</FormatoAttachment>
+      
+    <Attachment>JVBERi0xLjcKJeLjz9MKNSAwIG9iago8PC9GaWx0ZXIvRmxhdGVEZWNvZGUvTGVuZ3RoIDExNjU+PnN0cmVhbQp4nLVYwXLbNhC96yt2cug4MzIMgCAJ9iYrVuKpbTkW48607gEWERUdiVAgylPn1E/vUpZVKTZBIpPqwuGIfNiH3X1vwS+907x3MmLAOOSfeyKGVCZE4E3ROzovH6yZari3xSMUqlJv8796Z3nvY+/Ly9eShCSb1yhhPBYZ1NdMsPoqGJPgZvVf+B/k097R1Xpxr50PMOZEbgGjlMcxAkVScoFXQVMptoAyfQJkPGVNcJwxkuxDHkHzo4JkWTCdd6rSbZCBhDjl8TFjx5w2AUcSaYlOtCKJMaTBtAYLuy6rNtBAYv+ASCNCX9Die8nnjNAtJN9A7F1ZlrBv4pzosvBXE2WEBxA/Xa9MqVcrKNWiMbGIm8h02y3duF/bxVJbyNfOrCozVTBx88a6yVKyv4Inu5QSXCqU5BCDUeWjl+MWOpTnB1vpOYxsWalSwXiuy0pDrt1Cw9MW+PY0YUFFejvIoWyTk0SkQUV6nlOWslhKmtCoRVf+w27VlVBuufobprZo05ZQdh24bcWlC7etDnwPN6dnxlN8W+BAdmNXmFI54y0yzncK00kJi8LVejDRhYYLPVNzryxQuevELhHfGgVDtTJzjBt+WRAU6j6MtMO2MaXtA40oi2B004fz3LMspnTXpcGkxkvtVGUefC4fp2KX4v+b154dxELuCqCLHdzoqVka3excNSbPggrgyi6QBO6PL+8xi4Pyfokm4x4UjJwqp3o13VRsc6PVK6DGBxmOsXAMgxnBVMxmBt68b19DoNiHZHlcQv6nhhurijdNsAwnD76H3BwASzISiwOiP8YFtsCh7NAJOBeCcZrIuNmrKUlFJ37IgdD0IIwf4QSiLr20UwSCSYI9E7rDu66CoTeODXjoLk9+u/h0Ojj3VSXaiwwXNx8iygoNVLNTXaJYVpWFobNT3Qce8z5cn02Gg5tBH5KY8QRvvYKW4FgnWLJTii6SdopnMA+VKNud2t6hjjizrIwtG31VyP03PpKqETvKJDmAv3Z4JGyMBP2BHzye20o1Trh14JKH1Yl1RpUWBuVMz+tLZUuUuN9fKClslK9V66JEBs0WB0oK+8oHd/jD+lDr6vFp1G1fPI6DCvBpdP7DhyhYkAFNLFKxDje0UHOgyQnjJ/XBE+o7+XznW5CHHQxez59vARYFFcjl2mF7KkSuR0DvNwueZUG5vzsa4knJKTRUTsXdWx+0TIIyezG+PYOfYHI9gNH4BvJfx3B3xKGsmlepmzh0Gf7Ksfub3g2FfP0sv78VKQ8qSQTsUwrXg/eD/AyG4yv4VOEA+fWrhXd6aVemssdDtVTO+SYxHsugujwvVwSeYHFkteVn4xaqqosVbs2qTvmlWlXaDZUroCTYaCntIC84OARVL6cnjLX1HI9o2Fl2sbQOHQvt0BRr+zPQvufrS+1OLMuCvr/ckgHJCaAxKjP3WS5Ls20xHPmGCFY7c7L/NI53jQMVWggV+w/jrKTuPQc0tinxwxd8QSdxUC0x+qGNWDCip8ee+QdiisgH+rxHwaAezGfyMQvqiU7kAzFbeX833r8oyDVlCmVuZHN0cmVhbQplbmRvYmoKNCAwIG9iago8PC9Db250ZW50cyA1IDAgUi9NZWRpYUJveFswIDAgNTk1IDg0Ml0vUGFyZW50IDIgMCBSL1Jlc291cmNlczw8L0ZvbnQ8PC9GMSA2IDAgUi9GMiA3IDAgUj4+Pj4vVHJpbUJveFswIDAgNTk1IDg0Ml0vVHlwZS9QYWdlPj4KZW5kb2JqCjEgMCBvYmoKPDwvUGFnZXMgMiAwIFIvVHlwZS9DYXRhbG9nPj4KZW5kb2JqCjMgMCBvYmoKPDwvQ3JlYXRpb25EYXRlKEQ6MjAyNTExMjAxMTE1MTQrMDAnMDAnKS9Nb2REYXRlKEQ6MjAyNTExMjAxMTE1MTQrMDAnMDAnKS9Qcm9kdWNlcihpVGV4dK4gcGRmSFRNTCA0LjAuMSBcKEFHUEwgdmVyc2lvblwpIKkyMDAwLTIwMjEgaVRleHQgR3JvdXAgTlYpPj4KZW5kb2JqCjYgMCBvYmoKPDwvQmFzZUZvbnQvSGVsdmV0aWNhL0VuY29kaW5nL1dpbkFuc2lFbmNvZGluZy9TdWJ0eXBlL1R5cGUxL1R5cGUvRm9udD4+CmVuZG9iago3IDAgb2JqCjw8L0Jhc2VGb250L0hlbHZldGljYS1Cb2xkL0VuY29kaW5nL1dpbkFuc2lFbmNvZGluZy9TdWJ0eXBlL1R5cGUxL1R5cGUvRm9udD4+CmVuZG9iagoyIDAgb2JqCjw8L0NvdW50IDEvS2lkc1s0IDAgUl0vVHlwZS9QYWdlcz4+CmVuZG9iagp4cmVmCjAgOAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDEzOTAgMDAwMDAgbiAKMDAwMDAwMTc4MSAwMDAwMCBuIAowMDAwMDAxNDM1IDAwMDAwIG4gCjAwMDAwMDEyNDggMDAwMDAgbiAKMDAwMDAwMDAxNSAwMDAwMCBuIAowMDAwMDAxNjAwIDAwMDAwIG4gCjAwMDAwMDE2ODggMDAwMDAgbiAKdHJhaWxlcgo8PC9JRCBbPDA5MzlmZThkMzQxZGFiMWJiZTYyOWJjNzg1MmIxMGNiPjwwOTM5ZmU4ZDM0MWRhYjFiYmU2MjliYzc4NTJiMTBjYj5dL0luZm8gMyAwIFIvUm9vdCAxIDAgUi9TaXplIDg+PgolaVRleHQtcGRmSFRNTC00LjAuMQpzdGFydHhyZWYKMTgzMgolJUVPRgo=</Attachment></Allegati>
+  </FatturaElettronicaBody>
+</p:FatturaElettronica>†Ç	Å0Ç	}0Çe†0	*ÜHÜ˜ 0Åß10	UIT10U
+Zucchetti S.p.A.1)0'U Qualified Trust Service Provider10UaVATIT-050069009621604U-Zucchetti Qualified Electronic Signature CA 20230306110428Z260306000000Z0Å¬10	UIT10UaVATIT-028941712021"0 U
+ZUCCHETTI HOSPITALITY SRL10UTINIT-GRGNGL64M11I849U10U.2023502924710UANGELO GUARAGNI10UGUARAGNI10U*ANGELO0Ç"0	*ÜHÜ˜ Ç 0Ç
+Ç æè4|ÜräRÆ.L &
+)˜ã≈	ã‚jWúlì—R¡Æ~¶-YƒBW˘ø;≠†∑Y;¸È≥ºá–˝∏%ò“† 0H ÒıK ¢"Í csW#ûßA?˝Í–√ÿ;ÿvëVuc˙¢aÈ|ál@Ö âΩ”VkÄﬂŸπ˚≤∑Íé´ErR—G?˙∑ ;öﬁZWz,œ0;v™ƒ@J(Œƒˇh‰Ã->Án≥Å;ﬂW	zø∏Ù.|ëü}≤ÂæYl¬Œ/Îscò˝Ωá’h(œÊ—œÅHÏ$∏ç¨Ÿ„˚by	uli≠b˙£sqwvÊFÉHf>af^Õ…ÿ]"‰Ô∏µ \ „ £Çî0Çê0	U0 0ÅÄ+t0r04+0Ü(http://ocsp.qc.ca2.zucchetticertifica.it0:+0Ü.http://crl.ca2.zucchetticertifica.it/qc/CA.crt0ÇáU Ç~0Çz0ÇÙ+L-0ÇË04+(https://ca.zucchetticertifica.it/doc/mo/0Åÿ+0ÅÀÅ»Il certificato √® valido solo per la firma automatica di: LUL, fatture, atti per previdenza, assistenza e tributi, privacy, sicurezza lavoro, ricorsi, documenti informatici, deleghe per atti predetti.0Å‘+0Å«ÅƒThis certificate is valid only for signatures on documents of kind single work ledger, bills, acts related to tributes and social security, for creation of e-documents and copies in the mentioned.0	 ãÏ@0u+L0m0k+0_]Questo certificato rispetta le raccomandazioni previste dalla Determinazione Agid N. 121/20190BU;0907†5†3Ü1http://crl.ca2.zucchetticertifica.it/qc/CRL01.crl0Å∂+Å©0Å¶0 éF0 éF0 éF0n éF0d0b\https://wwww.zucchetticertifica.it/gestionefirme/dms/doc/PKIDisclosureStatementZucchetti.pdfen0 éF0	 éF0Uˇ@0(U	!00+	119640811000000Z0U#0Ä7ÔQ+æƒ∆ ÕlDGÒ&
+Ã5íà0Uwﬁã05+#‰3ÿ©Ö7Y3IÈ Hπ0	*ÜHÜ˜ Ç xÊ	Ó<#iΩUì˚ÀC  –8”“'ëK”rE∞s´ÁxÄs∂Rm√:Ã“>‡äço/•fîäyÃ¸È£ä0ál¨m–$Öà_Ø5Ö?¯?ÙQOQˆÔrîõ™ST„√˙¿Òﬂ#S∑''•î&?vqÏOﬁóúQìˆ™Ÿé!ˇÖïÁ‡{∏xÑÆFvxAP£©q‘o©C÷∂7ıS≥§o<àÔõ0ˇÜ˜YÆÆ’ÿ*3ß≥–.&µË††Ó$◊K◊xØäåLg_Ñ ¡Vr&ÆvqT	ŸÖõg(ç}⁄û[v¶ëÜøÌ£'ˆ¢®Ωç|¯™@H[¨ÒYﬂy˝ß2‰‹Õ∆<=u=Ç~¨;€Õós†5Lè±—=3x ^4F∆äÜÊÉ«c4At∏múﬁ=s,Ω]·	4-≈7â@ü	¢t’~X’Ã˛˘r9˚ÿJyVze∆.¥”Î<±ëºPÒ∆úWcs3Z}≈Åæ˘ıM“‰0⁄F¥∂àƒ=Áè*qÆÒÿ -ë®˝£SBORèÛ˙ı+æÀ∑GÆdåéŸW´zJ-B≥Õ+\}Äï;« Ú®_ÙeN<ÛïÃÀõ¨îÙœÁË∑U/\%]ì—Êˇ…¬°∫ÒeÓ<¨l In.6î¶X
+¶∑˜t*<€90Â‡õŸ:Y1Çç0Çâ0ÅÆ0Åß10	UIT10U
+Zucchetti S.p.A.1)0'U Qualified Trust Service Provider10UaVATIT-050069009621604U-Zucchetti Qualified Electronic Signature CA 20	`ÜHe†Ç±0	*ÜHÜ˜	1	*ÜHÜ˜0	*ÜHÜ˜	1251120220117Z0$ çE1application/octet-stream0+	*ÜHÜ˜	4100	`ÜHe°	*ÜHÜ˜ 0/	*ÜHÜ˜	1" N H˛2Ô◊)˚$[;Dßë™Ä(Já◊äìy÷Ù"–.Ö0ÅÚ*ÜHÜ˜	/1Å‚0Åﬂ0Å‹0ÅŸ ˇe6éìÆ89ã∞#˙n¶A+˙∞Ä⁄ Ù}çò¨ﬂ‰¯ 0Å¥0Å≠§Å™0Åß10	UIT10U
+Zucchetti S.p.A.1)0'U Qualified Trust Service Provider10UaVATIT-050069009621604U-Zucchetti Qualified Electronic Signature CA 20	*ÜHÜ˜ Ç dbáÇõB⁄©p{ä4[Ü!t›Ÿº¨∂Tg%ÆÊ4Ìñgﬂ£
+~[‰›h∏∞¶ER∑Ì&1â^L°’'F4åØf65Óﬁw˘Y3ﬁ∑¥“7€˚ÉÚâ#±N*Dƒ0èvM’◊≠<Y]í+B'”ê≥˘ºeﬁ$R#xl
+¿ÃÛN/â©¶”B?‡G4K/›;4√∆ô–4Qÿ∂∆öT4™Ø¢r°Î}wb7≈;÷n`∑=Z≈@/∂3>gøãB√r’åÆqŒ‰Ç`§«Ô"X‡≠&0∏C»Zö”8Eì∞)FC
+ﬁÜ6≈€ÛˆZi™µó´©¢ÙµÏ|Ï.}Áî{

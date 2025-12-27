@@ -1,0 +1,223 @@
+0Ä	*ÜHÜ˜†Ä0Ä10	`ÜHe0Ä	*ÜHÜ˜†Ä$ÄÇË<ns3:FatturaElettronica versione="FPR12" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" xmlns:ns3="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2"><FatturaElettronicaHeader>
+        <DatiTrasmissione>
+            <IdTrasmittente>
+                <IdPaese>IT</IdPaese>
+                <IdCodice>01879020517</IdCodice>
+            </IdTrasmittente>
+            <ProgressivoInvio>2894737</ProgressivoInvio>
+            <FormatoTrasmissione>FPR12</FormatoTrasmissione>
+            <CodiceDestinatario>BA6ET11</CodiceDestinatario>
+            <ContattiTrasmittente>
+                <Telefono>05750505</Telefono>
+                <Email>info@arubapec.it</Email>
+            </ContattiTrasmittente>
+        </DatiTrasmissione>
+        <CedentePrestatore>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>05403151003</IdCodice>
+                </IdFiscaleIVA>
+                <Anagrafica>
+                    <DÇËenominazione>Trenitalia S.p.A.</Denominazione>
+                </Anagrafica>
+                <RegimeFiscale>RF01</RegimeFiscale>
+            </DatiAnagrafici>
+            <Sede>
+                <Indirizzo>Piazza della Croce Rossa, 1</Indirizzo>
+                <CAP>00161</CAP>
+                <Comune>Roma</Comune>
+                <Nazione>IT</Nazione>
+            </Sede>
+        </CedentePrestatore>
+        <CessionarioCommittente>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>02244120685</IdCodice>
+                </IdFiscaleIVA>
+                <Anagrafica>
+                    <Denominazione>Francesco Pio Minerva</Denominazione>
+                </Anagrafica>
+            </DatiAnagrafici>
+            <Sede>
+                <Indirizzo>Viale Fernando Francesco d'Avalos, 109</Indirizzo>
+                <CAP>65126</CAP>
+                <Comune>PESCARA</Comune>
+                <Provincia>PE</Provincia>
+  ÇË              <Nazione>IT</Nazione>
+            </Sede>
+        </CessionarioCommittente>
+    </FatturaElettronicaHeader>
+    <FatturaElettronicaBody>
+        <DatiGenerali>
+            <DatiGeneraliDocumento>
+                <TipoDocumento>TD01</TipoDocumento>
+                <Divisa>EUR</Divisa>
+                <Data>2025-10-23</Data>
+                <Numero>2025/9002894737</Numero>
+                <ImportoTotaleDocumento>106.75</ImportoTotaleDocumento>
+            </DatiGeneraliDocumento>
+        </DatiGenerali>
+        <DatiBeniServizi>
+            <DettaglioLinee>
+                <NumeroLinea>1</NumeroLinea>
+                <Descrizione>VENEZIA S. LUCIA - MIRA-MIRANO</Descrizione>
+                <Quantita>35.00</Quantita>
+                <PrezzoUnitario>2.77</PrezzoUnitario>
+                <PrezzoTotale>96.95</PrezzoTotale>
+                <AliquotaIVA>10.00</AliquotaIVA>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.1</TipoDato>
+                    ÇË<RiferimentoTesto>2661622602</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.2</TipoDato>
+                    <RiferimentoTesto>2661622600</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.3</TipoDato>
+                    <RiferimentoTesto>2661622639</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.4</TipoDato>
+                    <RiferimentoTesto>2661622615</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.5</TipoDato>
+                    <RiferimentoTesto>2661622610</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.6</TipoDato>
+                    <RiferimentoTesto>2661622ÇË617</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.7</TipoDato>
+                    <RiferimentoTesto>2661622637</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.8</TipoDato>
+                    <RiferimentoTesto>2661622603</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.9</TipoDato>
+                    <RiferimentoTesto>2661622604</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.10</TipoDato>
+                    <RiferimentoTesto>2661622627</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.11</TipoDato>
+                    <RiferimentoTesto>2661622611</RiferimentoTesto>
+ÇË                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.12</TipoDato>
+                    <RiferimentoTesto>2661622626</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.13</TipoDato>
+                    <RiferimentoTesto>2661622616</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.14</TipoDato>
+                    <RiferimentoTesto>2661622625</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.15</TipoDato>
+                    <RiferimentoTesto>2661622623</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.16</TipoDato>
+                    <RiferimentoTesto>2661622636</RiferimentoTesto>
+                </AlÇËtriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.17</TipoDato>
+                    <RiferimentoTesto>2661622632</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.18</TipoDato>
+                    <RiferimentoTesto>2661622633</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.19</TipoDato>
+                    <RiferimentoTesto>2661622620</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.20</TipoDato>
+                    <RiferimentoTesto>2661622599</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.21</TipoDato>
+                    <RiferimentoTesto>2661622638</RiferimentoTesto>
+                </AltriDatiGestionali>
+ ÇË               <AltriDatiGestionali>
+                    <TipoDato>Tit. n.22</TipoDato>
+                    <RiferimentoTesto>2661622601</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.23</TipoDato>
+                    <RiferimentoTesto>2661622598</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.24</TipoDato>
+                    <RiferimentoTesto>2661622614</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.25</TipoDato>
+                    <RiferimentoTesto>2661622606</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.26</TipoDato>
+                    <RiferimentoTesto>2661622618</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltrÇËiDatiGestionali>
+                    <TipoDato>Tit. n.27</TipoDato>
+                    <RiferimentoTesto>2661622609</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.28</TipoDato>
+                    <RiferimentoTesto>2661622612</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.29</TipoDato>
+                    <RiferimentoTesto>2661622619</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.30</TipoDato>
+                    <RiferimentoTesto>2661622622</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.31</TipoDato>
+                    <RiferimentoTesto>2661622629</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+   ÇË                 <TipoDato>Tit. n.32</TipoDato>
+                    <RiferimentoTesto>2661622630</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.33</TipoDato>
+                    <RiferimentoTesto>2661622624</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.34</TipoDato>
+                    <RiferimentoTesto>2661622613</RiferimentoTesto>
+                </AltriDatiGestionali>
+                <AltriDatiGestionali>
+                    <TipoDato>Tit. n.35</TipoDato>
+                    <RiferimentoTesto>2661622634</RiferimentoTesto>
+                </AltriDatiGestionali>
+            </DettaglioLinee>
+            <DatiRiepilogo>
+                <AliquotaIVA>10.00</AliquotaIVA>
+                <ImponibileImporto>97.05</ImponibileImporto>
+                <Imposta>9.70</Imposta>
+            </DatiRiepilogo>
+        </DatiBeniSe>rvizi>
+    </FatturaElettronicaBody>
+</ns3:FatturaElettronica>      †Ä0ÇÁ0Çœ†åê…UõÊ8ˇI∞Ò8öÉÇ0	*ÜHÜ˜ 0Å≤10	UIT10UArezzo10U
+ArubaPEC S.p.A.10UaVATIT-018790205171)0'U Qualified Trust Service Provider110/U(ArubaPEC EU Qualified Certificates CA G10250415094815Z280109104715Z0Åá10	UIT10USORDI10U*STEFANO10UTINIT-SRDSFN72T22D612O10USTEFANO SORDI10U.WSREF-741140243589210Ç"0	*ÜHÜ˜ Ç 0Ç
+Ç ß?Ÿ\e%©ª2ºÍP`®¶*“á&.ê9`Eaã*≤]ÉjeÅRj†∑Ï‚{•}Ê´Ω÷F?S≠p—ø´_ 7¿j]H∏K¬‚jñl¸O“íX∂9ªÒ¨ªÇπëj√•Yb ¸ '‚s"D2vn;Õ˘≤õ©ø∫Ê&˙ŸêË˝‘zï ëøUòÌ™FºôÜâŒÏ’’ı¡∆2*µ∑ﬁØÓYa&Sâãïl—ñœ-;R=ÇÒoÕÁrò°•kúòYÆ˙]qåÜgˇ)ãàU≤s3Ø£]ay∞˙`†∑4§∑”[l¢âÚéÕEëldÙúz˙Øe|Ò∆‹Ø∫¯ı±]◊ £Ç 0Ç0U#0Ä∆o;Ö{—&±xöB§%iˆˇz†g0+s0q08+0Ü,http://cacert.pec.it/certs/arubapec-eidas-g105+0Ü)http://ocsp01.pec.it/va/arubapec-eidas-g10U0Åinfo@arubapec.it0Ç)U Ç 0Ç0	 ãÏ@0Ç+ÅË-0Åı0A+5https://www.pec.it/repository/arubapec-qualif-cps.pdf0ÅØ+0Å¢ÅüIl presente certificato √® valido solo per firme apposte con procedura automatica. The certificate may only be used for unattended/automatic digital signature.0+L0Åø+Å≤0ÅØ0 éF0 éF0 éF0Åã éF0ÅÄ0>8https://www.pec.it/repository/arubapec-qualif-pds-it.pdfit0>8https://www.pec.it/repository/arubapec-qualif-pds-en.pdfen0=U60402†0†.Ü,http://crl01.pec.it/va/arubapec-eidas-g1/crl0U∂wè¡F+˚ï™cˇG…æb0sB0Uˇ@0	*ÜHÜ˜ Ç W(N1ˇ“™ámµ	0ú{Å™¥öçä·µ
+¶Ωu˛ë°ÏÄòaÂ0T][˘m–ì8"÷ÚÉ8î√ÛsÇ4¬o@…X‘3/ŒBññ—M∑I\›ˇ≥‚êõ&S˙◊82√Í¨Ü◊1É¸Âîrí…uªî,›)ë˜´´§≈Ô}Øälh˝	Nô·Kß≠]0ªñ‡/]{}jÜ6 v—À*†ê•'+/lwƒ”g	◊%ìã‹û+Ê¥˛Ù„Ùp@SGR<rwQ¨ÕÄ«@¿8X™KZìÍ∞£ &:ÆßøœâM`G¿2Ê»tÖó{~Ñ∏≈€;ÅhQä6‘ï«ªU“(˝∑‹[d$zhK÷CÀì∫EXâÕŸ+á(ƒÈ≈a>f;M˙y*Ç™eÌI&Û‘ç°ó≤¸◊ˇ4GÿIrUï6^%ÉÁÉÌ'pG%ÍƒÁã$¿>pv™ùA# àWëaéAL–EàÖîË˜òÒvã;ïb=ì, é‚Xäæ∑éj Å.˘dôä(iAû¡ÄÌëPêôö’ ÇŸLw˜NæÙŸ·K|êà‹aÄE¯⁄YnWx6î´Wc√EP∂öqEÓxB?Âß96òƒ íı]!œ‚≤öﬁ©zÈÊÈiï5€!g£Ó6Æà§};‚÷ScIq`÷V∫@8`Q@∑Å÷¬÷Ó  1Çm0Çi0Å«0Å≤10	UIT10UArezzo10U
+ArubaPEC S.p.A.10UaVATIT-018790205171)0'U Qualified Trust Service Provider110/U(ArubaPEC EU Qualified Certificates CA G1åê…UõÊ8ˇI∞Ò8öÉÇ0	`ÜHe†Çx0	*ÜHÜ˜	1	*ÜHÜ˜0	*ÜHÜ˜	1251023173645Z0/	*ÜHÜ˜	1" ~ó@zÔ€G1{¿	∞èà≠yeè`ºjÍ®0Ç*ÜHÜ˜	/1Å˚0Å¯0Åı0ÅÚ e8Xh±‹úRÅ˘x8"wÚæ‡⁄øûÙÆó>wy|0ÅÕ0Å∏§Åµ0Å≤10	UIT10UArezzo10U
+ArubaPEC S.p.A.10UaVATIT-018790205171)0'U Qualified Trust Service Provider110/U(ArubaPEC EU Qualified Certificates CA G1åê…UõÊ8ˇI∞Ò8öÉÇ0	*ÜHÜ˜ Ç 4yB)FOŸΩuÆ h†kÙVe0ƒ≤4‡¸jìúŒ^˜Ö§∂≈∂BÌ_‰¿?Œ>öÇT »C©?ÛÚ”)ú•F¶‰`G5j¬É˙Ò7≈>Ï‚ºGıf¬]q˙è´⁄’ÓY§ï';∫lW˘ÛGr⁄‚ ¶Ìn"!( c®åû•æiv;ÃŸ|ß©«ÒÃ2·‚6»†œ.Ò˜ÂÃl:ı∫%-≠≥ào•Í	§MKnFÔ6yKπ‚≠Îõ‚"#H(Ø–≠bx⁄1Ç˝' HÎì6!ì/}ô´Ñ@gÆ¬ê/≈OtîÅ#}hîˆ§5{KZ5Í3ˇ,"vüËÃq|<ààœƒ%i      

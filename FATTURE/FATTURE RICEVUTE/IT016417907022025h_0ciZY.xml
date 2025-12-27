@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?><ns3:FatturaElettronica xmlns:ns3="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" versione="FPR12">
+    <FatturaElettronicaHeader>
+        <DatiTrasmissione>
+            <IdTrasmittente>
+                <IdPaese>IT</IdPaese>
+                <IdCodice>01641790702</IdCodice>
+            </IdTrasmittente>
+            <ProgressivoInvio>00004v0l15</ProgressivoInvio>
+            <FormatoTrasmissione>FPR12</FormatoTrasmissione>
+            <CodiceDestinatario>0000000</CodiceDestinatario>
+            <ContattiTrasmittente>
+                <Telefono>0874-60561</Telefono>
+            </ContattiTrasmittente>
+        </DatiTrasmissione>
+        <CedentePrestatore>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>02824850693</IdCodice>
+                </IdFiscaleIVA>
+                <CodiceFiscale>02824850693</CodiceFiscale>
+                <Anagrafica>
+                    <Denominazione>FRENTANIA BUS SRLS</Denominazione>
+                </Anagrafica>
+                <RegimeFiscale>RF01</RegimeFiscale>
+            </DatiAnagrafici>
+            <Sede>
+                <Indirizzo>VIA LENTESCO 6</Indirizzo>
+                <CAP>66032</CAP>
+                <Comune>CASTEL FRENTANO</Comune>
+                <Provincia>CH</Provincia>
+                <Nazione>IT</Nazione>
+            </Sede>
+        </CedentePrestatore>
+        <CessionarioCommittente>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>02244120685</IdCodice>
+                </IdFiscaleIVA>
+                <CodiceFiscale>MNRFNC96C20H926Q</CodiceFiscale>
+                <Anagrafica>
+                    <Denominazione>MINERVA FRANCESCO PIO</Denominazione>
+                </Anagrafica>
+            </DatiAnagrafici>
+            <Sede>
+                <Indirizzo>VIA FRANCESCO FERDINANDO D'AVALOS 107</Indirizzo>
+                <CAP>65126</CAP>
+                <Comune>PESCARA</Comune>
+                <Provincia>PE</Provincia>
+                <Nazione>IT</Nazione>
+            </Sede>
+        </CessionarioCommittente>
+        <TerzoIntermediarioOSoggettoEmittente>
+            <DatiAnagrafici>
+                <IdFiscaleIVA>
+                    <IdPaese>IT</IdPaese>
+                    <IdCodice>01641790702</IdCodice>
+                </IdFiscaleIVA>
+                <CodiceFiscale>01641790702</CodiceFiscale>
+                <Anagrafica>
+                    <Denominazione>TEAMSYSTEM SERVICE SRL</Denominazione>
+                </Anagrafica>
+            </DatiAnagrafici>
+        </TerzoIntermediarioOSoggettoEmittente>
+        <SoggettoEmittente>TZ</SoggettoEmittente>
+    </FatturaElettronicaHeader>
+    <FatturaElettronicaBody>
+        <DatiGenerali>
+            <DatiGeneraliDocumento>
+                <TipoDocumento>TD01</TipoDocumento>
+                <Divisa>EUR</Divisa>
+                <Data>2025-11-30</Data>
+                <Numero>72</Numero>
+                <DatiBollo>
+                    <BolloVirtuale>SI</BolloVirtuale>
+                    <ImportoBollo>2.00</ImportoBollo>
+                </DatiBollo>
+                <ImportoTotaleDocumento>4200.00</ImportoTotaleDocumento>
+                <Causale>VI RIMETTIAMO FATTURA PER NOLEGGIO BUS PER TRASPORTO PASSEGGERI SU STRADA DAL 28.11.2025 AL 30.11.2025 PER TOTALI KM 2.327 (LANCIANO-COLMAR-STAUFEN-STRASBURGO-STAUFEN-FRIBURGO-LANCIANO)</Causale>
+            </DatiGeneraliDocumento>
+        </DatiGenerali>
+        <DatiBeniServizi>
+            <DettaglioLinee>
+                <NumeroLinea>1</NumeroLinea>
+                <Descrizione>TRATTA ITALIANA KM 1.346</Descrizione>
+                <Quantita>1.00</Quantita>
+                <PrezzoUnitario>2429.39</PrezzoUnitario>
+                <PrezzoTotale>2429.39</PrezzoTotale>
+                <AliquotaIVA>0.00</AliquotaIVA>
+                <Natura>N3.4</Natura>
+            </DettaglioLinee>
+            <DettaglioLinee>
+                <NumeroLinea>2</NumeroLinea>
+                <Descrizione>TRATTA ESTERA KM 981</Descrizione>
+                <Quantita>1.00</Quantita>
+                <PrezzoUnitario>1770.61</PrezzoUnitario>
+                <PrezzoTotale>1770.61</PrezzoTotale>
+                <AliquotaIVA>0.00</AliquotaIVA>
+                <Natura>N2.1</Natura>
+            </DettaglioLinee>
+            <DatiRiepilogo>
+                <AliquotaIVA>0.00</AliquotaIVA>
+                <Natura>N3.4</Natura>
+                <ImponibileImporto>2429.39</ImponibileImporto>
+                <Imposta>0.00</Imposta>
+                <EsigibilitaIVA>I</EsigibilitaIVA>
+            </DatiRiepilogo>
+            <DatiRiepilogo>
+                <AliquotaIVA>0.00</AliquotaIVA>
+                <Natura>N2.1</Natura>
+                <ImponibileImporto>1770.61</ImponibileImporto>
+                <Imposta>0.00</Imposta>
+                <EsigibilitaIVA>I</EsigibilitaIVA>
+                <RiferimentoNormativo>Non sogg. art. 7-quater D.P.R. 633/72</RiferimentoNormativo>
+            </DatiRiepilogo>
+        </DatiBeniServizi>
+        <DatiPagamento>
+            <CondizioniPagamento>TP02</CondizioniPagamento>
+            <DettaglioPagamento>
+                <ModalitaPagamento>MP05</ModalitaPagamento>
+                <DataScadenzaPagamento>2025-11-30</DataScadenzaPagamento>
+                <ImportoPagamento>4200.00</ImportoPagamento>
+            </DettaglioPagamento>
+        </DatiPagamento>
+    </FatturaElettronicaBody>
+<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="id-ee3ea18062616fe3f8fbdf64c7dc34cc"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><ds:Reference URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2002/06/xmldsig-filter2"><dsig-xpath:XPath xmlns:dsig-xpath="http://www.w3.org/2002/06/xmldsig-filter2" Filter="subtract">/descendant::ds:Signature</dsig-xpath:XPath></ds:Transform><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>qJWpjPfE/0yYKpsrLKPPqKBbqutfSZVSEiMqA9Ecrkk=</ds:DigestValue></ds:Reference><ds:Reference URI="#keyinfo-id-ee3ea18062616fe3f8fbdf64c7dc34cc"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>hA9poFttEptomDY6fhUaDSN6RY20npOY9pNsb6Za1jQ=</ds:DigestValue></ds:Reference><ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#xades-id-ee3ea18062616fe3f8fbdf64c7dc34cc"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>uIgK8bMI/wwJb82Pz3xzazZyaiLSAIH0/eqS7iE8QS0=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue Id="value-id-ee3ea18062616fe3f8fbdf64c7dc34cc">yK8myVYrPcbmOlHTN2Q6s0cvTnj/jhWO6RDoZgGHXqBUIEc1316Gk4gUQasrspJ2upAV1MmZMAzGEEul8oA7l6auCNxI/tEQShOalE7tzCtCiVpiBu+Bna8I+Rr8g7/d7yEcm1koqDJcahsiiIA9nWGb6Ioc7n0GsZ/FiAurUZ+nsCRyxnq8KVjS301zUc9HtmeO1kGgXSSQHACUFmwd9GJvQoZ3tiXOpFiWBYIGUcfGV9omwiGtmezw3xvr9pVX3i06ajyI3JUdZEMQfoNE6QTLTQYkVNx+YjsiYUTC2WSSeCwuGr7iR7iQ8LFwHnSnfvcqrvSIRW+EqUHmP0aztg==</ds:SignatureValue><ds:KeyInfo Id="keyinfo-id-ee3ea18062616fe3f8fbdf64c7dc34cc"><ds:X509Data><ds:X509Certificate>MIIIkDCCB3igAwIBAgIICxdy4KvP5IgwDQYJKoZIhvcNAQELBQAwfTELMAkGA1UEBhMCSVQxJDAiBgNVBAoMG05hbWlyaWFsIFMucC5BLi8wMjA0NjU3MDQyNjEgMB4GA1UECwwXQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkxJjAkBgNVBAMMHU5hbWlyaWFsIENBIEZpcm1hIFF1YWxpZmljYXRhMB4XDTI1MDUyOTA5NDMwMFoXDTI4MDUyNzIyMDAwMFowgY8xCzAJBgNVBAYTAklUMRIwEAYDVQQEDAlESSBSSUVOWk8xEDAOBgNVBCoMB01JQ0hFTEUxHzAdBgNVBAUTFlRJTklULURSTk1ITDY2RTMwWjQwMVcxGjAYBgNVBAMMEURJIFJJRU5aTyBNSUNIRUxFMR0wGwYDVQQuExRBVURNMjAyNTA1MjkxNjg2NjQyNTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANwm8MFhChQOkuoFqT7piK85179+djWpH8/L60ul7IrgEfHA2DZA0Ikhf66BSvRizm+b/qd9WzMrPaM+j8ipBC0F4FnaE0MLWIbPphyjp5ih+DtEMZtfjnMQtToB69TIVasWtGBdKr9L8PEwS/3cGvVNJEHwIsyQOdNzI+SLPXVF/F1owX03dfaaQdr8REsIRAt+ScTopZOGjba5GBPsMJ9zsfcRVvJsVh7hT+jMI6fT6SMTul4Uk6J6jlYX4pQo/Un8T0m5WpmI2/OZ5aSljlZbXCK3Wd/9kYmwHXatVIIeBqgb+nD3HaQip3kme2JELakbxXlIyTDCbU4viSM0HfcCAwEAAaOCBP8wggT7MIGcBggrBgEFBQcBAQSBjzCBjDBRBggrBgEFBQcwAoZFaHR0cHM6Ly9kb2NzLm5hbWlyaWFsdHNwLmNvbS9kb2N1bWVudHMvTmFtaXJpYWxDQUZpcm1hUXVhbGlmaWNhdGEuY3J0MDcGCCsGAQUFBzABhitodHRwOi8vb2NzcC5uYW1pcmlhbHRzcC5jb20vb2NzcC9jZXJ0c3RhdHVzMB0GA1UdDgQWBBRIVk2H1V+IX2yZRHpI1UgWjYt8lTAfBgNVHSMEGDAWgBRj/e3mjGJHSM/qCUFzdhHiZGJ7EDCBzQYIKwYBBQUHAQMEgcAwgb0wCAYGBACORgEBMAsGBgQAjkYBAwIBFDAIBgYEAI5GAQQwEwYGBACORgEGMAkGBwQAjkYBBgEwgYQGBgQAjkYBBTB6MDsWNWh0dHBzOi8vZG9jcy5uYW1pcmlhbHRzcC5jb20vZG9jdW1lbnRzL1BEUy9QRFNfZW4ucGRmEwJlbjA7FjVodHRwczovL2RvY3MubmFtaXJpYWx0c3AuY29tL2RvY3VtZW50cy9QRFMvUERTX2l0LnBkZhMCaXQwggLwBgNVHSAEggLnMIIC4zCCATQGBCtMEAUwggEqMIIBJgYIKwYBBQUHAgIwggEYHoIBFABDAGUAcgB0AGkAZgBpAGMAYQB0AGUAIABpAHMAcwB1AGUAZAAgAHQAaAByAG8AdQBnAGgAIABTAGkAcwB0AGUAbQBhACAAUAB1AGIAYgBsAGkAYwBvACAAZABpACAASQBkAGUAbgB0AGkAdADgACAARABpAGcAaQB0AGEAbABlACAAKABTAFAASQBEACkAIABkAGkAZwBpAHQAYQBsACAAaQBkAGUAbgB0AGkAdAB5ACwAbgBvAHQAIAB1AHMAYQBiAGwAZQAgAHQAbwAgAHIAZQBxAHUAaQByAGUAIABvAHQAaABlAHIAIABTAFAASQBEACAAZABpAGcAaQB0AGEAbAAgAGkAZABlAG4AdABpAHQAeTAJBgcEAIvsQAECMAgGBgQAj3oBAjCCAZIGCysGAQQBgpprAQEDMIIBgTApBggrBgEFBQcCARYdaHR0cHM6Ly9kb2NzLm5hbWlyaWFsdHNwLmNvbS8wggFSBggrBgEFBQcCAjCCAUQeggFAAEkAbAAgAHAAcgBlAHMAZQBuAHQAZQAgAGMAZQByAHQAaQBmAGkAYwBhAHQAbwAgAOgAIAB2AGEAbABpAGQAbwAgAHMAbwBsAG8AIABwAGUAcgAgAGYAaQByAG0AZQAgAGEAcABwAG8AcwB0AGUAIABjAG8AbgAgAHAAcgBvAGMAZQBkAHUAcgBhACAAYQB1AHQAbwBtAGEAdABpAGMAYQAuAC8AVABoAGkAcwAgAGMAZQByAHQAaQBmAGkAYwBhAHQAZQAgAG0AYQB5ACAAbwBuAGwAeQAgAGIAZQAgAHUAcwBlAGQAIABmAG8AcgAgAHUAbgBhAHQAdABlAG4AZABlAGQALwBhAHUAdABvAG0AYQB0AGUAZAAgAGQAaQBnAGkAdABhAGwAIABzAGkAZwBuAGEAdAB1AHIAZQBzAC4wRgYDVR0fBD8wPTA7oDmgN4Y1aHR0cDovL2NybC5uYW1pcmlhbHRzcC5jb20vRmlybWFDZXJ0YVF1YWxpZmljYXRhMS5jcmwwDgYDVR0PAQH/BAQDAgZAMA0GCSqGSIb3DQEBCwUAA4IBAQC4+4LGF54dL5n0PAvtoou2OeY0XWd9S6GrLTMpf8SOkkObHbZZKm6h4nvR/ml1gyGsw8Q5E+uECqZGrWD5bXxuK0Y2mOeFonAMASnzu0huxJkqrFw2DxzcMuo4MB2v4IlvuMwDbVYbDNAnE2GB1DvKty96prJws2KzTjY2zanQp5s4EFHNqROy8ZNJNNOeCIwHr/XaPdgxVrHvkN7EJeSBlsGT1VwbK3QOp0Rme5v3eKbbtUl7NpJ05JPUCeNzC9hHSRAQoWtxk2dBPFg0dO/Q5tXMWR6CJZcbjaiHyBwgzygLGm/xaNaw2g2cx5w9mBopA+O5zAbi6JjfPoDrCQae</ds:X509Certificate></ds:X509Data></ds:KeyInfo><ds:Object><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Target="#id-ee3ea18062616fe3f8fbdf64c7dc34cc"><xades:SignedProperties Id="xades-id-ee3ea18062616fe3f8fbdf64c7dc34cc"><xades:SignedSignatureProperties><xades:SigningTime>2025-12-02T15:41:03Z</xades:SigningTime><xades:SigningCertificateV2><xades:Cert><xades:CertDigest><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>fNYNZlCVU2qtRzfHqukckRq0Exoi6dLAvTj6dSNR0ZE=</ds:DigestValue></xades:CertDigest><xades:IssuerSerialV2>MIGOMIGBpH8wfTELMAkGA1UEBhMCSVQxJDAiBgNVBAoMG05hbWlyaWFsIFMucC5BLi8wMjA0NjU3MDQyNjEgMB4GA1UECwwXQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkxJjAkBgNVBAMMHU5hbWlyaWFsIENBIEZpcm1hIFF1YWxpZmljYXRhAggLF3Lgq8/kiA==</xades:IssuerSerialV2></xades:Cert></xades:SigningCertificateV2></xades:SignedSignatureProperties><xades:SignedDataObjectProperties><xades:DataObjectFormat ObjectReference="#null"><xades:MimeType>application/octet-stream</xades:MimeType></xades:DataObjectFormat></xades:SignedDataObjectProperties></xades:SignedProperties></xades:QualifyingProperties></ds:Object></ds:Signature></ns3:FatturaElettronica>
