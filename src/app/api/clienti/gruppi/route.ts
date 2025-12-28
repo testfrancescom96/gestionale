@@ -19,12 +19,8 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const search = searchParams.get("search")?.toLowerCase();
 
-        // Fetch all participants linked to relevant practices
-        // Filter by tipologia containing generic group terms if needed, 
-        // or just fetch all and let UI filter? No, fetch relevant ones.
         const relevantTypes = ["CROCIERA", "BUS", "TOUR", "PELLEGRINAGGIO", "GRUPPO", "EVENTO", "VIAGGIO DI GRUPPO"];
 
-        // We fetch participants and map them manually
         const participants = await prisma.partecipante.findMany({
             where: {
                 pratica: {
@@ -40,7 +36,13 @@ export async function GET(request: NextRequest) {
                         numero: true,
                         destinazione: true,
                         dataPartenza: true,
-                        tipologia: true
+                        tipologia: true,
+                        cliente: {
+                            select: {
+                                email: true,
+                                telefono: true
+                            }
+                        }
                     }
                 }
             },
@@ -49,47 +51,40 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        // Client-side aggregation (or manual here) to merge "Same Person"
-        // Key: Name + Surname + (BirthDate or Email)
         const aggregated: Record<string, AggregatedCustomer> = {};
 
         for (const p of participants) {
-            // Create unique key
-            // Using Name+Surname+DOB is safer than just name+surname
             const dob = p.dataNascita ? new Date(p.dataNascita).toISOString().split('T')[0] : 'no_dob';
             const key = `${p.nome.trim().toLowerCase()}_${p.cognome.trim().toLowerCase()}_${dob}`;
 
             if (!aggregated[key]) {
                 aggregated[key] = {
-                    id: p.id, // Use latest ID
+                    id: p.id,
                     nome: p.nome,
                     cognome: p.cognome,
-                    email: p.email || null, // Will try to find from Pratica linked Customer if missing? Currently Schema has email on Participant
-                    telefono: p.telefono || null,
+                    // Fallback to Main Customer Contact as participants don't store contact info directly
+                    email: p.pratica.cliente?.email || null,
+                    telefono: p.pratica.cliente?.telefono || null,
                     viaggi: [],
                     totalTrips: 0
                 };
             }
 
-            // Add Trip
             const trip = {
                 id: p.pratica.id,
                 destinazione: p.pratica.destinazione,
-                dataPartenza: p.pratica.dataPartenza,
+                dataPartenza: p.pratica.dataPartenza || new Date(), // Fallback if date missing
                 tipo: p.pratica.tipologia
             };
 
-            // Prevent dupes if same person in same trip multiple times?
             if (!aggregated[key].viaggi.find(v => v.id === trip.id)) {
                 aggregated[key].viaggi.push(trip);
                 aggregated[key].totalTrips++;
             }
         }
 
-        // Convert to array
         let result = Object.values(aggregated);
 
-        // Filter by search
         if (search) {
             result = result.filter(c =>
                 c.nome.toLowerCase().includes(search) ||
@@ -97,7 +92,6 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // Sort by Total Trips desc
         result.sort((a, b) => b.totalTrips - a.totalTrips);
 
         return NextResponse.json(result);

@@ -182,6 +182,7 @@ export async function POST(request: NextRequest) {
                         where: {
                             number: data.number,
                             date: data.date,
+                            // @ts-ignore: New field type
                             type: type
                         }
                     });
